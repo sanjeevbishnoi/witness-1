@@ -10,7 +10,7 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("profile".toUpperCase()),
+        title: const Text("PROFILE"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(MySizes.widgetSidePadding),
@@ -35,7 +35,6 @@ class ProfilePage extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
-
                   children: [
                     Text(
                       "Mohammed T. Elessi",
@@ -45,18 +44,31 @@ class ProfilePage extends StatelessWidget {
                           ),
                     ),
                     const SizedBox(height: MySizes.verticalPadding),
-                     Text("+972 59 2879633",style: Theme.of(context).textTheme.bodySmall,),
+                    Text(
+                      "+972 59 2879633",
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 )
               ],
             ),
-            const SizedBox(height: MySizes.verticalPadding*2),
+            const SizedBox(height: MySizes.verticalPadding * 2),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(child: PrimaryButtonWidget(function: () {}, text: "edit profile")),
+                Expanded(
+                  child: PrimaryButtonWidget(
+                    function: () {},
+                    text: "edit profile",
+                  ),
+                ),
                 const SizedBox(width: MySizes.horizontalPadding),
-                Expanded(child: SecondaryButtonWidget(function: () {}, text: "settings")),
+                Expanded(
+                  child: SecondaryButtonWidget(
+                    function: () {},
+                    text: "settings",
+                  ),
+                ),
               ],
             ),
           ],

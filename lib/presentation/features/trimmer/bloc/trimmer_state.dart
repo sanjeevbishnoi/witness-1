@@ -10,3 +10,13 @@ class InitTrimmerState extends TrimmerState {
 
   InitTrimmerState({required this.trimmer});
 }
+
+class ExportVideoLoadingState extends TrimmerState{}
+
+class ExportVideoSuccessState extends TrimmerState{}
+
+class ExportVideoErrorState extends TrimmerState{
+  final String error;
+
+  ExportVideoErrorState({required this.error});
+}

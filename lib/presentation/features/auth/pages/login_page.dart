@@ -7,19 +7,19 @@ import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/secondary_button_widget.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  LoginPage({Key? key}) : super(key: key);
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController phoneController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
     return WrapperWidget(
       title: "Login",
       body: Column(
         children: [
           FormWidget(
             route: Routes.loginPage,
-            phoneController: phoneController,
+            emailController: emailController,
             passwordController: passwordController,
             context: context,
           ),
@@ -27,17 +27,19 @@ class LoginPage extends StatelessWidget {
           PrimaryButtonWidget(
             function: () => Navigator.pushNamedAndRemoveUntil(
               context,
-              Routes.cameraPage,
-                  (route) => false,
-            ),            text: "login",
+              Routes.homePage,
+              (route) => false,
+            ),
+            text: "login",
           ),
           const SizedBox(height: MySizes.verticalPadding),
           SecondaryButtonWidget(
             function: () => Navigator.pushNamedAndRemoveUntil(
               context,
               Routes.registerPage,
-                  (route) => false,
-            ),            text: "register",
+              (route) => false,
+            ),
+            text: "register",
           ),
         ],
       ),

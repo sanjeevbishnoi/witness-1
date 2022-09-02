@@ -8,17 +8,23 @@ abstract class CameraEvent {
 
 class InitCameraEvent extends CameraEvent {}
 
-class StartRecordingEvent extends CameraEvent {}
+class StartRecordingEvent extends CameraEvent {
+  final bool fromUser;
+
+  StartRecordingEvent({required this.fromUser});
+}
 
 class StopRecordingEvent extends CameraEvent {
-  final VideoModel videoModel;
+  final VideoModel video;
+  final bool fromUser;
 
-  const StopRecordingEvent({required this.videoModel});
+  const StopRecordingEvent({required this.video, required this.fromUser});
 }
 
 class PausedRecordingEvent extends CameraEvent {}
 
 class ResumeRecordingEvent extends CameraEvent {}
+
 //to test
 class CheckingEvent extends CameraEvent {}
 

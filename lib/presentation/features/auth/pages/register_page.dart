@@ -7,15 +7,15 @@ import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/secondary_button_widget.dart';
 
 class RegisterPage extends StatelessWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  RegisterPage({Key? key}) : super(key: key);
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController confirmPwdController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController usernameController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
-    TextEditingController phoneController = TextEditingController();
-    TextEditingController dobController = TextEditingController();
-    TextEditingController confirmPasswordController = TextEditingController();
     return WrapperWidget(
       title: "Register",
       body: Column(
@@ -26,7 +26,7 @@ class RegisterPage extends StatelessWidget {
             phoneController: phoneController,
             usernameController: usernameController,
             dobController: dobController,
-            confirmPasswordController: confirmPasswordController,
+            confirmPasswordController: confirmPwdController,
             context: context,
           ),
           const SizedBox(height: MySizes.verticalPadding),

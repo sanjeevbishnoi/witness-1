@@ -20,116 +20,105 @@ class VideosPage extends StatelessWidget {
   Widget build(BuildContext context) {
     TextEditingController controller = TextEditingController();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("RECORDED VIDEOS"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(MySizes.widgetSidePadding),
-        child: ValueListenableBuilder(
-          valueListenable: Boxes.videoBox.listenable(),
-          builder: (context, Box<VideoModel> items, _) {
-            List<int> keys = items.keys.cast<int>().toList();
-            return ListView.separated(
-              separatorBuilder: (context, index) => const SizedBox(
-                height: MySizes.verticalPadding,
-              ),
-              itemCount: keys.length,
-              scrollDirection: Axis.vertical,
-              physics: const BouncingScrollPhysics(),
-              itemBuilder: (_, index) {
-                final int key = keys[index];
-
-                final VideoModel data = items.get(key)!;
-
-                return Slidable(
-                  endActionPane: ActionPane(
-                    motion: const ScrollMotion(),
-                    children: [
-                      SlidableActionWidget(
-                        color: MyColors.primaryColor,
-                        context: context,
-                        function: () async {
-                          await File(data.path!).delete();
-                          items.deleteAt(index);
-                        },
-                        icon: Icons.delete,
-                      ),
-                      SlidableActionWidget(
-                        color: Colors.blueAccent,
-                        context: context,
-                        function: () async {
-                          myAlertDialog(
-                              controller: controller,
-                              context: context,
-                              function: () async {
-                                if (controller.text.isNotEmpty) {
-                                  await items
-                                      .putAt(
-                                        index,
-                                        data..title = controller.text,
-                                      )
-                                      .then((value) => Navigator.pop(context));
-                                }
-                              },
-                          );
-                        },
-                        icon: Icons.edit,
-                      ),
-                    ],
-                  ),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.all(MySizes.widgetSidePadding / 2),
-                    decoration: myBoxDecoration,
-                    child: ListTile(
-                      leading: const Image(
-                        image:
-                            AssetImage("assets/images/defaultVideoImage.png"),
-                      ),
-                      title: Text(
-                        data.title ?? "Nice shot",
-                        style: const TextStyle(color: Colors.black),
-                      ),
-                      subtitle: Row(
+    return Padding(
+      padding: const EdgeInsets.all(MySizes.widgetSidePadding),
+      child: ValueListenableBuilder(
+        valueListenable: Boxes.videoBox.listenable(),
+        builder: (context, Box<VideoModel> items, _) {
+          List<int> keys = items.keys.cast<int>().toList();
+          return ListView.separated(
+            separatorBuilder: (context, index) => const SizedBox(
+              height: MySizes.verticalPadding,
+            ),
+            itemCount: keys.length,
+            scrollDirection: Axis.vertical,
+            physics: const BouncingScrollPhysics(),
+            itemBuilder: (_, index) {
+              final int key = keys[index];
+              final VideoModel data = items.get(key)!;
+              return File(data.path!).existsSync() == true
+                  ? Slidable(
+                      endActionPane: ActionPane(
+                        motion: const ScrollMotion(),
                         children: [
-                          Text(
-                            "${data.flags.length} FLAGS",
-                            style: Theme.of(context).textTheme.bodySmall,
+                          SlidableActionWidget(
+                            color: MyColors.primaryColor,
+                            context: context,
+                            function: () async {
+                              await File(data.path!).delete();
+                              items.deleteAt(index);
+                            },
+                            icon: Icons.delete,
                           ),
-                          const Spacer(),
-                          Text(
-                            DateFormat().add_yMEd().format(data.dateTime!),
-                            style: Theme.of(context).textTheme.bodySmall,
+                          SlidableActionWidget(
+                            color: Colors.blueAccent,
+                            context: context,
+                            function: () async {
+                              myAlertDialog(
+                                controller: controller,
+                                context: context,
+                                function: () async {
+                                  if (controller.text.isNotEmpty) {
+                                    await items
+                                        .putAt(
+                                          index,
+                                          data..title = controller.text,
+                                        )
+                                        .then(
+                                          (value) => Navigator.pop(context),
+                                        );
+                                  }
+                                },
+                              );
+                            },
+                            icon: Icons.edit,
                           ),
                         ],
                       ),
-                      onTap: () {
-                        // Navigator.pushNamed(
-                        //   context,
-                        //   Routes.flagsByVideoPage,
-                        //   arguments:FlagsByVideoPage(
-                        //     flags: data.flags,
-                        //     path: data.path!,
-                        //   ),
-                        // );
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FlagsByVideoPage(
-                              flags: data.flags,
-                              path: data.path!,
-                            ),
+                      child: Container(
+                        padding: const EdgeInsets.all(
+                          MySizes.widgetSidePadding / 2,
+                        ),
+                        decoration: myBoxDecoration,
+                        child: ListTile(
+                          leading: const Image(
+                            image: AssetImage("assets/images/flag.png"),
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
+                          title: Text(
+                            data.title ?? "No title",
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                          subtitle: Row(
+                            children: [
+                              Text(
+                                "${data.flags!.length} FLAGS",
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              const Spacer(),
+                              Text(
+                                DateFormat().add_yMEd().format(data.dateTime!),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FlagsByVideoPage(
+                                  flags: data.flags ?? [],
+                                  path: data.path ?? "",
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    )
+                  : const SizedBox();
+            },
+          );
+        },
       ),
     );
   }

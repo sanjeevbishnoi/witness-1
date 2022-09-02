@@ -1,5 +1,5 @@
 class Routes {
-  static const String homePage = "/";
+  static const String homePage = "home";
   static const String loginPage = "login";
   static const String registerPage = "register";
   static const String verifyEmailPage = "verify_email";

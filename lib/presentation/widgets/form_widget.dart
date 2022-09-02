@@ -63,7 +63,7 @@ class FormWidget extends StatelessWidget {
   List<Widget> _forms() {
     if (route == Routes.loginPage) {
       return [
-        textFields(Inputs.phone),
+        textFields(Inputs.email),
         const SizedBox(height: MySizes.verticalPadding),
         textFields(Inputs.password),
       ];
@@ -127,6 +127,7 @@ class FormWidget extends StatelessWidget {
         return IntlPhoneField(
           initialCountryCode: 'IN',
           controller: phoneController,
+          disableLengthCheck: true,
           pickerDialogStyle: PickerDialogStyle(
             countryNameStyle: Theme.of(context!).textTheme.bodySmall,
             countryCodeStyle: Theme.of(context!).textTheme.bodySmall,

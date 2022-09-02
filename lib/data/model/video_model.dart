@@ -15,7 +15,7 @@ class VideoModel {
   @HiveField(4)
   String? timeVideo;
   @HiveField(5)
-  List<dynamic> flags =[];
+  List<dynamic>? flags = [];
 
   VideoModel({
     this.id,
@@ -23,6 +23,6 @@ class VideoModel {
     this.title,
     this.dateTime,
     this.timeVideo,
-    required this.flags,
+    this.flags,
   });
 }

@@ -1,5 +1,3 @@
-import 'package:camera/camera.dart';
-
 abstract class CameraState {
   const CameraState();
 }
@@ -17,9 +15,9 @@ class ChangeCurrentZoomState extends CameraState {}
 class StartRecordingState extends CameraState {}
 
 class StopRecordingState extends CameraState {
-  final XFile? file;
+  final bool fromUser;
 
-  StopRecordingState({this.file});
+  StopRecordingState({required this.fromUser});
 }
 
 class PauseRecordingState extends CameraState {}
@@ -27,6 +25,7 @@ class PauseRecordingState extends CameraState {}
 class ResumeRecordingState extends CameraState {}
 
 class FlashOpenedState extends CameraState {}
+
 class FlashErrorState extends CameraState {
   final String error;
 
@@ -42,5 +41,13 @@ class AddVideoErrorState extends CameraState {
 
   AddVideoErrorState({required this.error});
 }
+
 class StartTimerState extends CameraState {}
-class CheckingState extends CameraState {}
+
+// List<CameraState> copyWith() {
+//   return [
+//     ChangeCurrentZoomState(),
+//     StartRecordingState(),
+//     StopRecordingState(),
+//   ];
+// }

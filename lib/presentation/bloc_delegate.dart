@@ -7,7 +7,7 @@ class ApplicationBlocObserver extends BlocObserver {
   void onEvent(Bloc bloc, Object? event) {
     super.onEvent(bloc, event);
     if (kDebugMode) {
-      print("$tag event: $bloc\nevent: $event");
+      print("my events: event: $bloc\nevent: $event");
     }
   }
 

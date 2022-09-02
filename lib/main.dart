@@ -25,6 +25,7 @@ void main() async {
   Hive.registerAdapter(VideoModelAdapter());
   Hive.registerAdapter(FlagModelAdapter());
   await Hive.openBox<VideoModel>('video_db');
+  //await Hive.openBox<VideoModel>('exported_video_db');
   BlocOverrides.runZoned(
     () {
       runApp(const MyApp());
@@ -46,7 +47,8 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<CameraBloc>(
           create: (_) => CameraBloc()..add(InitCameraEvent()),
-        ),   BlocProvider<TrimmerBloc>(
+        ),
+        BlocProvider<TrimmerBloc>(
           create: (_) => TrimmerBloc(),
         ),
       ],
@@ -55,7 +57,7 @@ class MyApp extends StatelessWidget {
         title: 'Camera demo',
         theme: Themes.theme,
         onGenerateRoute: Routers.generateRoute,
-        home: const RegisterPage(),
+        home:  RegisterPage(),
       ),
     );
   }
