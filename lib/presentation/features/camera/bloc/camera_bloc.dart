@@ -246,7 +246,8 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         final seconds = duration.inSeconds + reduceSecondsBy;
         if (seconds < 0) {
           countdownTimer!.cancel();
-        } else {
+        }
+        else {
           duration = Duration(seconds: seconds);
           Duration currentDuration = duration;
           VideoModel video = VideoModel(
