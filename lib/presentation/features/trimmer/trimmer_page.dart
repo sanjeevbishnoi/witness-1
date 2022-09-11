@@ -75,7 +75,7 @@ class TrimmerPage extends StatelessWidget {
                 );
               })
             : const Center(
-                child: Text("Unknown video "),
+                child: Text("Unknown video"),
               ),
       ),
     );

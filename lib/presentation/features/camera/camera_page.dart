@@ -20,7 +20,6 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     CameraBloc cameraBloc = context.read<CameraBloc>();
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -43,6 +42,7 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
                 return const LoadingWidget();
               }
             }),
+            if(cameraBloc.state is InitCameraState)
             Align(
               alignment: Alignment.topCenter,
               child: Row(
@@ -53,8 +53,7 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
                     onPressed: () {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
-                        Routes.homePage,
-                            (route) => false,
+                        Routes.homePage, (route) => false,
                       );
                     },
                     icon: const Icon(
@@ -70,6 +69,7 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
                 ],
               ),
             ),
+            if(cameraBloc.state is StartTimerState)
             Align(
               alignment: Alignment.topCenter,
               child: Container(

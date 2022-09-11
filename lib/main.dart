@@ -25,7 +25,7 @@ void main() async {
   Hive.registerAdapter(VideoModelAdapter());
   Hive.registerAdapter(FlagModelAdapter());
   await Hive.openBox<VideoModel>('video_db');
-  //await Hive.openBox<VideoModel>('exported_video_db');
+  await Hive.openBox<VideoModel>('exported_video_db');
   BlocOverrides.runZoned(
     () {
       runApp(const MyApp());
