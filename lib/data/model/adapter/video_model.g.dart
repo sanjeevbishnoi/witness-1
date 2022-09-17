@@ -1,48 +1,39 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'flag_model.dart';
+part of '../video_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class FlagModelAdapter extends TypeAdapter<FlagModel> {
+class VideoModelAdapter extends TypeAdapter<VideoModel> {
   @override
-  final int typeId = 1;
+  final int typeId = 0;
 
   @override
-  FlagModel read(BinaryReader reader) {
+  VideoModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return FlagModel(
+    return VideoModel(
       id: fields[0] as String?,
       videoDuration: fields[3] as Duration?,
       path: fields[2] as String?,
       title: fields[1] as String?,
-      flagPoint: fields[6] as Duration?,
-      isLike: fields[4] as bool?,
-      isExtracted: fields[5] as bool?,
-      startDuration: fields[7] as Duration?,
-      endDuration: fields[8] as Duration?,
+      dateTime: fields[4] as DateTime?,
+      flags: (fields[5] as List?)?.cast<FlagModel>(),
     );
   }
 
   @override
-  void write(BinaryWriter writer, FlagModel obj) {
+  void write(BinaryWriter writer, VideoModel obj) {
     writer
-      ..writeByte(9)
-      ..writeByte(4)
-      ..write(obj.isLike)
-      ..writeByte(5)
-      ..write(obj.isExtracted)
       ..writeByte(6)
-      ..write(obj.flagPoint)
-      ..writeByte(7)
-      ..write(obj.startDuration)
-      ..writeByte(8)
-      ..write(obj.endDuration)
+      ..writeByte(4)
+      ..write(obj.dateTime)
+      ..writeByte(5)
+      ..write(obj.flags)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -59,7 +50,7 @@ class FlagModelAdapter extends TypeAdapter<FlagModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is FlagModelAdapter &&
+      other is VideoModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

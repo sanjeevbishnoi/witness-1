@@ -84,13 +84,13 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   final Trimmer trimmer = Trimmer();
 
   // v1 - v2 - v3
-  // case 1 [no flag in v1] -> add to paths
-  // case 2 [no flag in v2] -> add to paths and remove path v1
-  // case 3 [no flag in v3] -> add to paths and remove path v2
-  // case 3 [found flag in v1] -> store in local db
-  // case 3 [found flag in last [51s - 60s] in v1 and not stop video] ->
-  //..save v1 and get last 20s from v1 and first 10s from v2 and stop video when
-  //..current duration is equal selected duration ex: [1 min] and start new video
+  // case 1 [no flags in v1] -> add to paths
+  // case 2 [no flags in v2] -> add to paths and remove path v1
+  // case 3 [no flags in v3] -> add to paths and remove path v2
+  // case 3 [found flags in v1] -> store in local db
+  // case 3 [found flags in last [51s - 60s] in v1 and not stop home] ->
+  //..save v1 and get last 20s from v1 and first 10s from v2 and stop home when
+  //..current duration is equal selected duration ex: [1 min] and start new home
   //result case 3 -> 20s+60s = 80s
   FFmpegService fFmpegService = FFmpegService();
 

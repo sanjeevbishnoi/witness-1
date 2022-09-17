@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
-import 'package:nice_shot/presentation/features/video/pages/extracted_videos_page.dart';
-import 'package:nice_shot/presentation/features/video/pages/videos_page.dart';
+import 'package:nice_shot/presentation/features/extracted_videos/extracted_videos_page.dart';
+import 'package:nice_shot/presentation/features/raw_videos/videos_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);

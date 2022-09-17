@@ -71,7 +71,7 @@ class ActionsWidget extends StatelessWidget {
       : const CircularProgressIndicator();
 
   void _onPressFlag() {
-    //cameraBloc.audioPlayer.open(Audio("assets/audios/flag.mp3"));
+    //cameraBloc.audioPlayer.open(Audio("assets/audios/flags.mp3"));
     FlagModel flag = FlagModel(flagPoint: cameraBloc.videoDuration);
     flags.add(flag);
   }

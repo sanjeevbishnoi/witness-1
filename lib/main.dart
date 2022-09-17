@@ -8,7 +8,7 @@ import 'package:nice_shot/presentation/features/auth/pages/register_page.dart';
 import 'package:nice_shot/presentation/features/camera/bloc/bloc.dart';
 import 'package:nice_shot/presentation/features/trimmer/bloc/trimmer_bloc.dart';
 import 'package:nice_shot/presentation/router/app_router.dart';
-import 'data/model/duration.g.dart';
+import 'data/model/adapter/duration.g.dart';
 import 'data/model/flag_model.dart';
 import 'data/model/video_model.dart';
 import 'injection_container.dart' as di;
@@ -22,7 +22,6 @@ void main() async {
   Hive.init(directory.path);
   await Hive.initFlutter();
   Hive.registerAdapter(DurationAdapter());
-
   Hive.registerAdapter(VideoModelAdapter());
   Hive.registerAdapter(FlagModelAdapter());
   await Hive.openBox<VideoModel>('video_db');

@@ -9,9 +9,9 @@ import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/core/util/my_alert_dialog.dart';
 import 'package:nice_shot/core/util/my_box_decoration.dart';
 import 'package:nice_shot/presentation/widgets/slidable_action_widget.dart';
-import '../../../../core/util/boxes.dart';
-import '../../../../data/model/video_model.dart';
-import '../../flag/pages/flags_by_video.dart';
+import '../../../core/util/boxes.dart';
+import '../../../data/model/video_model.dart';
+import '../flag/pages/flags_by_video.dart';
 
 class VideosPage extends StatelessWidget {
   const VideosPage({Key? key}) : super(key: key);
@@ -83,7 +83,7 @@ class VideosPage extends StatelessWidget {
                         decoration: myBoxDecoration,
                         child: ListTile(
                           leading: const Image(
-                            image: AssetImage("assets/images/flag.png"),
+                            image: AssetImage("assets/images/flags.png"),
                           ),
                           title: Text(
                             data.title ?? "No title",

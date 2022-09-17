@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../data/model/video_model.dart';
 
@@ -32,13 +31,9 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
       looping: false,
       showControls: true,
       zoomAndPan: true,
-      //  allowFullScreen: true,
       showControlsOnInitialize: true,
-      //  progressIndicatorDelay: const Duration(),
       showOptions: true,
-      //  materialProgressColors: ChewieProgressColors(playedColor: Colors.red),
-       fullScreenByDefault: true,
-      //  allowPlaybackSpeedChanging: true,
+      fullScreenByDefault: true,
     );
     _videoPlayerController!.play();
   }

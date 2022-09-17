@@ -1,9 +1,9 @@
-import 'data.dart';
+import 'data_model.dart';
 import 'package:hive/hive.dart';
-import 'package:nice_shot/data/model/data.dart';
+import 'package:nice_shot/data/model/data_model.dart';
 
 
-part 'flag_model.g.dart';
+part 'adapter/flag_model.g.dart';
 
 @HiveType(typeId: 1)
 class FlagModel extends DataModel {

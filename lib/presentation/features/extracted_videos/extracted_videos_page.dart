@@ -6,14 +6,13 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:intl/intl.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/core/util/my_box_decoration.dart';
-import 'package:nice_shot/presentation/features/video/pages/video_player_page.dart';
 import 'package:nice_shot/presentation/widgets/slidable_action_widget.dart';
-import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
-
-import '../../../../core/util/boxes.dart';
-import '../../../../core/util/my_alert_dialog.dart';
-import '../../../../data/model/video_model.dart';
+import '../../../core/util/boxes.dart';
+import '../../../core/util/my_alert_dialog.dart';
+import '../../../data/model/video_model.dart';
 import 'package:share/share.dart';
+
+import '../video/pages/video_player_page.dart';
 
 class ExtractedVideoPage extends StatelessWidget {
   const ExtractedVideoPage({Key? key}) : super(key: key);
@@ -48,7 +47,7 @@ class ExtractedVideoPage extends StatelessWidget {
                       color: Colors.teal,
                       context: context,
                       function: () async {
-                      await  Share.shareFiles([data.path!], text: data.title);
+                        await Share.shareFiles([data.path!], text: data.title);
                       },
                       icon: Icons.share,
                     ),
@@ -107,16 +106,17 @@ class ExtractedVideoPage extends StatelessWidget {
                         ),
                         const Spacer(),
                         InkWell(
-
                           onTap: () {},
                           child: const Icon(Icons.upload),
                         )
                       ],
                     ),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) {
-                       return VideoPlayerPage(videoModel:data);
-                      },));
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return VideoPlayerPage(videoModel: data);
+                        },
+                      ));
                     },
                   ),
                 ),
