@@ -9,7 +9,7 @@ class MySizes {
   static const double subtitle = 14.0;
   static const double details = 12.0;
   static const double elevation = 0.0;
-  static const double radius = 0.0;
+  static const double radius = 4.0;
   static const double borderWidth = .3;
   static const double buttonHeight = 55.0;
   static const double imageHeight = 100.0;

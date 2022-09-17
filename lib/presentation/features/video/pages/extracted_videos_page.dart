@@ -6,16 +6,22 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:intl/intl.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/core/util/my_box_decoration.dart';
-import 'package:nice_shot/presentation/features/video/widgets/slidable_action_widget.dart';
+import 'package:nice_shot/presentation/features/video/pages/video_player_page.dart';
+import 'package:nice_shot/presentation/widgets/slidable_action_widget.dart';
+import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
 
 import '../../../../core/util/boxes.dart';
+import '../../../../core/util/my_alert_dialog.dart';
 import '../../../../data/model/video_model.dart';
+import 'package:share/share.dart';
 
 class ExtractedVideoPage extends StatelessWidget {
   const ExtractedVideoPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController controller = TextEditingController();
+
     return Padding(
       padding: const EdgeInsets.all(MySizes.widgetSidePadding),
       child: ValueListenableBuilder(
@@ -39,6 +45,39 @@ class ExtractedVideoPage extends StatelessWidget {
                   motion: const ScrollMotion(),
                   children: [
                     SlidableActionWidget(
+                      color: Colors.teal,
+                      context: context,
+                      function: () async {
+                      await  Share.shareFiles([data.path!], text: data.title);
+                      },
+                      icon: Icons.share,
+                    ),
+                    SlidableActionWidget(
+                      color: Colors.blueAccent,
+                      context: context,
+                      function: () async {
+                        myAlertDialog(
+                          controller: controller,
+                          context: context,
+                          function: () async {
+                            if (controller.text.isNotEmpty) {
+                              await items
+                                  .putAt(
+                                index,
+                                data..title = controller.text,
+                              )
+                                  .then(
+                                (value) {
+                                  Navigator.pop(context);
+                                },
+                              );
+                            }
+                          },
+                        );
+                      },
+                      icon: Icons.edit,
+                    ),
+                    SlidableActionWidget(
                       color: MyColors.primaryColor,
                       context: context,
                       function: () async {
@@ -60,11 +99,25 @@ class ExtractedVideoPage extends StatelessWidget {
                       data.title ?? "No title",
                       style: const TextStyle(color: Colors.black),
                     ),
-                    subtitle: Text(
-                      DateFormat().add_yMEd().format(data.dateTime!),
-                      style: Theme.of(context).textTheme.bodySmall,
+                    subtitle: Row(
+                      children: [
+                        Text(
+                          DateFormat().add_yMEd().format(data.dateTime!),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const Spacer(),
+                        InkWell(
+
+                          onTap: () {},
+                          child: const Icon(Icons.upload),
+                        )
+                      ],
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                       return VideoPlayerPage(videoModel:data);
+                      },));
+                    },
                   ),
                 ),
               );

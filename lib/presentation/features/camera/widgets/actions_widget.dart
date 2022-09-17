@@ -63,28 +63,26 @@ class ActionsWidget extends StatelessWidget {
     return [startVideoButton(clickAble: true)];
   }
 
-  Widget startVideoButton({required bool clickAble}) =>clickAble? FloatingActionButton(
-        onPressed: () => cameraBloc.add(StartRecordingEvent(fromUser: false)),
-        child: const Icon(Icons.circle_rounded),
-      ):const CircularProgressIndicator();
+  Widget startVideoButton({required bool clickAble}) => clickAble
+      ? FloatingActionButton(
+          onPressed: () => cameraBloc.add(StartRecordingEvent(fromUser: false)),
+          child: const Icon(Icons.circle_rounded),
+        )
+      : const CircularProgressIndicator();
 
   void _onPressFlag() {
     //cameraBloc.audioPlayer.open(Audio("assets/audios/flag.mp3"));
-    FlagModel flag = FlagModel(
-      id: "${DateTime.now().microsecondsSinceEpoch}",
-      time: "${cameraBloc.minutes}:${cameraBloc.seconds}",
-    );
-
+    FlagModel flag = FlagModel(flagPoint: cameraBloc.videoDuration);
     flags.add(flag);
   }
 
   Future<void> _onPressStop() async {
     VideoModel video = VideoModel(
       dateTime: DateTime.now(),
-      timeVideo: "${cameraBloc.minutes}:${cameraBloc.seconds}",
+      videoDuration: cameraBloc.videoDuration,
       flags: flags,
     );
-    if (cameraBloc.duration == cameraBloc.selectedDuration && flags.isEmpty) {
+    if (cameraBloc.videoDuration == cameraBloc.selectedDuration && flags.isEmpty) {
       cameraBloc.add(StopRecordingEvent(video: video, fromUser: true));
     } else {
       cameraBloc.add(StopRecordingEvent(video: video, fromUser: true));

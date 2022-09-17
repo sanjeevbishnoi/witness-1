@@ -20,6 +20,7 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     CameraBloc cameraBloc = context.read<CameraBloc>();
+    CameraBloc zoomBloc = CameraBloc();
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -27,63 +28,55 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
           children: [
             BlocBuilder<CameraBloc, CameraState>(builder: (context, state) {
               if (cameraBloc.controller != null) {
-                double aspectRatio = MediaQuery
-                    .of(context)
-                    .size
-                    .aspectRatio;
-                double cameraAspectRatio =
-                    cameraBloc.controller!.value.aspectRatio;
-                double scale = 1.1 / (aspectRatio * cameraAspectRatio);
-                return Transform.scale(
-                  scale: scale,
-                  child: CameraPreview(cameraBloc.controller!),
-                );
+                return CameraPreview(cameraBloc.controller!);
               } else {
                 return const LoadingWidget();
               }
             }),
-            if(cameraBloc.state is InitCameraState)
-            Align(
-              alignment: Alignment.topCenter,
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        Routes.homePage, (route) => false,
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
+            // if (state is InitCameraState ||
+            //     state is StopRecordingState)
+              Align(
+                alignment: Alignment.topCenter,
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          Routes.homePage,
+                          (route) => false,
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  BlocBuilder<CameraBloc, CameraState>(
-                    builder: (context, state) {
-                      return ResolutionsWidget(cameraBloc: cameraBloc);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            if(cameraBloc.state is StartTimerState)
-            Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                margin: const EdgeInsets.only(top: 32.0),
-                child: BlocBuilder<CameraBloc, CameraState>(
-                  builder: (context, state) {
-                    return Text(
-                      '${cameraBloc.minutes}:${cameraBloc.seconds}',
-                      style: const TextStyle(color: Colors.white),
-                    );
-                  },
+                    BlocBuilder<CameraBloc, CameraState>(
+                      builder: (context, state) {
+                        return ResolutionsWidget(cameraBloc: cameraBloc);
+                      },
+                    ),
+                  ],
                 ),
               ),
-            ),
+           // if (cameraState is StartTimerState)
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  margin: const EdgeInsets.only(top: 32.0),
+                  child: BlocBuilder<CameraBloc, CameraState>(
+                    builder: (context, state) {
+                      return Text(
+                        '${cameraBloc.minutes}:${cameraBloc.second}',
+                        style: const TextStyle(color: Colors.white),
+                      );
+                    },
+                  ),
+                ),
+              ),
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -92,8 +85,9 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     BlocBuilder<CameraBloc, CameraState>(
+                      bloc: zoomBloc,
                       builder: (context, state) {
-                        return ZoomWidget(cameraBloc: cameraBloc);
+                        return ZoomWidget(cameraBloc: zoomBloc);
                       },
                     ),
                     BlocBuilder<CameraBloc, CameraState>(
@@ -109,5 +103,24 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print("My app life cycle: resume");
+        break;
+      case AppLifecycleState.inactive:
+        print("My app life cycle: inactive");
+        break;
+      case AppLifecycleState.paused:
+        print("My app life cycle: paused");
+        break;
+      case AppLifecycleState.detached:
+        print("My app life cycle: detached");
+        break;
+    }
+    super.didChangeAppLifecycleState(state);
   }
 }

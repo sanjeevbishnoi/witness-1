@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:video_trimmer/video_trimmer.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../bloc/trimmer_bloc.dart';
-
 class TrimEditorWidget extends StatelessWidget {
   final TrimmerBloc bloc;
   final Trimmer trimmer;
-
+  final FlagModel flag;
   const TrimEditorWidget({
     Key? key,
     required this.bloc,
     required this.trimmer,
+    required this.flag,
   }) : super(key: key);
 
   @override
@@ -29,6 +30,8 @@ class TrimEditorWidget extends StatelessWidget {
         bloc.endValue = value;
       },
       onChangePlaybackState: (value) {},
+      flagModel: flag,
+      videoDuration: flag.videoDuration!,
     );
   }
 }

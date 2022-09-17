@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:nice_shot/core/util/boxes.dart';
@@ -10,13 +11,12 @@ import 'package:video_trimmer/video_trimmer.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../data/model/flag_model.dart';
 import '../../../../data/model/video_model.dart';
-
 part 'trimmer_event.dart';
 
 part 'trimmer_state.dart';
 
 class TrimmerBloc extends Bloc<TrimmerEvent, TrimmerState> {
-  final Trimmer _trimmer = Trimmer();
+  final Trimmer trimmer = Trimmer();
   double startValue = 0.0;
   double endValue = 0.0;
 
@@ -30,12 +30,12 @@ class TrimmerBloc extends Bloc<TrimmerEvent, TrimmerState> {
     InitTrimmerEvent event,
     Emitter<TrimmerState> emit,
   ) async {
-    _trimmer.loadVideo(videoFile: event.file);
-    _trimmer.videPlaybackControl(
+    trimmer.loadVideo(videoFile: event.file);
+    trimmer.videPlaybackControl(
       startValue: startValue,
       endValue: endValue,
     );
-    emit(InitTrimmerState(trimmer: _trimmer));
+    emit(InitTrimmerState(trimmer: trimmer));
   }
 
   Future<void> _onExportVideo(
@@ -44,7 +44,7 @@ class TrimmerBloc extends Bloc<TrimmerEvent, TrimmerState> {
   ) async {
     emit(ExportVideoLoadingState());
     try {
-      await _trimmer.saveTrimmedVideo(
+      await trimmer.saveTrimmedVideo(
         startValue: startValue,
         endValue: endValue,
         videoFileName: event.flagModel.title,
@@ -59,9 +59,17 @@ class TrimmerBloc extends Bloc<TrimmerEvent, TrimmerState> {
           await Boxes.exportedVideoBox.add(videoModel);
         },
       );
+
       emit(ExportVideoSuccessState());
     } on ExportVideoException catch (e) {
       emit(ExportVideoErrorState(error: "$e"));
     }
+  }
+  @override
+  Future<void> close() {
+    trimmer.dispose();
+    trimmer.videoPlayerController?.dispose();
+    print("closed");
+    return super.close();
   }
 }

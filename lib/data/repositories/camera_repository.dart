@@ -1,3 +1,1 @@
-abstract class CameraRepository {
-
-}
+abstract class CameraRepository {}

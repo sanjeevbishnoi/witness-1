@@ -1,6 +1,10 @@
-import 'package:hive_flutter/adapters.dart';
-import 'package:nice_shot/data/model/flag_model.dart';
-import 'package:nice_shot/data/model/video_model.dart';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'video_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class VideoModelAdapter extends TypeAdapter<VideoModel> {
   @override
@@ -14,11 +18,11 @@ class VideoModelAdapter extends TypeAdapter<VideoModel> {
     };
     return VideoModel(
       id: fields[0] as String?,
-      title: fields[1] as String?,
+      videoDuration: fields[3] as Duration?,
       path: fields[2] as String?,
-      dateTime: fields[3] as DateTime?,
-      timeVideo: fields[4] as String?,
-      flags: fields[5] as List<dynamic>,
+      title: fields[1] as String?,
+      dateTime: fields[4] as DateTime?,
+      flags: (fields[5] as List?)?.cast<FlagModel>(),
     );
   }
 
@@ -26,6 +30,10 @@ class VideoModelAdapter extends TypeAdapter<VideoModel> {
   void write(BinaryWriter writer, VideoModel obj) {
     writer
       ..writeByte(6)
+      ..writeByte(4)
+      ..write(obj.dateTime)
+      ..writeByte(5)
+      ..write(obj.flags)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -33,11 +41,7 @@ class VideoModelAdapter extends TypeAdapter<VideoModel> {
       ..writeByte(2)
       ..write(obj.path)
       ..writeByte(3)
-      ..write(obj.dateTime)
-      ..writeByte(4)
-      ..write(obj.timeVideo)
-      ..writeByte(5)
-      ..write(obj.flags);
+      ..write(obj.videoDuration);
   }
 
   @override

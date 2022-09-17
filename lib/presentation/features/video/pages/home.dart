@@ -16,8 +16,8 @@ class HomePage extends StatelessWidget {
           title: const Text("WITNESS"),
           bottom: const TabBar(
             tabs: [
-              Tab(text: "VIDEOS"),
-              Tab(text: "RECORDS"),
+              Tab(text: "Edited Videos"),
+              Tab(text: "Raw Videos"),
             ],
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
             physics: BouncingScrollPhysics(),

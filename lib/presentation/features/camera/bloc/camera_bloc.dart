@@ -5,28 +5,33 @@ import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:external_path/external_path.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:nice_shot/core/ffmpeg/ffmpeg_service.dart';
 import 'package:nice_shot/core/util/boxes.dart';
 import 'package:nice_shot/core/error/exceptions.dart';
 import 'package:nice_shot/data/model/video_model.dart';
 import 'package:nice_shot/presentation/features/camera/widgets/actions_widget.dart';
+import 'package:video_trimmer/video_trimmer.dart';
 import 'bloc.dart';
 
 class CameraBloc extends Bloc<CameraEvent, CameraState> {
   CameraController? controller;
+
   ResolutionPreset currentResolutionPreset = ResolutionPreset.high;
   Timer? countdownTimer;
-  Duration duration = const Duration(seconds: 0);
+  Duration videoDuration = const Duration(seconds: 0);
   AssetsAudioPlayer audioPlayer = AssetsAudioPlayer.newPlayer();
-  Duration selectedDuration = const Duration(seconds: 5);
+  Duration selectedDuration = const Duration(minutes: 3);
+
   String strDigits(int n) => n.toString().padLeft(2, '0');
-  get minutes => strDigits(duration.inMinutes.remainder(60));
-  get seconds => strDigits(duration.inSeconds.remainder(60));
+
+  get minutes => strDigits(videoDuration.inMinutes.remainder(60));
+
+  get second => strDigits(videoDuration.inSeconds.remainder(60));
   double minAvailableZoom = 1.0;
   double maxAvailableZoom = 1.0;
   double currentZoomLevel = 1.0;
 
-  CameraBloc() : super( CameraInitial()) {
+  CameraBloc() : super(CameraInitial()) {
     on<InitCameraEvent>(_initCamera);
     on<StartRecordingEvent>(_onStartRecording);
     on<StopRecordingEvent>(_onStopRecording);
@@ -76,7 +81,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   }
 
   List<String> paths = [];
-  final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
+  final Trimmer trimmer = Trimmer();
 
   // v1 - v2 - v3
   // case 1 [no flag in v1] -> add to paths
@@ -87,6 +92,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   //..save v1 and get last 20s from v1 and first 10s from v2 and stop video when
   //..current duration is equal selected duration ex: [1 min] and start new video
   //result case 3 -> 20s+60s = 80s
+  FFmpegService fFmpegService = FFmpegService();
 
   Future<void> _onStopRecording(
     StopRecordingEvent event,
@@ -96,7 +102,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
       var file = await _stopRecording();
       emit(StopRecordingState(fromUser: event.fromUser));
       countdownTimer!.cancel();
-      duration = const Duration(seconds: 0);
+      videoDuration = const Duration(seconds: 0);
       var value = await _getPath();
       String newPath = "${value.path}/${file!.name}";
       await file.saveTo(newPath);
@@ -109,21 +115,12 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
           paths.removeAt(0);
         }
       } else {
-        String myPath = "${value.path}/newFile.mp4";
-        String command = '-i ${paths[0]} -i ${paths[1]} -filter_complex \'[0:0][1:0]concat=n=2:v=1:a=0[out]\' -map \'[out]\' $myPath';
-        _flutterFFmpeg.executeAsync(command, (execution) {
-          if (kDebugMode) {
-            print("merge vide ${execution.executionId}");
-            print("merge vide ${execution.returnCode}");
-          }
-        });
         await Boxes.videoBox.add(event.video);
-        paths.removeAt(0);
-        flags = [];
+        if (paths.isNotEmpty) paths.removeAt(0);
       }
       add(StartRecordingEvent(fromUser: event.fromUser));
     } on CameraException catch (e) {
-      debugPrint("$e");
+      throw Exception(e);
     }
   }
 
@@ -253,15 +250,15 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
       const Duration(seconds: 1),
       (_) async {
         const reduceSecondsBy = 1;
-        final seconds = duration.inSeconds + reduceSecondsBy;
+        final seconds = videoDuration.inSeconds + reduceSecondsBy;
         if (seconds < 0) {
           countdownTimer!.cancel();
         } else {
-          duration = Duration(seconds: seconds);
-          Duration currentDuration = duration;
+          videoDuration = Duration(seconds: seconds);
+          Duration currentDuration = videoDuration;
           VideoModel video = VideoModel(
             dateTime: DateTime.now(),
-            timeVideo: "$minutes:$seconds",
+            videoDuration: videoDuration,
             flags: flags,
           );
           if (currentDuration == selectedDuration && flags.isEmpty) {

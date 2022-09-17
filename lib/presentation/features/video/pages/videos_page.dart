@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -7,11 +8,10 @@ import 'package:intl/intl.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/core/util/my_alert_dialog.dart';
 import 'package:nice_shot/core/util/my_box_decoration.dart';
-import 'package:nice_shot/presentation/features/video/widgets/slidable_action_widget.dart';
-
+import 'package:nice_shot/presentation/widgets/slidable_action_widget.dart';
 import '../../../../core/util/boxes.dart';
 import '../../../../data/model/video_model.dart';
-import 'flags_by_video.dart';
+import '../../flag/pages/flags_by_video.dart';
 
 class VideosPage extends StatelessWidget {
   const VideosPage({Key? key}) : super(key: key);
@@ -26,6 +26,7 @@ class VideosPage extends StatelessWidget {
         valueListenable: Boxes.videoBox.listenable(),
         builder: (context, Box<VideoModel> items, _) {
           List<int> keys = items.keys.cast<int>().toList();
+
           return ListView.separated(
             separatorBuilder: (context, index) => const SizedBox(
               height: MySizes.verticalPadding,
@@ -108,6 +109,9 @@ class VideosPage extends StatelessWidget {
                                 builder: (context) => FlagsByVideoPage(
                                   flags: data.flags ?? [],
                                   path: data.path ?? "",
+                                  items: items,
+                                  data: data,
+                                  videoIndex: index,
                                 ),
                               ),
                             );
