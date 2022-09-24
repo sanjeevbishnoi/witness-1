@@ -11,7 +11,6 @@ import '../widgets/flag_item_widget.dart';
 class FlagsByVideoPage extends StatelessWidget {
   final List<FlagModel> flags;
   final String path;
-  final Box<VideoModel> items;
   final VideoModel data;
   final int videoIndex;
 
@@ -19,7 +18,6 @@ class FlagsByVideoPage extends StatelessWidget {
     Key? key,
     required this.flags,
     required this.path,
-    required this.items,
     required this.data,
     required this.videoIndex,
   }) : super(key: key);
@@ -32,7 +30,7 @@ class FlagsByVideoPage extends StatelessWidget {
       ),
       body: ValueListenableBuilder(
         valueListenable: Boxes.videoBox.listenable(),
-        builder: (context, value, child) => Padding(
+        builder: (context, Box<VideoModel> items, _) => Padding(
           padding: const EdgeInsets.all(MySizes.widgetSidePadding),
           child: flags.isNotEmpty
               ? ListView.separated(

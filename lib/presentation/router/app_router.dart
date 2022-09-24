@@ -3,9 +3,9 @@ import 'package:nice_shot/presentation/features/auth/pages/login_page.dart';
 import 'package:nice_shot/presentation/features/auth/pages/register_page.dart';
 import 'package:nice_shot/presentation/features/auth/pages/verify_phone.dart';
 import 'package:nice_shot/presentation/features/camera/camera_page.dart';
+import 'package:nice_shot/presentation/features/edited_videos/edited_videos_page.dart';
 import 'package:nice_shot/presentation/features/raw_videos/videos_page.dart';
 import '../../core/routes/routes.dart';
-import '../features/extracted_videos/extracted_videos_page.dart';
 import '../features/home/pages/home.dart';
 
 class Routers {
@@ -22,11 +22,11 @@ class Routers {
       // case Routes.flagsByVideoPage:
       //   return MaterialPageRoute(builder: (_) => FlagsByVideoPage());
       case Routes.extractedVideosPage:
-        return MaterialPageRoute(builder: (_) => const ExtractedVideoPage());
+        return MaterialPageRoute(builder: (_) => const EditedVideoPage());
       case Routes.verifyCodePage:
         return MaterialPageRoute(builder: (_) => const VerifyCodePage());
       case Routes.cameraPage:
-        return MaterialPageRoute(builder: (_) => CameraPage());
+        return MaterialPageRoute(builder: (_) => const CameraPage());
 
       default:
         return MaterialPageRoute(builder: (_) {

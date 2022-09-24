@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:nice_shot/data/model/video_model.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../bloc/bloc.dart';
 
@@ -79,9 +80,10 @@ class ActionsWidget extends StatelessWidget {
   Future<void> _onPressStop() async {
     VideoModel video = VideoModel(
       dateTime: DateTime.now(),
-      videoDuration: cameraBloc.videoDuration,
+      videoDuration: cameraBloc.videoDuration.toString(),
       flags: flags,
     );
+    print("my duration: ${cameraBloc.videoDuration.toString()}");
     if (cameraBloc.videoDuration == cameraBloc.selectedDuration && flags.isEmpty) {
       cameraBloc.add(StopRecordingEvent(video: video, fromUser: true));
     } else {

@@ -2,7 +2,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
-import 'package:nice_shot/presentation/features/camera/widgets/resolutions_widget.dart';
 import 'package:nice_shot/presentation/features/camera/widgets/zoom_widget.dart';
 import 'package:nice_shot/presentation/widgets/loading_widget.dart';
 import '../../../core/routes/routes.dart';
@@ -10,17 +9,15 @@ import '../../widgets/loading_widget.dart';
 import 'widgets/actions_widget.dart';
 import 'package:nice_shot/presentation/features/camera/bloc/bloc.dart';
 
-// ignore: must_be_immutable
-class CameraPage extends StatelessWidget with WidgetsBindingObserver {
-  int countFlags = 0;
-  bool isOpen = false;
+import 'widgets/resolutions_widget.dart';
 
-  CameraPage({Key? key}) : super(key: key);
+class CameraPage extends StatelessWidget with WidgetsBindingObserver {
+  const CameraPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
     CameraBloc cameraBloc = context.read<CameraBloc>();
-    CameraBloc zoomBloc = CameraBloc();
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -33,50 +30,60 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
                 return const LoadingWidget();
               }
             }),
-            // if (state is InitCameraState ||
-            //     state is StopRecordingState)
-              Align(
-                alignment: Alignment.topCenter,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          Routes.homePage,
-                          (route) => false,
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                      ),
-                    ),
-                    BlocBuilder<CameraBloc, CameraState>(
-                      builder: (context, state) {
-                        return ResolutionsWidget(cameraBloc: cameraBloc);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-           // if (cameraState is StartTimerState)
-              Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 32.0),
-                  child: BlocBuilder<CameraBloc, CameraState>(
+            Align(
+              alignment: Alignment.topCenter,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  BlocBuilder<CameraBloc, CameraState>(
                     builder: (context, state) {
-                      return Text(
-                        '${cameraBloc.minutes}:${cameraBloc.second}',
-                        style: const TextStyle(color: Colors.white),
-                      );
+                      return state is InitCameraState ||
+                              state is StopRecordingState
+                          ? IconButton(
+                              onPressed: () {
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  Routes.homePage,
+                                  (route) => false,
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Container();
                     },
                   ),
+
+                  BlocBuilder<CameraBloc, CameraState>(
+                    builder: (context, state) {
+                      return state is InitCameraState ||
+                              state is StopRecordingState
+                          ? ResolutionsWidget(cameraBloc: cameraBloc)
+                          : Container();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                margin: const EdgeInsets.only(top: 32.0),
+                child: BlocBuilder<CameraBloc, CameraState>(
+                  builder: (context, state) {
+                    return state is StartTimerState
+                        ? Text(
+                            '${cameraBloc.minutes}:${cameraBloc.second}',
+                            style: const TextStyle(color: Colors.white),
+                          )
+                        : Container();
+                  },
                 ),
               ),
+            ),
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -85,9 +92,8 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     BlocBuilder<CameraBloc, CameraState>(
-                      bloc: zoomBloc,
                       builder: (context, state) {
-                        return ZoomWidget(cameraBloc: zoomBloc);
+                        return ZoomWidget(cameraBloc: cameraBloc);
                       },
                     ),
                     BlocBuilder<CameraBloc, CameraState>(
@@ -109,16 +115,16 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        print("My app life cycle: resume");
+        debugPrint("resume");
         break;
       case AppLifecycleState.inactive:
-        print("My app life cycle: inactive");
+        debugPrint("inactive");
         break;
       case AppLifecycleState.paused:
-        print("My app life cycle: paused");
+        debugPrint("paused");
         break;
       case AppLifecycleState.detached:
-        print("My app life cycle: detached");
+        debugPrint("detached");
         break;
     }
     super.didChangeAppLifecycleState(state);

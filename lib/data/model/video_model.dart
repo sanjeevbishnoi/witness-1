@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:hive/hive.dart';
 import 'package:nice_shot/data/model/data_model.dart';
 
 import 'flag_model.dart';
 
-part 'adapter/video_model.g.dart';
+part 'video_model.g.dart';
 
 @HiveType(typeId: 0)
 class VideoModel extends DataModel {
@@ -11,6 +13,8 @@ class VideoModel extends DataModel {
   DateTime? dateTime;
   @HiveField(5)
   List<FlagModel>? flags;
+  @HiveField(6)
+  String? videoThumbnail;
   VideoModel({
     super.id,
     super.videoDuration,
@@ -18,5 +22,6 @@ class VideoModel extends DataModel {
     super.title,
     this.dateTime,
     this.flags,
+    this.videoThumbnail,
   });
 }

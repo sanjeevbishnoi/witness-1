@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../flag_model.dart';
+part of 'flag_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
@@ -18,7 +18,7 @@ class FlagModelAdapter extends TypeAdapter<FlagModel> {
     };
     return FlagModel(
       id: fields[0] as String?,
-      videoDuration: fields[3] as Duration?,
+      videoDuration: fields[3] as String?,
       path: fields[2] as String?,
       title: fields[1] as String?,
       flagPoint: fields[6] as Duration?,

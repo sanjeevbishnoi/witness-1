@@ -78,6 +78,8 @@ class FormWidget extends StatelessWidget {
         const SizedBox(height: MySizes.verticalPadding),
         textFields(Inputs.phone),
         const SizedBox(height: MySizes.verticalPadding),
+        textFields(Inputs.email),
+        const SizedBox(height: MySizes.verticalPadding),
         textFields(Inputs.password),
         const SizedBox(height: MySizes.verticalPadding),
         textFields(Inputs.confirmPassword),
@@ -147,7 +149,7 @@ class FormWidget extends StatelessWidget {
       case Inputs.password:
         return BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
-            if (state is ChangeVisibilityPasswordState) {
+            if (state.showPassword) {
               isShow = !isShow;
             }
           },
@@ -158,12 +160,12 @@ class FormWidget extends StatelessWidget {
               keyboard: TextInputType.text,
               prefixIcon: Icons.lock,
               isPassword: !isShow,
-              suffixIcon: state is ChangeVisibilityPasswordState
+              suffixIcon: state.showPassword == true
                   ? state.icon
                   : Icons.visibility_off_sharp,
               suffixIconPressed: () {
                 context.read<AuthBloc>().add(
-                      ChangeIconSuffixEvent(isShow: !isShow),
+                      ChangeIconSuffixEvent(showPassword: !isShow),
                     );
               },
               validator: () {},
@@ -212,9 +214,9 @@ class FormWidget extends StatelessWidget {
                   width: MySizes.imageWidth,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(MySizes.imageRadius),
-                      image: state is PickUserImageState
+                      image: state.file != null
                           ? DecorationImage(
-                              image: FileImage(state.file),
+                              image: FileImage(state.file!),
                               fit: BoxFit.cover,
                             )
                           : const DecorationImage(

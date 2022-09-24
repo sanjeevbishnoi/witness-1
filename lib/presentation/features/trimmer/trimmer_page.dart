@@ -37,12 +37,20 @@ class _TrimmerPageState extends State<TrimmerPage> {
   double startValue = 0.0;
   double endValue = 0.0;
   bool _isPlaying = false;
+  double endTemp = 0;
 
   @override
   void initState() {
-    startValue = widget.flag.startDuration!.inSeconds * 1000;
+    startValue = widget.flag.startDuration!.inSeconds.toDouble() * 1000;
     trimmer.loadVideo(videoFile: widget.file);
+    endTemp = widget.flag.endDuration!.inSeconds.toDouble() * 1000;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    trimmer.dispose();
+    super.dispose();
   }
 
   @override
@@ -61,24 +69,24 @@ class _TrimmerPageState extends State<TrimmerPage> {
               onPressed: () async {
                 await trimmer.saveTrimmedVideo(
                   startValue: startValue,
-                  endValue: endValue,
+                  endValue: endValue == 0 ? endTemp : endValue,
                   videoFileName: widget.flag.title,
                   videoFolderName: "videos",
                   onSave: (String? outputPath) async {
-                    print("path: $outputPath");
                     VideoModel videoModel = VideoModel(
                       id: widget.flag.id,
                       path: outputPath!,
                       title: widget.flag.title,
                       dateTime: DateTime.now(),
+                      videoThumbnail: widget.data.videoThumbnail!,
+                      videoDuration: widget.data.videoDuration!
                     );
                     await Boxes.exportedVideoBox.add(videoModel);
                     widget.items
                         .putAt(
                       widget.videoIndex,
                       widget.data..flags![widget.flagIndex].isExtracted = true,
-                    )
-                        .then((value) {
+                    ).then((value) {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
                         Routes.homePage,
@@ -105,26 +113,32 @@ class _TrimmerPageState extends State<TrimmerPage> {
                     ],
                   ),
                   const Spacer(),
-                  TrimEditor(
-                    trimmer: trimmer,
-                    viewerWidth: MediaQuery.of(context).size.width,
-                    onChangeStart: (value) {
-                      setState(() {
-                        startValue = value;
-                      });
-                    },
-                    onChangeEnd: (value) {
-                      setState(() {
-                        endValue = value;
-                      });
-                    },
-                    onChangePlaybackState: (value) {
-                      setState(() {
-                        _isPlaying = value;
-                      });
-                    },
-                    flagModel: widget.flag,
-                    videoDuration: widget.videoDuration,
+                  Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      TrimEditor(
+                        trimmer: trimmer,
+                        viewerWidth: MediaQuery.of(context).size.width,
+                        onChangeStart: (value) {
+                          setState(() {
+                            startValue = value;
+                          });
+                        },
+                        onChangeEnd: (value) {
+                          setState(() {
+                            endValue = value;
+                          });
+                        },
+                        onChangePlaybackState: (value) {
+                          setState(() {
+                            _isPlaying = value;
+                          });
+                        },
+                        flagModel: widget.flag,
+                        videoDuration: widget.videoDuration,
+
+                      ),
+                    ],
                   ),
                   Align(
                     alignment: Alignment.bottomCenter,
@@ -154,7 +168,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                 ],
               )
             : const Center(
-                child: Text("Unknown home"),
+                child: Text("Unknown video"),
               ),
       ),
     );

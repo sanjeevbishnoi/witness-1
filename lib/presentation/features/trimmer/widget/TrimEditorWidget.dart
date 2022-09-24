@@ -31,7 +31,7 @@ class TrimEditorWidget extends StatelessWidget {
       },
       onChangePlaybackState: (value) {},
       flagModel: flag,
-      videoDuration: flag.videoDuration!,
+      videoDuration: flag.videoDuration! as Duration,
     );
   }
 }

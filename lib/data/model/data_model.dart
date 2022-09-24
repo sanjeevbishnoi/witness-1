@@ -7,8 +7,7 @@ class DataModel {
   @HiveField(2)
   String? path;
   @HiveField(3)
-  Duration? videoDuration;
-
+  String? videoDuration;
 
   DataModel({
     this.id,

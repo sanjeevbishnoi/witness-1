@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../video_model.dart';
+part of 'video_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
@@ -18,22 +18,25 @@ class VideoModelAdapter extends TypeAdapter<VideoModel> {
     };
     return VideoModel(
       id: fields[0] as String?,
-      videoDuration: fields[3] as Duration?,
+      videoDuration: fields[3] as String?,
       path: fields[2] as String?,
       title: fields[1] as String?,
       dateTime: fields[4] as DateTime?,
       flags: (fields[5] as List?)?.cast<FlagModel>(),
+      videoThumbnail: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, VideoModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(4)
       ..write(obj.dateTime)
       ..writeByte(5)
       ..write(obj.flags)
+      ..writeByte(6)
+      ..write(obj.videoThumbnail)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)

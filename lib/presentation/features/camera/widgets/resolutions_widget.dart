@@ -16,8 +16,9 @@ class ResolutionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButton<ResolutionPreset>(
+      iconEnabledColor: Colors.white,
       elevation: MySizes.elevation.toInt(),
-      alignment: Alignment.topRight,
+      alignment: Alignment.center,
       dropdownColor: Colors.black54,
       underline: Container(),
       value: cameraBloc.currentResolutionPreset,

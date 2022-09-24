@@ -5,11 +5,11 @@ import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:external_path/external_path.dart';
 import 'package:flutter/foundation.dart';
-import 'package:nice_shot/core/ffmpeg/ffmpeg_service.dart';
 import 'package:nice_shot/core/util/boxes.dart';
 import 'package:nice_shot/core/error/exceptions.dart';
 import 'package:nice_shot/data/model/video_model.dart';
 import 'package:nice_shot/presentation/features/camera/widgets/actions_widget.dart';
+import 'package:video_thumbnail/video_thumbnail.dart' as video_thumbnail;
 import 'package:video_trimmer/video_trimmer.dart';
 import 'bloc.dart';
 
@@ -20,7 +20,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   Timer? countdownTimer;
   Duration videoDuration = const Duration(seconds: 0);
   AssetsAudioPlayer audioPlayer = AssetsAudioPlayer.newPlayer();
-  Duration selectedDuration = const Duration(minutes: 3);
+  Duration selectedDuration = const Duration(minutes: 1);
 
   String strDigits(int n) => n.toString().padLeft(2, '0');
 
@@ -92,7 +92,6 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   //..save v1 and get last 20s from v1 and first 10s from v2 and stop home when
   //..current duration is equal selected duration ex: [1 min] and start new home
   //result case 3 -> 20s+60s = 80s
-  FFmpegService fFmpegService = FFmpegService();
 
   Future<void> _onStopRecording(
     StopRecordingEvent event,
@@ -108,17 +107,24 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
       await file.saveTo(newPath);
       event.video.path = newPath;
       File(file.path).deleteSync();
-      if (event.video.flags!.isEmpty) {
+      if (event.video.flags!.isEmpty && event.fromUser ==false) {
         paths.add(newPath);
         if (paths.length > 1) {
           File(paths.first).deleteSync();
           paths.removeAt(0);
         }
-      } else {
-        await Boxes.videoBox.add(event.video);
-        if (paths.isNotEmpty) paths.removeAt(0);
+      } else if(event.fromUser ==true){
+        video_thumbnail.VideoThumbnail.thumbnailFile(
+          video: event.video.path!,
+          imageFormat: video_thumbnail.ImageFormat.JPEG,
+        ).then((value) async {
+          await Boxes.videoBox.add(event.video..videoThumbnail = value!);
+          if (paths.isNotEmpty) paths.removeAt(0);
+        });
       }
-      add(StartRecordingEvent(fromUser: event.fromUser));
+      if(event.fromUser == false) {
+        add(StartRecordingEvent(fromUser: event.fromUser));
+      }
     } on CameraException catch (e) {
       throw Exception(e);
     }
@@ -241,7 +247,6 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     if (!await directory.exists()) {
       await directory.create(recursive: true);
     }
-
     return directory;
   }
 
@@ -258,7 +263,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
           Duration currentDuration = videoDuration;
           VideoModel video = VideoModel(
             dateTime: DateTime.now(),
-            videoDuration: videoDuration,
+            videoDuration: videoDuration.toString(),
             flags: flags,
           );
           if (currentDuration == selectedDuration && flags.isEmpty) {

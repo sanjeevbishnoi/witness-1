@@ -32,14 +32,19 @@ class FlagItemWidget extends StatelessWidget {
     required this.videoIndex,
   }) : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
     TextEditingController controller = TextEditingController();
 
     Duration flagPoint = flagModel.flagPoint!;
-    Duration videoDuration = videoModel.videoDuration!;
-    Duration start = flagPoint -
-        Duration(
+    List duration = videoModel.videoDuration!.split(":");
+    final videoDuration = Duration(
+      seconds: int.parse(duration.last.toString().split(".").first),
+      minutes: int.parse(duration[1]),
+      hours:int.parse( duration.first),
+    );
+    Duration start = flagPoint -Duration(
           seconds: flagPoint.inSeconds >= 10 ? 10 : flagPoint.inSeconds,
           minutes: 0,
         );
@@ -51,7 +56,6 @@ class FlagItemWidget extends StatelessWidget {
     );
     flagModel.startDuration = start;
     flagModel.endDuration = end;
-
     String startMinute = strDigits(
       flagModel.startDuration!.inMinutes.remainder(60),
     );
@@ -101,6 +105,7 @@ class FlagItemWidget extends StatelessWidget {
           ),
         ],
       ),
+      closeOnScroll: true,
       child: Container(
         decoration: flagModel.isExtracted == true
             ? BoxDecoration(
@@ -138,6 +143,7 @@ class FlagItemWidget extends StatelessWidget {
                 "STR: $startMinute:$startSecond - END: $endMinute:$endSecond",
                 style: Theme.of(context).textTheme.bodySmall,
               ),
+
               const SizedBox(height: MySizes.verticalPadding),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
