@@ -15,6 +15,7 @@ class VideoModel extends DataModel {
   List<FlagModel>? flags;
   @HiveField(6)
   String? videoThumbnail;
+  bool? uploaded;
   VideoModel({
     super.id,
     super.videoDuration,

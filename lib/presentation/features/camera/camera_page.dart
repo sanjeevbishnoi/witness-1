@@ -87,7 +87,7 @@ class CameraPage extends StatelessWidget with WidgetsBindingObserver {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                margin: const EdgeInsets.all(MySizes.widgetSidePadding),
+                margin: const EdgeInsets.all(MySizes.widgetSideSpace),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [

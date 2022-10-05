@@ -5,6 +5,7 @@ import 'package:nice_shot/core/util/boxes.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:nice_shot/data/model/video_model.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../../../icons.dart';
 import '../../../widgets/app_bar_widget.dart';
 import '../widgets/flag_item_widget.dart';
 
@@ -25,13 +26,36 @@ class FlagsByVideoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarWidget(
-        title: 'flags',
+      appBar: AppBar(
+        title: Row(
+          children: [
+            const Text("FLAGS"),
+            const Spacer(),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "${data.flags!.length}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 5.0),
+                const Icon(
+                  MyFlutterApp.flag,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
       body: ValueListenableBuilder(
         valueListenable: Boxes.videoBox.listenable(),
         builder: (context, Box<VideoModel> items, _) => Padding(
-          padding: const EdgeInsets.all(MySizes.widgetSidePadding),
+          padding: const EdgeInsets.all(MySizes.widgetSideSpace),
           child: flags.isNotEmpty
               ? ListView.separated(
                   itemCount: flags.length,
@@ -45,7 +69,7 @@ class FlagsByVideoPage extends StatelessWidget {
                     );
                   },
                   separatorBuilder: (context, index) => const SizedBox(
-                    height: MySizes.verticalPadding,
+                    height: MySizes.verticalSpace,
                   ),
                 )
               : const Center(

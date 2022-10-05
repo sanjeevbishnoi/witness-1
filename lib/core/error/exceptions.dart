@@ -5,3 +5,4 @@ class WrongDataException implements Exception{}
 class DeleteVideoException implements Exception{}
 class AddOrUpdateOrDeleteVideoException implements Exception{}
 class ExportVideoException implements Exception{}
+class CancelUploadVideoException implements Exception{}

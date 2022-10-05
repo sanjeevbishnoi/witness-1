@@ -107,13 +107,13 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
       await file.saveTo(newPath);
       event.video.path = newPath;
       File(file.path).deleteSync();
-      if (event.video.flags!.isEmpty && event.fromUser ==false) {
+      if (event.video.flags!.isEmpty && event.fromUser == false) {
         paths.add(newPath);
         if (paths.length > 1) {
           File(paths.first).deleteSync();
           paths.removeAt(0);
         }
-      } else if(event.fromUser ==true){
+      } else if (event.fromUser == true) {
         video_thumbnail.VideoThumbnail.thumbnailFile(
           video: event.video.path!,
           imageFormat: video_thumbnail.ImageFormat.JPEG,
@@ -122,7 +122,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
           if (paths.isNotEmpty) paths.removeAt(0);
         });
       }
-      if(event.fromUser == false) {
+      if (event.fromUser == false) {
         add(StartRecordingEvent(fromUser: event.fromUser));
       }
     } on CameraException catch (e) {

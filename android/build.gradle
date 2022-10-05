@@ -8,6 +8,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:7.1.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
     }
 }
 
@@ -15,6 +16,17 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+    }
+    configurations.all {
+//        exclude group: 'com.google.guava', module: 'failureaccess'
+//
+//        resolutionStrategy {
+//            eachDependency { details ->
+//                if('guava' == details.requested.name) {
+//                    details.useVersion '27.0-android'
+//                }
+//            }
+//        }
     }
 }
 

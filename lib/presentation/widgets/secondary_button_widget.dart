@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nice_shot/core/util/my_box_decoration.dart';
 
 import '../../core/themes/app_theme.dart';
 
@@ -18,13 +19,25 @@ class SecondaryButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: width,
       height: MySizes.buttonHeight,
+      decoration: myBoxDecoration.copyWith(
+        color: MyColors.scaffoldBackgroundColor,
+        border: const Border.fromBorderSide(
+          BorderSide(
+            color: MyColors.primaryColor,
+            width: MySizes.borderWidth,
+          ),
+        ),
+      ),
       child: OutlinedButton(
         style: ButtonStyle(
           shape: MaterialStateProperty.all(
-            const RoundedRectangleBorder(),
+            const RoundedRectangleBorder(
+                side: BorderSide(
+              color: MyColors.primaryColor,
+            )),
           ),
         ),
         onPressed: () => function(),

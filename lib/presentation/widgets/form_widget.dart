@@ -23,6 +23,8 @@ enum Inputs {
   gender,
   dob,
   confirmPassword,
+  newPassword,
+  nationality,
 }
 
 class FormWidget extends StatelessWidget {
@@ -34,9 +36,12 @@ class FormWidget extends StatelessWidget {
   TextEditingController? promoCodeController;
   TextEditingController? dobController;
   TextEditingController? confirmPasswordController;
+  TextEditingController? nationalityController;
+  TextEditingController? newPasswordController;
   BuildContext? context;
   final String route;
-  bool isShow = false;
+
+  //bool isPassword = false;
 
   FormWidget({
     Key? key,
@@ -49,6 +54,8 @@ class FormWidget extends StatelessWidget {
     this.dobController,
     this.context,
     this.confirmPasswordController,
+    this.nationalityController,
+    this.newPasswordController,
     required this.route,
   }) : super(key: key);
 
@@ -64,38 +71,64 @@ class FormWidget extends StatelessWidget {
     if (route == Routes.loginPage) {
       return [
         textFields(Inputs.email),
-        const SizedBox(height: MySizes.verticalPadding),
+        const SizedBox(height: MySizes.verticalSpace),
         textFields(Inputs.password),
       ];
-    }
-    if (route == Routes.registerPage) {
+    } else if (route == Routes.resetPassword) {
       return [
-        textFields(Inputs.image),
-        const SizedBox(height: MySizes.verticalPadding),
-        textFields(Inputs.username),
-        const SizedBox(height: MySizes.verticalPadding),
-        textFields(Inputs.dob),
-        const SizedBox(height: MySizes.verticalPadding),
-        textFields(Inputs.phone),
-        const SizedBox(height: MySizes.verticalPadding),
-        textFields(Inputs.email),
-        const SizedBox(height: MySizes.verticalPadding),
         textFields(Inputs.password),
-        const SizedBox(height: MySizes.verticalPadding),
+        const SizedBox(height: MySizes.verticalSpace),
+        textFields(Inputs.newPassword),
+        const SizedBox(height: MySizes.verticalSpace),
         textFields(Inputs.confirmPassword),
       ];
-    }
-    if (route == Routes.verifyEmailPage) {
+    } else if (route == Routes.registerPage) {
+      return [
+        textFields(Inputs.image),
+        const SizedBox(height: MySizes.verticalSpace),
+        textFields(Inputs.username),
+        const SizedBox(height: MySizes.verticalSpace),
+        textFields(Inputs.email),
+        const SizedBox(height: MySizes.verticalSpace),
+        textFields(Inputs.phone),
+        const SizedBox(height: MySizes.verticalSpace),
+        Row(
+          children: [
+            Expanded(child: textFields(Inputs.dob)),
+            const SizedBox(width: MySizes.horizontalSpace),
+            Expanded(child: textFields(Inputs.nationality)),
+          ],
+        ),
+        const SizedBox(height: MySizes.verticalSpace),
+        textFields(Inputs.password),
+        const SizedBox(height: MySizes.verticalSpace),
+        textFields(Inputs.confirmPassword),
+      ];
+    } else if (route == Routes.editProfilePage) {
+      return [
+        textFields(Inputs.username),
+        const SizedBox(height: MySizes.verticalSpace),
+        textFields(Inputs.email),
+        const SizedBox(height: MySizes.verticalSpace),
+        textFields(Inputs.phone),
+        const SizedBox(height: MySizes.verticalSpace),
+        Row(
+          children: [
+            Expanded(child: textFields(Inputs.dob)),
+            const SizedBox(width: MySizes.horizontalSpace),
+            Expanded(child: textFields(Inputs.nationality)),
+          ],
+        ),
+      ];
+    } else if (route == Routes.verifyEmailPage) {
       return [
         textFields(Inputs.email),
       ];
-    }
-    if (route == Routes.verifyCodePage) {
+    } else if (route == Routes.verifyCodePage) {
       return [
         textFields(Inputs.code),
       ];
-    }
-    if (route == Routes.resetPasswordPage) {
+    } else if (route == Routes.resetPasswordPage) {
       return [
         textFields(Inputs.password),
       ];
@@ -125,6 +158,15 @@ class FormWidget extends StatelessWidget {
           validator: () {},
           onTap: () {},
         );
+      case Inputs.nationality:
+        return TextFieldWidget(
+          controller: nationalityController!,
+          hint: 'Enter nationality',
+          keyboard: TextInputType.text,
+          prefixIcon: Icons.home_sharp,
+          validator: () {},
+          onTap: () {},
+        );
       case Inputs.phone:
         return IntlPhoneField(
           initialCountryCode: 'IN',
@@ -147,36 +189,51 @@ class FormWidget extends StatelessWidget {
           onCountryChanged: (country) {},
         );
       case Inputs.password:
-        return BlocConsumer<AuthBloc, AuthState>(
-          listener: (context, state) {
-            if (state.showPassword) {
-              isShow = !isShow;
-            }
-          },
-          builder: (context, state) {
-            return TextFieldWidget(
-              controller: passwordController!,
-              hint: 'Enter password',
-              keyboard: TextInputType.text,
-              prefixIcon: Icons.lock,
-              isPassword: !isShow,
-              suffixIcon: state.showPassword == true
-                  ? state.icon
-                  : Icons.visibility_off_sharp,
-              suffixIconPressed: () {
-                context.read<AuthBloc>().add(
-                      ChangeIconSuffixEvent(showPassword: !isShow),
-                    );
-              },
-              validator: () {},
-              onTap: () {},
-            );
-          },
-        );
+        return Builder(builder: (context) {
+          context.read<AuthBloc>().add(
+                ChangeIconSuffixEvent(isPassword: false),
+              );
+          return BlocConsumer<AuthBloc, AuthState>(
+            listener: (context, state) {
+              // if (state.showPassword) {
+              //   isPassword = !isPassword;
+              // }
+            },
+            builder: (context, state) {
+              return TextFieldWidget(
+                controller: passwordController!,
+                hint: 'Enter password',
+                keyboard: TextInputType.text,
+                prefixIcon: Icons.lock,
+                isPassword: context.read<AuthBloc>().isPassword,
+                suffixIcon: state.icon,
+                suffixIconPressed: () {
+                  context.read<AuthBloc>().add(
+                        ChangeIconSuffixEvent(
+                          isPassword: context.read<AuthBloc>().isPassword,
+                        ),
+                      );
+                },
+                validator: () {},
+                onTap: () {},
+              );
+            },
+          );
+        });
       case Inputs.confirmPassword:
         return TextFieldWidget(
           controller: confirmPasswordController!,
           hint: 'Confirm password',
+          keyboard: TextInputType.text,
+          prefixIcon: Icons.lock,
+          isPassword: true,
+          validator: () {},
+          onTap: () {},
+        );
+      case Inputs.newPassword:
+        return TextFieldWidget(
+          controller: newPasswordController!,
+          hint: 'New password',
           keyboard: TextInputType.text,
           prefixIcon: Icons.lock,
           isPassword: true,
@@ -201,8 +258,6 @@ class FormWidget extends StatelessWidget {
             });
           },
         );
-      case Inputs.gender:
-        return Container();
       case Inputs.image:
         return BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
@@ -228,7 +283,7 @@ class FormWidget extends StatelessWidget {
                 ),
                 InkWell(
                   child: Container(
-                    padding: const EdgeInsets.all(MySizes.verticalPadding),
+                    padding: const EdgeInsets.all(MySizes.verticalSpace),
                     decoration: BoxDecoration(
                       color: MyColors.primaryColor,
                       borderRadius: BorderRadius.circular(MySizes.imageRadius),

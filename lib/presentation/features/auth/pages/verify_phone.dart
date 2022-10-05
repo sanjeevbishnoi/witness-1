@@ -22,7 +22,7 @@ class VerifyCodePage extends StatelessWidget {
               "A 6-digit message has been sent to the number:",
               style: Theme.of(context).textTheme.bodyText2,
             ),
-            const SizedBox(height: MySizes.verticalPadding),
+            const SizedBox(height: MySizes.verticalSpace),
             Text(
               "+972 59 2879633",
               style: Theme.of(context)
@@ -30,13 +30,13 @@ class VerifyCodePage extends StatelessWidget {
                   .bodyText2!
                   .copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: MySizes.verticalPadding),
+            const SizedBox(height: MySizes.verticalSpace),
             FormWidget(
               route: Routes.verifyCodePage,
               codeController: codeController,
               context: context,
             ),
-            const SizedBox(height: MySizes.verticalPadding),
+            const SizedBox(height: MySizes.verticalSpace),
             Align(
               alignment: Alignment.center,
               child: TextButton(
@@ -44,12 +44,12 @@ class VerifyCodePage extends StatelessWidget {
                 child: const Text("Re-send code"),
               ),
             ),
-            const SizedBox(height: MySizes.verticalPadding),
+            const SizedBox(height: MySizes.verticalSpace),
             PrimaryButtonWidget(
               function: () {},
               text: "verify",
             ),
-            const SizedBox(height: MySizes.verticalPadding),
+            const SizedBox(height: MySizes.verticalSpace),
             SecondaryButtonWidget(
               function: () => Navigator.pop(context),
               text: "change phone",

@@ -18,7 +18,7 @@ class WrapperWidget extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         body: Padding(
-          padding: const EdgeInsets.all(MySizes.widgetSidePadding),
+          padding: const EdgeInsets.all(MySizes.widgetSideSpace),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,7 +37,7 @@ class WrapperWidget extends StatelessWidget {
                   thickness: 5,
                   endIndent: 310,
                 ),
-                const SizedBox(height: MySizes.verticalPadding),
+                const SizedBox(height: MySizes.verticalSpace),
                 body,
               ],
             ),

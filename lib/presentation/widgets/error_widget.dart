@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 
 class ErrorMessageWidget extends StatelessWidget {
-  final String error;
+  final String message;
   final IconData? icon;
 
   const ErrorMessageWidget({
     Key? key,
-    required this.error,
+    required this.message,
      this.icon,
   }) : super(key: key);
 
@@ -15,8 +15,8 @@ class ErrorMessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: MyColors.backgroundColor,
-      padding: const EdgeInsets.all(MySizes.widgetSidePadding),
-      child: Text(error),
+      padding: const EdgeInsets.all(MySizes.widgetSideSpace),
+      child: Text(message),
     );
   }
 }

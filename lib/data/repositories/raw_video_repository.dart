@@ -26,7 +26,7 @@ class RawVideosRepositoryImpl extends RawVideosRepository {
         ),
       });
       var result = await DioHelper.postData(
-        url: Endpoints.editedVideos,
+        url: Endpoints.rawVideos,
         data: data,
       );
       return Right(Data.fromJson(result.data));

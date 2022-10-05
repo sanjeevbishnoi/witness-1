@@ -34,8 +34,14 @@ dependencies:
   video_trimmer:
     git:
       url: https://github.com/mo7elessi/video_trimmer
+  flutter_uploader:
+    git:
+      url: https://github.com/mo7elessi/flutter_uploader
   share: ^2.0.4
   video_thumbnail: ^0.5.3
+  flutter_local_notifications: ^11.0.1
+  awesome_notifications: ^0.6.21
+  flutter_video_info: ^1.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

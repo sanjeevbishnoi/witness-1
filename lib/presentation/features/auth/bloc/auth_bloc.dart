@@ -20,50 +20,58 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   var picker = ImagePicker();
   final UserRepository userRepository;
+  bool isPassword = false;
 
   AuthBloc({required this.userRepository}) : super(const AuthState()) {
     on<AuthEvent>((event, emit) async {
       if (event is PickUserImageEvent) {
         await pickImage().then((value) {
-          emit(state.copyWith(file: value!));
-          // emit(PickUserImageState(file: value!));
+          emit(state.copyWith(
+            file: value!,
+            loginState: RequestState.none,
+            registerState: RequestState.none,
+          ));
         });
       } else if (event is ChangeIconSuffixEvent) {
+        isPassword = !event.isPassword;
         emit(state.copyWith(
-          icon: event.showPassword
+          loginState: RequestState.none,
+          registerState: RequestState.none,
+          icon: event.isPassword
               ? Icons.visibility_sharp
               : Icons.visibility_off,
-          showPassword: event.showPassword,
+          isPassword: event.isPassword,
         ));
-        // emit(ChangeVisibilityPasswordState(
-        //   icon: event.isShow ? Icons.visibility_sharp : Icons.visibility_off,
-        //   isShow: event.isShow,
-        // ));
+
       } else if (event is CreateAccountEvent) {
-        emit(state.copyWith(requestState: RequestState.loading));
+        emit(state.copyWith(registerState: RequestState.loading));
         var result = await userRepository.createUser(userModel: event.user);
         result.fold(
           (l) => emit(state.copyWith(
-              requestState: RequestState.error, message: "${l.runtimeType}")),
+              registerState: RequestState.error, message: "${l.runtimeType}")),
           (r) => emit(state.copyWith(
-            requestState: RequestState.loaded,
-            user: r,
-            message: REGISTER_SUCCESS_MESSAGE,
+            registerState: RequestState.loaded,
+            user: Data<UserModel>.fromJson(r.data),
+            message: r.data['message'] ?? REGISTER_SUCCESS_MESSAGE,
           )),
         );
       } else if (event is LoginEvent) {
-        emit(state.copyWith(requestState: RequestState.loading));
+        emit(state.copyWith(loginState: RequestState.loading));
         var result = await userRepository.login(
           email: event.email,
           password: event.password,
         );
         result.fold(
-          (l) => emit(state.copyWith(requestState: RequestState.error)),
-          (r) => emit(state.copyWith(
-            requestState: RequestState.loaded,
-            message: LOGIN_SUCCESS_MESSAGE,
-            login: r,
-          )),
+          (l) => emit(state.copyWith(loginState: RequestState.error)),
+          (r) {
+            emit(
+              state.copyWith(
+                loginState: RequestState.loaded,
+                login: LoginModel.fromJson(r.data),
+                message: r.data['error'] ?? LOGIN_SUCCESS_MESSAGE,
+              ),
+            );
+          },
         );
       }
     });

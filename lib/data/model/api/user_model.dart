@@ -12,7 +12,7 @@ class UserModel {
   dynamic logo;
   String? updatedAt;
   String? createdAt;
-  num? id;
+  dynamic id;
   String? logoUrl;
 
   UserModel({

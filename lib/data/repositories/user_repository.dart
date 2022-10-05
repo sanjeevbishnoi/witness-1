@@ -1,31 +1,37 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:nice_shot/core/error/failure.dart';
+import 'package:nice_shot/core/global_variables.dart';
 import 'package:nice_shot/data/model/api/User_model.dart';
 import 'package:nice_shot/data/model/api/data_model.dart';
 import 'package:nice_shot/data/model/api/login_model.dart';
 import 'package:nice_shot/data/network/end_points.dart';
 import 'package:nice_shot/data/network/remote/dio_helper.dart';
-import 'package:http_parser/http_parser.dart';
-
 import '../../core/error/exceptions.dart';
-
-typedef Response = Either<Failure, Data<UserModel>>;
+import 'package:http_parser/http_parser.dart';
+typedef MyResponse = Either<Failure, Response>;
 
 abstract class UserRepository {
-  Future<Response> createUser({required UserModel userModel});
+  Future<MyResponse> createUser({required UserModel userModel});
 
-  Future<Either<Failure, LoginModel>> login({
+  Future<Either<Failure, Response>> login({
     required String email,
     required String password,
   });
 
-  Future<Response> getUserData({required String id});
+  Future<MyResponse> getUserData({required String id});
+
+  Future<MyResponse> updateUserData({required UserModel userModel});
+
+  Future<Either<Failure, Response>> resetPassword({
+    required String oldPassword,
+    required String newPassword,
+  });
 }
 
 class UserRepositoryImpl extends UserRepository {
   @override
-  Future<Response> createUser({required UserModel userModel}) async {
+  Future<MyResponse> createUser({required UserModel userModel}) async {
     var data = FormData.fromMap({
       'name': userModel.name,
       'user_name': userModel.userName,
@@ -34,19 +40,21 @@ class UserRepositoryImpl extends UserRepository {
       'nationality': userModel.nationality,
       'birth_date': userModel.birthDate,
       'password': userModel.password,
-      'logo': await MultipartFile.fromFile(
+      'file': await MultipartFile.fromFile(
         userModel.logo!.path,
+        filename: "upload.jpg",
+        contentType: MediaType("jpeg", "jpg"),
       ),
     });
-    var result = await DioHelper.postData(
-      url: Endpoints.createAccount,
+    var response = await DioHelper.postData(
+      url: Endpoints.user,
       data: data,
     );
-    return _mapToEither(result: result);
+    return _responseState(response: response);
   }
 
   @override
-  Future<Either<Failure, LoginModel>> login({
+  Future<Either<Failure, Response>> login({
     required String email,
     required String password,
   }) async {
@@ -54,28 +62,71 @@ class UserRepositoryImpl extends UserRepository {
       'email': email,
       'password': password,
     });
+    var response = await DioHelper.postData(
+      url: Endpoints.login,
+      data: data,
+    );
     try {
-      var result = await DioHelper.postData(
-        url: Endpoints.login,
-        data: data,
-      );
-      return Right(LoginModel.fromJson(result.data));
+      return Right(response);
     } on ServerException {
       return Left(ServerFailure());
     }
   }
 
   @override
-  Future<Response> getUserData({required String id}) async {
-    var result = await DioHelper.getData(
-      url: "${Endpoints.createAccount}/$id",
+  Future<MyResponse> getUserData({required String id}) async {
+    var response = await DioHelper.getData(
+      url: "${Endpoints.user}/$id",
     );
-    return _mapToEither(result: result);
+    try {
+      return Right(response);
+    } catch (error) {
+      return Left(ServerFailure());
+    }
   }
 
-  Future<Response> _mapToEither({required var result}) async {
+  @override
+  Future<MyResponse> updateUserData({required UserModel userModel}) async {
+    var response = await DioHelper.putData(
+      url: "${Endpoints.user}/$userId",
+      data: {
+        'name': userModel.name,
+        'user_name': userModel.userName,
+        'email': userModel.email,
+        'mobile': userModel.mobile,
+        'nationality': userModel.nationality,
+        'birth_date': userModel.birthDate,
+      },
+    );
     try {
-      return Right(Data<UserModel>.fromJson(result.data));
+      return Right(response);
+    } catch (error) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Response>> resetPassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await DioHelper.postData(
+        url: Endpoints.passwordReset,
+        data: {
+          'old_password': oldPassword,
+          'new_password': newPassword,
+        },
+      );
+      return Right(response);
+    } on ServerException{
+      return Left(ServerFailure());
+    }
+  }
+
+  Future<MyResponse> _responseState({required var response}) async {
+    try {
+      return Right(response);
     } on ServerException {
       return Left(ServerFailure());
     }

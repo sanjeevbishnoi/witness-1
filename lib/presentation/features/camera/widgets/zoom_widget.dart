@@ -34,7 +34,7 @@ class ZoomWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(MySizes.radius),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(MySizes.verticalPadding),
+            padding: const EdgeInsets.all(MySizes.verticalSpace),
             child: Text(
               '${cameraBloc.currentZoomLevel.toStringAsFixed(1)}x',
               style: Theme.of(context)

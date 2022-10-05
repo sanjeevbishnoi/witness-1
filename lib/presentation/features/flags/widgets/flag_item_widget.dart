@@ -124,11 +124,13 @@ class FlagItemWidget extends StatelessWidget {
           leading: Text("${flagIndex + 1}"),
           title: Row(
             children: [
-              Text(
-                flagModel.title ?? "No title",
-                overflow: TextOverflow.ellipsis,
+              Expanded(
+                flex: 3,
+                child: Text(
+                  flagModel.title ?? "No title",
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              const Spacer(),
               if (flagModel.isExtracted == true)
                 const Icon(
                   Icons.check,
@@ -143,8 +145,7 @@ class FlagItemWidget extends StatelessWidget {
                 "STR: $startMinute:$startSecond - END: $endMinute:$endSecond",
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-
-              const SizedBox(height: MySizes.verticalPadding),
+              const SizedBox(height: MySizes.verticalSpace),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -165,7 +166,7 @@ class FlagItemWidget extends StatelessWidget {
                     },
                   ),
                   const SizedBox(
-                    width: MySizes.widgetSidePadding,
+                    width: MySizes.widgetSideSpace,
                   ),
                   LikeActionWidget(
                     icon: MyFlutterApp.thumb_up,

@@ -4,18 +4,19 @@ import 'dart:io';
 class VideoModel {
   String? name;
   String? url;
-  String? video_url;
-  String? userId;
-  String? categoryId;
+  String? videoUrl;
+  dynamic userId;
+  dynamic categoryId;
   File? file;
   String? updatedAt;
   String? createdAt;
   num? id;
+  String? th;
 
   VideoModel({
     this.name,
     this.url,
-    this.video_url,
+    this.videoUrl,
     this.userId,
     this.file,
     this.categoryId,
@@ -27,7 +28,7 @@ class VideoModel {
   VideoModel.fromJson(dynamic json) {
     name = json['name'];
     url = json['url'];
-    video_url = json['video_url'];
+    videoUrl = json['video_url'];
     userId = json['user_id'];
     categoryId = json['category_id'];
     updatedAt = json['updated_at'];
@@ -40,7 +41,7 @@ class VideoModel {
     final map = <String, dynamic>{};
     map['name'] = name;
     map['url'] = url;
-    map['video_url'] = video_url;
+    map['video_url'] = videoUrl;
     map['user_id'] = userId;
     map['category_id'] = categoryId;
     map['updated_at'] = updatedAt;

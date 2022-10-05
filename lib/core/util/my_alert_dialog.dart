@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nice_shot/presentation/widgets/alert_dialog_widget.dart';
+import 'package:nice_shot/presentation/widgets/field_alert_dialog_widget.dart';
 
 myAlertDialog({
   required BuildContext context,
@@ -9,7 +9,7 @@ myAlertDialog({
   await showDialog<String>(
     context: context,
     builder: (BuildContext context) {
-      return AlertDialogWidget(function: function, controller: controller);
+      return FieldAlertDialogWidget(function: function, controller: controller);
     },
   );
 }

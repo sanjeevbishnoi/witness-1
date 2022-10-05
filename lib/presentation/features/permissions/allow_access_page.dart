@@ -15,7 +15,7 @@ class AllowAccessPage extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         body: Padding(
-          padding: const EdgeInsets.all(MySizes.widgetSidePadding),
+          padding: const EdgeInsets.all(MySizes.widgetSideSpace),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -23,25 +23,25 @@ class AllowAccessPage extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontWeight: FontWeight.bold,
                       )),
-              const SizedBox(height: MySizes.verticalPadding),
+              const SizedBox(height: MySizes.verticalSpace),
               Text(
                   "camera app needs to access the following permission,without this permission,the application could not run properly.",
                   style: Theme.of(context).textTheme.bodyText2!),
-              const SizedBox(height: MySizes.verticalPadding * 2),
+              const SizedBox(height: MySizes.verticalSpace * 2),
               permissionWidget(
                 icon: Icons.camera_alt,
                 title: "CAMERA",
                 subTitle: "to record videos.",
                 context: context,
               ),
-              const SizedBox(height: MySizes.verticalPadding),
+              const SizedBox(height: MySizes.verticalSpace),
               permissionWidget(
                 icon: Icons.mic,
                 title: "MICROPHONE",
                 subTitle: "to record videos with audio.",
                 context: context,
               ),
-              const SizedBox(height: MySizes.verticalPadding),
+              const SizedBox(height: MySizes.verticalSpace),
               permissionWidget(
                 icon: Icons.sd_storage,
                 title: "STORAGE",
@@ -83,7 +83,7 @@ class AllowAccessPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(icon,size: 30,color: Colors.black87),
-        const SizedBox(width: MySizes.verticalPadding),
+        const SizedBox(width: MySizes.verticalSpace),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

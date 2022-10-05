@@ -2,6 +2,7 @@ class Endpoints {
   static const String editedVideos = '/api/edited_videos';
   static const String rawVideos = '/api/raw_videos';
   static const String login = '/api/auth/login';
-  static const String createAccount = '/api/user';
-
+  static const String user = '/api/user';
+  static const String auth = '/api/auth/user';
+  static const String passwordReset = '/api/password_reset';
 }

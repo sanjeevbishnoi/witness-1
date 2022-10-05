@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_uploader/flutter_uploader.dart';
 
 import '../../../core/global_variables.dart';
+import '../end_points.dart';
 
 class DioHelper {
   static String baseUrl = "http://91.232.125.244:8085";
@@ -19,6 +21,8 @@ class DioHelper {
       BaseOptions(
         baseUrl: baseUrl,
         receiveDataWhenStatusError: true,
+        validateStatus: (status) => status! < 500,
+        followRedirects: false,
       ),
     );
   }
@@ -28,12 +32,15 @@ class DioHelper {
     Map<String, dynamic>? query,
   }) async {
     dio!.options.headers = headers;
-    return await dio!.get(url, queryParameters: query);
+    return await dio!.get(
+      url,
+      queryParameters: query,
+    );
   }
 
   static Future<Response> postData({
     required String url,
-    required FormData data,
+    required dynamic data,
     Map<String, dynamic>? query,
   }) async {
     dio!.options.headers = headers;
@@ -58,6 +65,6 @@ class DioHelper {
     Map<String, dynamic>? query,
   }) async {
     dio!.options.headers = headers;
-    return dio!.delete(url, queryParameters: query);
+    return await dio!.delete(url, queryParameters: query);
   }
 }

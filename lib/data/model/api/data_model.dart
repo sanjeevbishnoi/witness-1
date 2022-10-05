@@ -10,14 +10,6 @@ class Data<T> {
   Data.fromJson(dynamic json) {
     data = json['data'] != null ? Generic.fromJson<T>(json['data']) : null;
   }
-
-// Map<String, dynamic> toJson() {
-//   final map = <String, dynamic>{};
-//   if (data != null) {
-//     map['data'] = data?.toJson();
-//   }
-//   return map;
-// }
 }
 
 class Generic {

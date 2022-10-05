@@ -3,12 +3,16 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../../../data/model/video_model.dart';
 
 class VideoPlayerPage extends StatefulWidget {
-  final VideoModel videoModel;
+  final String? url;
+  final String? path;
 
-  const VideoPlayerPage({Key? key, required this.videoModel}) : super(key: key);
+  const VideoPlayerPage({
+    Key? key,
+    this.url,
+    this.path,
+  }) : super(key: key);
 
   @override
   _VideoPlayerPageState createState() => _VideoPlayerPageState();
@@ -19,21 +23,22 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   ChewieController? _chewieController;
 
   Future _initVideoPlayer() async {
-    _videoPlayerController =
-        VideoPlayerController.file(File(widget.videoModel.path!));
+    _videoPlayerController = widget.path != null
+        ? VideoPlayerController.file(File(
+            widget.path!,
+          ))
+        : VideoPlayerController.network(
+            widget.url!,
+          );
     await _videoPlayerController!.initialize();
-
     await _videoPlayerController!.setLooping(false);
-
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController!,
-      autoPlay: true,
-      looping: false,
-      showControls: true,
-      zoomAndPan: true,
-      showControlsOnInitialize: true,
-      showOptions: true,
-      fullScreenByDefault: true,
+      // customControls: const CupertinoControls(
+      //   backgroundColor: MyColors.primaryColor,
+      //   iconColor: Colors.white,
+      //   showPlayButton: true,
+      // ),
     );
     _videoPlayerController!.play();
   }

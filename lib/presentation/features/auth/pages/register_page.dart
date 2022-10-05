@@ -23,6 +23,7 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController dobController = TextEditingController();
   final TextEditingController confirmPwdController = TextEditingController();
+  final TextEditingController nationalityController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -38,51 +39,59 @@ class RegisterPage extends StatelessWidget {
             emailController: emailController,
             dobController: dobController,
             confirmPasswordController: confirmPwdController,
+            nationalityController: nationalityController,
             context: context,
           ),
-          const SizedBox(height: MySizes.verticalPadding),
-          BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              if (state.requestState == RequestState.loading) {
-                return const LoadingWidget();
-              } else if (state.requestState == RequestState.loaded) {
-                SchedulerBinding.instance.addPostFrameCallback((_) {
-                  ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
-                    message: state.message!,
-                  ));
-                  Navigator.pushNamed(context, Routes.verifyCodePage);
-                });
-              } else if (state.message != null) {
-                return ErrorMessageWidget(error: state.message!);
+          const SizedBox(height: MySizes.verticalSpace),
+          BlocConsumer<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state.registerState == RequestState.loaded ) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  snackBarWidget(message: state.message!),
+                );
+              } else if (state.registerState == RequestState.loaded && state.user!=null) {
+                Navigator.pushNamed(context, Routes.verifyCodePage);
               }
-              return PrimaryButtonWidget(
-                function: () {
-                  UserModel user = UserModel(
-                    name: usernameController.text,
-                    email: emailController.text,
-                    birthDate: dobController.text,
-                    mobile: "398573489",
-                    nationality: "Egypt",
-                    password: passwordController.text,
-                    logo: state.file!,
-                    userName: usernameController.text
-                        .toLowerCase()
-                        .replaceAll(" ", "_"),
-                  );
-                  context.read<AuthBloc>().add(CreateAccountEvent(user: user));
-                },
-                text: "register",
+            },
+            builder: (context, state) {
+              if (state.registerState == RequestState.loading) {
+                return const LoadingWidget();
+              }
+              return Column(
+                children: [
+                  PrimaryButtonWidget(
+                    function: () {
+                      UserModel user = UserModel(
+                        name: usernameController.text,
+                        email: emailController.text,
+                        birthDate: dobController.text,
+                        mobile: phoneController.text.replaceAll("+", "").trim(),
+                        nationality: nationalityController.text,
+                        password: passwordController.text,
+                        logo: state.file!,
+                        userName: usernameController.text
+                            .toLowerCase()
+                            .replaceAll(" ", "_")
+                            .toLowerCase(),
+                      );
+                      context
+                          .read<AuthBloc>()
+                          .add(CreateAccountEvent(user: user));
+                    },
+                    text: "register",
+                  ),
+                  const SizedBox(height: MySizes.verticalSpace),
+                  SecondaryButtonWidget(
+                    function: () => Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      Routes.loginPage,
+                      (route) => false,
+                    ),
+                    text: "login",
+                  ),
+                ],
               );
             },
-          ),
-          const SizedBox(height: MySizes.verticalPadding),
-          SecondaryButtonWidget(
-            function: () => Navigator.pushNamedAndRemoveUntil(
-              context,
-              Routes.loginPage,
-              (route) => false,
-            ),
-            text: "login",
           ),
         ],
       ),

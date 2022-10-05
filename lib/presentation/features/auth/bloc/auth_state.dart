@@ -2,19 +2,21 @@ part of 'auth_bloc.dart';
 
 class AuthState extends Equatable {
   final Data<UserModel>? user;
-  final RequestState? requestState;
+  final RequestState? registerState;
+  final RequestState? loginState;
   final String? message;
   final File? file;
-  final bool showPassword;
+  final bool isPassword;
   final IconData? icon;
   final LoginModel? login;
 
   const AuthState({
     this.user,
-    this.requestState,
+    this.registerState,
+    this.loginState,
     this.message,
     this.file,
-    this.showPassword = false,
+    this.isPassword = true,
     this.icon,
     this.login,
   });
@@ -23,29 +25,32 @@ class AuthState extends Equatable {
   // TODO: implement props
   List<Object?> get props => [
         user,
-        requestState,
+        registerState,
         message,
         file,
-        showPassword,
+    isPassword,
         icon,
         login,
+    loginState,
       ];
 
   AuthState copyWith({
     Data<UserModel>? user,
-    RequestState? requestState,
+    RequestState? registerState,
+    RequestState? loginState,
     String? message,
     File? file,
-    bool? showPassword,
+    bool? isPassword,
     IconData? icon,
     LoginModel? login,
   }) {
     return AuthState(
-      requestState: requestState ?? this.requestState,
+      registerState: registerState ?? this.registerState,
+      loginState: loginState ?? this.loginState,
       message: message ?? this.message,
       user: user ?? this.user,
       file: file ?? this.file,
-      showPassword: showPassword ?? this.showPassword,
+      isPassword: isPassword ?? this.isPassword,
       icon: icon ?? this.icon,
       login: login ?? this.login,
     );

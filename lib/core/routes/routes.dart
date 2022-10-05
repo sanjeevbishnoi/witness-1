@@ -10,4 +10,9 @@ class Routes {
   static const String flagsByVideoPage = "flags_by_video";
   static const String extractedVideosPage = "extracted_videos";
   static const String cameraPage = "camera_page";
+  static const String profilePage = "profile_page";
+  static const String editProfilePage = "edit_profile_page";
+  static const String allowAccessPage = "allow_access";
+  static const String resetPassword = "reset_password";
+  static const String settingsPage = "settings";
 }

@@ -25,7 +25,7 @@ class WrongDataFailure extends Failure {
   // TODO: implement props
   List<Object?> get props => [];
 }
-class AddOrUpdateOrDeleteVideoFailure extends Failure {
+class CRUDVideoFailure extends Failure {
   @override
   // TODO: implement props
   List<Object?> get props => [];
