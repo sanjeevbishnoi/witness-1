@@ -1,7 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:like_button/like_button.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/presentation/features/camera/widgets/zoom_widget.dart';
 import 'package:nice_shot/presentation/widgets/loading_widget.dart';

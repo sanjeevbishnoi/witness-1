@@ -43,7 +43,6 @@ dependencies:
   awesome_notifications: ^0.6.21
   flutter_video_info: ^1.2.0
   numberpicker: ^2.1.1
-  like_button: ^2.0.5
 dev_dependencies:
   flutter_test:
     sdk: flutter
