@@ -3,14 +3,16 @@ import 'dart:io';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
-import 'package:external_path/external_path.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:nice_shot/core/util/boxes.dart';
 import 'package:nice_shot/core/error/exceptions.dart';
 import 'package:nice_shot/data/model/video_model.dart';
 import 'package:nice_shot/presentation/features/camera/widgets/actions_widget.dart';
 import 'package:video_thumbnail/video_thumbnail.dart' as video_thumbnail;
 import 'package:video_trimmer/video_trimmer.dart';
+import '../../../../core/functions/functions.dart';
+import '../../../../data/model/flag_model.dart';
 import 'bloc.dart';
 
 class CameraBloc extends Bloc<CameraEvent, CameraState> {
@@ -22,14 +24,17 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   AssetsAudioPlayer audioPlayer = AssetsAudioPlayer.newPlayer();
   Duration selectedDuration = const Duration(minutes: 1);
 
-  String strDigits(int n) => n.toString().padLeft(2, '0');
-
   get minutes => strDigits(videoDuration.inMinutes.remainder(60));
 
   get second => strDigits(videoDuration.inSeconds.remainder(60));
+
+  get selectedMinutes => strDigits(selectedDuration.inMinutes.remainder(60));
   double minAvailableZoom = 1.0;
   double maxAvailableZoom = 1.0;
   double currentZoomLevel = 1.0;
+  bool showFocusCircle = false;
+  double x = 0;
+  double y = 0;
 
   CameraBloc() : super(CameraInitial()) {
     on<InitCameraEvent>(_initCamera);
@@ -40,6 +45,27 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     on<DeleteRecordingEvent>(_onDeleteRecording);
     on<OpenFlashEvent>(_onOpenFlash);
     on<ChangeZoomLeveEvent>(_onChangeCurrentZoomLevel);
+    on<FocusEvent>(_onFocusEvent);
+    on<ChangeSelectedDurationEvent>(_changeSelectedDuration);
+    on<NewFlagEvent>(_addNewFlag);
+  }
+
+  List<FlagModel> flags = [];
+
+  Future<void> _changeSelectedDuration(
+    ChangeSelectedDurationEvent event,
+    Emitter<CameraState> emit,
+  ) async {
+    selectedDuration = event.duration;
+    emit(ChangeSelectedDurationState());
+  }
+
+  Future<void> _addNewFlag(
+    NewFlagEvent event,
+    Emitter<CameraState> emit,
+  ) async {
+    flags.add(event.flagModel);
+    emit(FlagsState());
   }
 
   Future<void> _initCamera(
@@ -102,13 +128,13 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
       emit(StopRecordingState(fromUser: event.fromUser));
       countdownTimer!.cancel();
       videoDuration = const Duration(seconds: 0);
-      var value = await _getPath();
-      String newPath = "${value.path}/${file!.name}";
-      await file.saveTo(newPath);
-      event.video.path = newPath;
-      File(file.path).deleteSync();
+     // var value = await _getPath();
+     // String newPath = "${value.path}/${file!.name}";
+     // await file.saveTo(newPath);
+      event.video.path = file!.path;
+    //  File(file.path).deleteSync();
       if (event.video.flags!.isEmpty && event.fromUser == false) {
-        paths.add(newPath);
+        paths.add(file.path);
         if (paths.length > 1) {
           File(paths.first).deleteSync();
           paths.removeAt(0);
@@ -168,12 +194,15 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     }
   }
 
+  bool flashOpened = false;
+
   Future<void> _onOpenFlash(
     OpenFlashEvent event,
     Emitter<CameraState> emit,
   ) async {
     try {
-      await _openFlash(isOpen: event.isOpen);
+      flashOpened = !event.open;
+      await _openFlash();
       emit(FlashOpenedState());
     } catch (e) {
       emit(FlashErrorState(error: e.toString()));
@@ -197,6 +226,29 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     }
     await cameraController.prepareForVideoRecording();
     await cameraController.startVideoRecording();
+  }
+
+  Future<void> _onFocusEvent(
+    FocusEvent event,
+    Emitter<CameraState> emit,
+  ) async {
+    if (controller!.value.isInitialized) {
+      showFocusCircle = true;
+      x = event.details.localPosition.dx;
+      y = event.details.localPosition.dy;
+      double fullWidth = MediaQuery.of(event.context).size.width;
+      double cameraHeight = fullWidth * controller!.value.aspectRatio;
+      double xp = x / fullWidth;
+      double yp = y / cameraHeight;
+      Offset point = Offset(xp, yp);
+
+      await controller!.setFocusPoint(point);
+      await controller!.setExposurePoint(point);
+      Future.delayed(const Duration(seconds: 3)).whenComplete(() {
+        showFocusCircle = false;
+        emit(FocusState());
+      });
+    }
   }
 
   Future<XFile?> _stopRecording() async {
@@ -230,24 +282,14 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     await cameraController.resumeVideoRecording();
   }
 
-  Future<void> _openFlash({required bool isOpen}) async {
+  Future<void> _openFlash() async {
     final CameraController? cameraController = controller;
     if (!cameraController!.value.isInitialized) {
       return;
     }
-    await cameraController
-        .setFlashMode(isOpen ? FlashMode.off : FlashMode.always);
-  }
-
-  Future<Directory> _getPath() async {
-    var path = await ExternalPath.getExternalStoragePublicDirectory(
-      ExternalPath.DIRECTORY_DCIM,
+    await cameraController.setFlashMode(
+      flashOpened ? FlashMode.torch : FlashMode.off,
     );
-    Directory directory = Directory("$path/witness/records");
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-    }
-    return directory;
   }
 
   void startTimer() {

@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:intl/intl.dart';
-import 'package:nice_shot/core/global_variables.dart';
+import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/core/util/my_box_decoration.dart';
 import 'package:nice_shot/data/model/api/video_model.dart' as video;
@@ -138,6 +138,7 @@ class EditedVideoPage extends StatelessWidget {
                                   alignment: Alignment.center,
                                   children: [
                                     Container(
+                                      height: 120.0,
                                       width: double.infinity,
                                       decoration: myBoxDecoration,
                                       child: data.videoThumbnail != null

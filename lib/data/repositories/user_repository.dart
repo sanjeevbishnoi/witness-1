@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:nice_shot/core/error/failure.dart';
-import 'package:nice_shot/core/global_variables.dart';
+import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/data/model/api/User_model.dart';
 import 'package:nice_shot/data/model/api/data_model.dart';
 import 'package:nice_shot/data/model/api/login_model.dart';

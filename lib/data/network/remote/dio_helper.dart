@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
 
-import '../../../core/global_variables.dart';
+import '../../../core/util/global_variables.dart';
 import '../end_points.dart';
 
 class DioHelper {

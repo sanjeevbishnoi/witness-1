@@ -18,11 +18,11 @@ class EditProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var usernameController = TextEditingController();
-    var phoneController = TextEditingController();
-    var emailController = TextEditingController();
-    var dobController = TextEditingController();
-    var nationalityController = TextEditingController();
+    TextEditingController usernameController = TextEditingController();
+    TextEditingController phoneController = TextEditingController();
+    TextEditingController emailController = TextEditingController();
+    TextEditingController dobController = TextEditingController();
+    TextEditingController nationalityController = TextEditingController();
     return Scaffold(
         appBar: AppBar(
           title: const Text("EDIT PROFILE"),
@@ -41,50 +41,56 @@ class EditProfilePage extends StatelessWidget {
                 context: context,
               ),
               const SizedBox(height: MySizes.verticalSpace * 2),
-              BlocConsumer<UserBloc, UserState>(listener: (context, state) {
-                if (state.updateDataState == RequestState.loaded) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    snackBarWidget(message: state.message ?? ""),
-                  );
-                }
-              }, builder: (context, state) {
-                UserModel? user = state.user!.data;
-                usernameController.text = user?.name ?? "";
-                phoneController.text = user?.mobile ?? "";
-                emailController.text = user?.email ?? "";
-                dobController.text = user?.birthDate ?? "";
-                nationalityController.text = user?.nationality ?? "";
-                switch (state.updateDataState) {
-                  case RequestState.loading:
-                    return const LoadingWidget();
-                  default:
-                    return Column(
-                      children: [
-                        PrimaryButtonWidget(
-                          function: () {
-                            context.read<UserBloc>().add(
-                                  UpdateUserDataEvent(
-                                    user: UserModel(
-                                      email: emailController.text,
-                                      userName: usernameController.text
-                                          .replaceAll(" ", "_")
-                                          .toLowerCase(),
-                                      nationality: nationalityController.text,
-                                      mobile: phoneController.text
-                                          .replaceAll("+", "")
-                                          .trim(),
-                                      birthDate: dobController.text,
-                                      name: usernameController.text,
-                                    ),
-                                  ),
-                                );
-                          },
-                          text: "update",
-                        ),
-                      ],
+              BlocConsumer<UserBloc, UserState>(
+                listener: (context, state) {
+                  if (state.updateDataState == RequestState.loaded) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      snackBarWidget(message: state.message ?? ""),
                     );
-                }
-              })
+                  }
+                },
+                builder: (context, state) {
+                  if(state.user != null){
+
+                    UserModel? user = state.user!.data;
+                    usernameController.text = user?.name ?? "";
+                    phoneController.text = user?.mobile ?? "";
+                    emailController.text = user?.email ?? "";
+                    dobController.text = user?.birthDate ?? "";
+                    nationalityController.text = user?.nationality ?? "";
+                  }
+                  switch (state.updateDataState) {
+                    case RequestState.loading:
+                      return const LoadingWidget();
+                    default:
+                      return Column(
+                        children: [
+                          PrimaryButtonWidget(
+                            function: () {
+                              context.read<UserBloc>().add(
+                                    UpdateUserDataEvent(
+                                      user: UserModel(
+                                        email: emailController.text,
+                                        userName: usernameController.text
+                                            .replaceAll(" ", "_")
+                                            .toLowerCase(),
+                                        nationality: nationalityController.text,
+                                        mobile: phoneController.text
+                                            .replaceAll("+", "")
+                                            .trim(),
+                                        birthDate: dobController.text,
+                                        name: usernameController.text,
+                                      ),
+                                    ),
+                                  );
+                            },
+                            text: "update",
+                          ),
+                        ],
+                      );
+                  }
+                },
+              )
             ],
           ),
         ));

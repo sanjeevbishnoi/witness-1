@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
 import '../../../../data/model/video_model.dart';
 
@@ -35,9 +36,8 @@ class ChangeZoomLeveEvent extends CameraEvent {
 }
 
 class OpenFlashEvent extends CameraEvent {
-  bool isOpen = false;
-
-  OpenFlashEvent({required this.isOpen});
+  final bool open;
+  OpenFlashEvent({required this.open});
 }
 
 class DeleteRecordingEvent extends CameraEvent {
@@ -56,4 +56,19 @@ class AddFlagEvent extends CameraEvent {
   final List<FlagModel> flags;
 
   AddFlagEvent({required this.flags});
+}
+class ChangeSelectedDurationEvent extends CameraEvent {
+  final Duration duration;
+
+  ChangeSelectedDurationEvent({required this.duration});
+}
+class FocusEvent extends CameraEvent {
+  final TapUpDetails details;
+  final BuildContext context;
+
+  FocusEvent({required this.details,required this.context});
+}
+class NewFlagEvent extends CameraEvent {
+  final FlagModel flagModel;
+  NewFlagEvent({required this.flagModel});
 }

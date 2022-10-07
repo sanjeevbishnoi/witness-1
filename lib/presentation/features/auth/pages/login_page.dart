@@ -16,7 +16,7 @@ import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/secondary_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
 
-import '../../../../core/global_variables.dart';
+import '../../../../core/util/global_variables.dart';
 import '../../../../data/model/api/login_model.dart';
 
 class LoginPage extends StatelessWidget {

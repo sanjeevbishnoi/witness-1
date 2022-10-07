@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:nice_shot/data/model/duration.g.dart';
@@ -11,6 +14,17 @@ import '../routes/routes.dart';
 import '../strings/failures.dart';
 
 String strDigits(int n) => n.toString().padLeft(2, '0');
+
+Future<Directory> getPath() async {
+  var path = await ExternalPath.getExternalStoragePublicDirectory(
+    ExternalPath.DIRECTORY_DCIM,
+  );
+  Directory directory = Directory("$path/witness/records");
+  if (!await directory.exists()) {
+    await directory.create(recursive: true);
+  }
+  return directory;
+}
 
 void registerAdapters() {
   Hive.registerAdapter(DurationAdapter());

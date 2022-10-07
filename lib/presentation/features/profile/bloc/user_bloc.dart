@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:nice_shot/core/global_variables.dart';
+import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/core/strings/messages.dart';
 import 'package:nice_shot/core/util/enums.dart';
 

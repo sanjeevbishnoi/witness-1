@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nice_shot/core/global_variables.dart';
+import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/presentation/features/edited_videos/pages/uploaded_edited_videos_page.dart';
@@ -15,7 +15,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../core/functions/functions.dart';
 import '../../../../data/model/api/User_model.dart';
-import '../../../icons.dart';
+import '../../../icons/icons.dart';
 import '../../edited_videos/pages/edited_videos_page.dart';
 
 class MainLayout extends StatelessWidget {
@@ -160,7 +160,7 @@ List<String> drawerTitles = [
 ];
 List<Icon> drawerIcons = const [
   Icon(Icons.video_settings, color: Colors.black54),
-  Icon(MyFlutterApp.flag, color: Colors.black54),
+  Icon(MyIcons.flag, color: Colors.black54),
   Icon(Icons.upload, color: Colors.black54),
   Icon(Icons.person, color: Colors.black54),
   Icon(Icons.settings, color: Colors.black54),

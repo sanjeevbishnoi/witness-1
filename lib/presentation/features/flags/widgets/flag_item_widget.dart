@@ -11,9 +11,9 @@ import '../../../../core/themes/app_theme.dart';
 import '../../../../core/util/boxes.dart';
 import '../../../../core/util/my_alert_dialog.dart';
 import '../../../../core/util/my_box_decoration.dart';
-import '../../../icons.dart';
+import '../../../icons/icons.dart';
 import '../../../widgets/slidable_action_widget.dart';
-import '../../trimmer/trimmer_page.dart';
+import '../../editor/pages/trimmer_page.dart';
 import 'like_action.dart';
 
 class FlagItemWidget extends StatelessWidget {
@@ -150,7 +150,7 @@ class FlagItemWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   LikeActionWidget(
-                    icon: MyFlutterApp.thumb_down,
+                    icon: MyIcons.thumb_down,
                     isLike: flagModel.isLike,
                     value: false,
                     function: () {
@@ -169,7 +169,7 @@ class FlagItemWidget extends StatelessWidget {
                     width: MySizes.widgetSideSpace,
                   ),
                   LikeActionWidget(
-                    icon: MyFlutterApp.thumb_up,
+                    icon: MyIcons.thumb_up,
                     isLike: flagModel.isLike,
                     value: true,
                     function: () {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nice_shot/presentation/features/auth/pages/login_page.dart';
 import 'package:nice_shot/presentation/features/auth/pages/register_page.dart';
 import 'package:nice_shot/presentation/features/auth/pages/verify_phone.dart';
-import 'package:nice_shot/presentation/features/camera/camera_page.dart';
+import 'package:nice_shot/presentation/features/camera/pages/camera_page.dart';
 import 'package:nice_shot/presentation/features/edited_videos/pages/edited_videos_page.dart';
 import 'package:nice_shot/presentation/features/permissions/allow_access_page.dart';
 import 'package:nice_shot/presentation/features/profile/pages/edit_profile_page.dart';
@@ -31,7 +31,7 @@ class Routers {
       case Routes.verifyCodePage:
         return MaterialPageRoute(builder: (_) => const VerifyCodePage());
       case Routes.cameraPage:
-        return MaterialPageRoute(builder: (_) => const CameraPage());
+        return MaterialPageRoute(builder: (_) =>  CameraPage());
       case Routes.profilePage:
         return MaterialPageRoute(builder: (_) => const ProfilePage());
       case Routes.editProfilePage:

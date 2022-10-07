@@ -29,7 +29,6 @@ class AlertDialogWidget extends StatelessWidget {
           ),
         ),
       ),
-
       // content: Text(
       //   message,
       //   style: Theme.of(context).textTheme.bodyText2,

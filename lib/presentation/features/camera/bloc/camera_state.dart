@@ -1,38 +1,3 @@
-//import 'package:equatable/equatable.dart';
-
-// enum RequestState {
-//   loading,
-//   loaded,
-//   error,
-// }
-//
-// class CameraStateTest extends Equatable {
-//   final bool fromUser;
-//   final RequestState requestState;
-//   final String message;
-//
-//   const CameraStateTest({
-//     this.fromUser = false,
-//     this.requestState = RequestState.loading,
-//     this.message = "",
-//   });
-//
-//   @override
-//   // TODO: implement props
-//   List<Object?> get props => throw UnimplementedError();
-//
-//   CameraStateTest copyWith({
-//     bool? fromUser,
-//     RequestState? requestState,
-//     String? message,
-//   }) {
-//     return CameraStateTest(
-//       requestState: requestState ?? this.requestState,
-//       message: message ?? this.message,
-//       fromUser: fromUser ?? this.fromUser,
-//     );
-//   }
-// }
 abstract class CameraState {
   const CameraState();
 }
@@ -74,3 +39,8 @@ class AddVideoErrorState extends CameraState {
 }
 
 class StartTimerState extends CameraState {}
+
+class FocusState extends CameraState {}
+
+class ChangeSelectedDurationState extends CameraState {}
+class FlagsState extends CameraState {}

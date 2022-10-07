@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/routes/routes.dart';
-import 'package:nice_shot/core/strings/messages.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/core/util/enums.dart';
 import 'package:nice_shot/presentation/features/profile/bloc/user_bloc.dart';

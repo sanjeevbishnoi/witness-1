@@ -1,12 +1,14 @@
 import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:video_trimmer/video_trimmer.dart';
 
-import '../../../core/util/boxes.dart';
-import '../../../data/model/video_model.dart';
+import '../../../../core/functions/functions.dart';
+import '../../../../core/util/boxes.dart';
+import '../../../../data/model/video_model.dart';
 
 class TrimmerPage extends StatefulWidget {
   final File file;
@@ -74,20 +76,25 @@ class _TrimmerPageState extends State<TrimmerPage> {
                   videoFileName: widget.flag.title,
                   videoFolderName: "videos",
                   onSave: (String? outputPath) async {
+                    final value = await getPath();
+                    final file =  XFile(outputPath!);
+                    String newPath = "${value.path}/${DateTime.now()}";
+                    await file.saveTo(newPath);
+                    File(file.path).deleteSync();
                     VideoModel videoModel = VideoModel(
-                        id: widget.flag.id,
-                        path: outputPath!,
-                        title: widget.flag.title,
-                        dateTime: DateTime.now(),
-                        videoThumbnail: widget.data.videoThumbnail!,
-                        videoDuration: widget.data.videoDuration!);
+                      id: widget.flag.id,
+                      path: newPath,
+                      title: widget.flag.title,
+                      dateTime: DateTime.now(),
+                      videoThumbnail: widget.data.videoThumbnail!,
+                      videoDuration: widget.data.videoDuration!,
+                    );
                     await Boxes.exportedVideoBox.add(videoModel);
                     widget.items
                         .putAt(
                       widget.videoIndex,
                       widget.data..flags![widget.flagIndex].isExtracted = true,
-                    )
-                        .then((value) {
+                    ).then((value) {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
                         Routes.homePage,

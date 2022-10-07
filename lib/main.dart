@@ -6,11 +6,11 @@ import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/data/model/api/login_model.dart';
 import 'package:nice_shot/presentation/features/main_layout/pages/home.dart';
 import 'package:nice_shot/presentation/features/permissions/permissions.dart';
-import 'package:nice_shot/presentation/bloc_delegate.dart';
+import 'package:nice_shot/data/debugs/bloc_delegate.dart';
 import 'package:nice_shot/presentation/router/app_router.dart';
 import 'package:nice_shot/providers.dart';
 import 'core/functions/functions.dart';
-import 'core/global_variables.dart';
+import 'core/util/global_variables.dart';
 import 'data/network/local/cache_helper.dart';
 import 'data/network/remote/dio_helper.dart';
 import 'injection_container.dart' as di;
@@ -28,18 +28,22 @@ void main() async {
   registerAdapters();
   await openBoxes();
 
-
   await AppPermissions.checkPermissions().then(
-    (value) => permissionsGranted = value,
+    (value) {
+      permissionsGranted = value;
+      print("permissionsGranted $value");
+    },
   );
   String? initRoute;
   final user = CacheHelper.getData(key: "user");
   if (user != null) {
     currentUserData = LoginModel.fromJson(json.decode(user));
     initRoute = Routes.homePage;
-  } else if (permissionsGranted) {
+  }
+  if (permissionsGranted == false) {
     initRoute = Routes.allowAccessPage;
-  } else {
+  }
+  if (user == null) {
     initRoute = Routes.registerPage;
   }
 
@@ -64,7 +68,6 @@ class MyApp extends StatelessWidget {
         theme: Themes.theme,
         onGenerateRoute: Routers.generateRoute,
         initialRoute: initRoute,
-        home: const MainLayout(),
       ),
     );
   }

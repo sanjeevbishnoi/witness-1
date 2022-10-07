@@ -5,7 +5,7 @@ import 'package:nice_shot/core/util/boxes.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:nice_shot/data/model/video_model.dart';
 import '../../../../core/themes/app_theme.dart';
-import '../../../icons.dart';
+import '../../../icons/icons.dart';
 import '../../../widgets/app_bar_widget.dart';
 import '../widgets/flag_item_widget.dart';
 
@@ -43,7 +43,7 @@ class FlagsByVideoPage extends StatelessWidget {
                 ),
                 const SizedBox(width: 5.0),
                 const Icon(
-                  MyFlutterApp.flag,
+                  MyIcons.flag,
                   color: Colors.white,
                   size: 18,
                 ),

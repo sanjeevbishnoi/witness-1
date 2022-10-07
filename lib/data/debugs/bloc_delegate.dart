@@ -15,7 +15,7 @@ class ApplicationBlocObserver extends BlocObserver {
   void onChange(BlocBase bloc, Change change) {
     super.onChange(bloc, change);
     if (kDebugMode) {
-      print("$tag change: $bloc\nchange: $change");
+      print("my states: change: $bloc\nchange: $change");
     }
   }
 

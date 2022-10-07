@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nice_shot/core/global_variables.dart';
+import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
 import 'package:permission_handler/permission_handler.dart';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/presentation/features/camera/bloc/camera_bloc.dart';
 
@@ -11,23 +12,9 @@ class ZoomWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Slider.adaptive(
-          value: cameraBloc.currentZoomLevel,
-          min: cameraBloc.minAvailableZoom,
-          max: cameraBloc.maxAvailableZoom,
-          activeColor: Colors.white,
-          inactiveColor: Colors.white30,
-          onChanged: (value) async {
-            cameraBloc.add(
-              ChangeZoomLeveEvent(currentZoomLevel: value),
-            );
-
-            await cameraBloc.controller!.setZoomLevel(value);
-          },
-        ),
         Container(
           decoration: BoxDecoration(
             color: Colors.black54,
@@ -44,6 +31,21 @@ class ZoomWidget extends StatelessWidget {
             ),
           ),
         ),
+        Slider.adaptive(
+          value: cameraBloc.currentZoomLevel,
+          min: cameraBloc.minAvailableZoom,
+          max: cameraBloc.maxAvailableZoom,
+          activeColor: Colors.white,
+          inactiveColor: Colors.white30,
+          onChanged: (value) async {
+            cameraBloc.add(
+              ChangeZoomLeveEvent(currentZoomLevel: value),
+            );
+
+            await cameraBloc.controller!.setZoomLevel(value);
+          },
+        ),
+
       ],
     );
   }
