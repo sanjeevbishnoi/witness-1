@@ -16,6 +16,7 @@ class ResolutionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButton<ResolutionPreset>(
+      iconSize: 0,
       iconEnabledColor: Colors.white,
       elevation: MySizes.elevation.toInt(),
       alignment: Alignment.center,

@@ -138,7 +138,7 @@ class EditedVideoPage extends StatelessWidget {
                                   alignment: Alignment.center,
                                   children: [
                                     Container(
-                                      height: 120.0,
+                                      height: double.infinity,
                                       width: double.infinity,
                                       decoration: myBoxDecoration,
                                       child: data.videoThumbnail != null

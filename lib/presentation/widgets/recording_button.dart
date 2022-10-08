@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:like_button/like_button.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 
 class RecordingButtonWidget extends StatelessWidget {
@@ -14,7 +15,7 @@ class RecordingButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return UnconstrainedBox(
-      child: GestureDetector(
+      child: InkWell(
           onTap: () => onPressed(),
           child: Container(width: 70.0,height: 70.0,
             padding: const EdgeInsets.all(3.0),

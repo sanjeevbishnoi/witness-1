@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:nice_shot/core/util/boxes.dart';
 import 'package:nice_shot/core/error/exceptions.dart';
 import 'package:nice_shot/data/model/video_model.dart';
-import 'package:nice_shot/presentation/features/camera/widgets/actions_widget.dart';
 import 'package:video_thumbnail/video_thumbnail.dart' as video_thumbnail;
 import 'package:video_trimmer/video_trimmer.dart';
 import '../../../../core/functions/functions.dart';
@@ -73,6 +72,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     Emitter<CameraState> emit,
   ) async {
     try {
+      add(OpenFlashEvent(open: true));
       final cameras = await availableCameras();
       final back = cameras.firstWhere((camera) {
         return camera.lensDirection == CameraLensDirection.back;

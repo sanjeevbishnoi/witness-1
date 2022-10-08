@@ -61,21 +61,16 @@ class MainLayout extends StatelessWidget {
                                       ),
                                 const SizedBox(height: MySizes.horizontalSpace),
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(user?.name??"loading..",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium!
-                                            .copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: MyColors.backgroundColor,
-                                            ),
-                                      ),
-                                    ],
+                                  child: Center(
+                                    child: Text(user?.name??"loading..",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium!
+                                          .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: MyColors.backgroundColor,
+                                          ),
+                                    ),
                                   ),
                                 )
                               ],

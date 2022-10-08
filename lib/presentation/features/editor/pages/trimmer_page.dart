@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:nice_shot/core/routes/routes.dart';
@@ -77,10 +76,12 @@ class _TrimmerPageState extends State<TrimmerPage> {
                   videoFolderName: "videos",
                   onSave: (String? outputPath) async {
                     final value = await getPath();
-                    final file =  XFile(outputPath!);
-                    String newPath = "${value.path}/${DateTime.now()}";
-                    await file.saveTo(newPath);
+                    final file = File(outputPath!);
+                    String newPath =
+                        "${value.path}/${DateTime.now().microsecondsSinceEpoch}.mp4";
+                    await file.copy(newPath);
                     File(file.path).deleteSync();
+
                     VideoModel videoModel = VideoModel(
                       id: widget.flag.id,
                       path: newPath,
@@ -94,7 +95,8 @@ class _TrimmerPageState extends State<TrimmerPage> {
                         .putAt(
                       widget.videoIndex,
                       widget.data..flags![widget.flagIndex].isExtracted = true,
-                    ).then((value) {
+                    )
+                        .then((value) {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
                         Routes.homePage,

@@ -150,6 +150,7 @@ class RawVideosPage extends StatelessWidget {
                                     children: [
                                       Container(
                                         width: double.infinity,
+                                        height: double.infinity,
                                         decoration: myBoxDecoration,
                                         child: data.videoThumbnail != null
                                             ? Image.file(
