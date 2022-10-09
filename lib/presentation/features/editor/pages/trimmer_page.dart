@@ -80,7 +80,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                           NumberPicker(
                               infiniteLoop: true,
                               itemCount: 3,
-                              value: 0,
+                              value: startValue.toInt(),
                               minValue: startValue.toInt(),
                               maxValue: endValue==0? endTemp.toInt()-1:endValue.toInt()-1,
                               onChanged: (value) {
@@ -207,8 +207,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                 fit: BoxFit.cover,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
+            Expanded(
               child: InkWell(
                 onTap: (){
                   showNumberPickerDialog=true;
