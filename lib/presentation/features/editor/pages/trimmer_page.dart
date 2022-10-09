@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'package:video_trimmer/video_trimmer.dart';
 
 import '../../../../core/functions/functions.dart';
@@ -17,6 +18,7 @@ class TrimmerPage extends StatefulWidget {
   final int flagIndex;
   final int videoIndex;
   final Duration videoDuration;
+
 
   const TrimmerPage({
     Key? key,
@@ -39,13 +41,14 @@ class _TrimmerPageState extends State<TrimmerPage> {
   double endValue = 0.0;
   bool _isPlaying = false;
   double endTemp = 0;
+  int currentValue=3;
+  bool showNumberPickerDialog=false;
 
   @override
   void initState() {
-    print("path: ${widget.file.path}");
-    startValue = widget.flag.startDuration!.inSeconds.toDouble() * 1000;
+    startValue = widget.flag.startDuration!.inSeconds.toDouble();
     trimmer.loadVideo(videoFile: widget.file);
-    endTemp = widget.flag.endDuration!.inSeconds.toDouble() * 1000;
+    endTemp = widget.flag.endDuration!.inSeconds.toDouble();
     super.initState();
   }
 
@@ -57,6 +60,63 @@ class _TrimmerPageState extends State<TrimmerPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(endTemp);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (showNumberPickerDialog){
+        showDialog(
+            context: context, builder: (context) {
+          return StatefulBuilder(
+            builder: (BuildContext context, void Function(void Function()) setState) {
+              return AlertDialog(
+                title: const Text(
+                    "select the start & end point to mute between"
+                ),
+                actions: [
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          NumberPicker(
+                              infiniteLoop: true,
+                              itemCount: 3,
+                              value: 0,
+                              minValue: startValue.toInt(),
+                              maxValue: endValue==0? endTemp.toInt()-1:endValue.toInt()-1,
+                              onChanged: (value) {
+                                setState((){
+                                  currentValue = value;
+                                });
+                              }
+                          ),
+                          NumberPicker(
+                              itemCount: 3,
+                              value: currentValue,
+                              minValue: 0,
+                              maxValue: 100,
+                              onChanged: (value) {
+                                setState((){
+                                  currentValue = value;
+                                });
+                              }
+                          )
+                        ],
+                      )
+
+                    ],
+                  )
+
+                ],
+
+              );
+            },
+
+          );
+        }
+        );
+      }
+    });
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -70,10 +130,11 @@ class _TrimmerPageState extends State<TrimmerPage> {
               ),
               onPressed: () async {
                 await trimmer.saveTrimmedVideo(
+                  ffmpegCommand: "",
                   startValue: startValue,
                   endValue: endValue == 0 ? endTemp : endValue,
                   videoFileName: widget.flag.title,
-                  videoFolderName: "edited_videos",
+                  videoFolderName: "videos",
                   onSave: (String? outputPath) async {
                     final value = await getPath();
                     final file = File(outputPath!);
@@ -100,7 +161,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
                         Routes.homePage,
-                        (route) => false,
+                            (route) => false,
                       );
                     });
                   },
@@ -111,74 +172,130 @@ class _TrimmerPageState extends State<TrimmerPage> {
         ),
         body: File(widget.file.path).existsSync() == true
             ? Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Expanded(
-                    flex: 6,
-                    child: Container(
-                      color: Colors.black,
-                      child: VideoViewer(trimmer: trimmer),
-                    ),
-                  ),
-                  const Spacer(),
-                  Expanded(
-                    child: TrimEditor(
-                      trimmer: trimmer,
-                      viewerWidth: MediaQuery.of(context).size.width,
-                      onChangeStart: (value) {
-                        setState(() {
-                          startValue = value;
-                        });
-                      },
-                      onChangeEnd: (value) {
-                        setState(() {
-                          endValue = value;
-                        });
-                      },
-                      onChangePlaybackState: (value) {
-                        setState(() {
-                          _isPlaying = value;
-                        });
-                      },
-                      flagModel: widget.flag,
-                      videoDuration: widget.videoDuration,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: TextButton(
-                        child: _isPlaying
-                            ? const Icon(
-                                Icons.pause,
-                                size: 50.0,
-                                color: Colors.white,
-                              )
-                            : const Icon(
-                                Icons.play_arrow,
-                                size: 50.0,
-                                color: Colors.white,
-                              ),
-                        onPressed: () async {
-                          bool playbackState =
-                              await trimmer.videPlaybackControl(
-                            startValue: startValue,
-                            endValue: endValue,
-                          );
-                          setState(() {
-                            _isPlaying = playbackState;
-                          });
-                        },
-                      ),
-                    ),
-                  )
-                ],
-              )
-            : const Center(
-                child: Text("Unknown video"),
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              flex: 6,
+              child: Container(
+                color: Colors.black,
+                child: VideoViewer(trimmer: trimmer),
               ),
+            ),
+            const Spacer(),
+            Expanded(
+              child: TrimEditor(
+                trimmer: trimmer,
+                viewerWidth: MediaQuery.of(context).size.width,
+                onChangeStart: (value) {
+                  setState(() {
+                    startValue = value;
+                  });
+                },
+                onChangeEnd: (value) {
+                  setState(() {
+                    endValue = value;
+                  });
+                },
+                onChangePlaybackState: (value) {
+                  setState(() {
+                    _isPlaying = value;
+                  });
+                },
+                flagModel: widget.flag,
+                videoDuration: widget.videoDuration,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: InkWell(
+                onTap: (){
+                  showNumberPickerDialog=true;
+                  setState((){});
+                  // showDialog(
+                  //     context: context, builder:(context){
+                  //       print("setsttated");
+                  //       return AlertDialog(
+                  //         title:const  Text(
+                  //           "select the start & end point to mute between"
+                  //         ),
+                  //         actions: [
+                  //           Column(
+                  //             children: [
+                  //               Row(
+                  //                 mainAxisAlignment: MainAxisAlignment.center,
+                  //                 children: [
+                  //                   NumberPicker(
+                  //                     infiniteLoop: true,
+                  //                     itemCount: 3,
+                  //                     value: currentValue,
+                  //                     minValue: 0,
+                  //                     maxValue: 100,
+                  //                     onChanged: (value) {
+                  //                         //currentValue = value;
+                  //                     }
+                  //                   ),
+                  //                   NumberPicker(
+                  //                     itemCount: 3,
+                  //                     value: currentValue,
+                  //                     minValue: 0,
+                  //                     maxValue: 100,
+                  //                       onChanged: (value) {
+                  //                         //currentValue = value;
+                  //                       }
+                  //                   )
+                  //                 ],
+                  //               )
+                  //
+                  //             ],
+                  //           )
+                  //
+                  //         ],
+                  //
+                  //       );
+                  // }
+                  // );
+                },
+                child: const Icon(
+                  Icons.music_off_rounded,
+                  color: Colors.yellow,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: TextButton(
+                  child: _isPlaying
+                      ? const Icon(
+                    Icons.pause,
+                    size: 50.0,
+                    color: Colors.white,
+                  )
+                      : const Icon(
+                    Icons.play_arrow,
+                    size: 50.0,
+                    color: Colors.white,
+                  ),
+                  onPressed: () async {
+                    bool playbackState =
+                    await trimmer.videPlaybackControl(
+                      startValue: startValue,
+                      endValue: endValue,
+                    );
+                    setState(() {
+                      _isPlaying = playbackState;
+                    });
+                  },
+                ),
+              ),
+            )
+          ],
+        )
+            : const Center(
+          child: Text("Unknown video"),
+        ),
       ),
     );
   }
