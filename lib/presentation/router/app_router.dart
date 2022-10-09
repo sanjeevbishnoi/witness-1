@@ -3,15 +3,15 @@ import 'package:nice_shot/presentation/features/auth/pages/login_page.dart';
 import 'package:nice_shot/presentation/features/auth/pages/register_page.dart';
 import 'package:nice_shot/presentation/features/auth/pages/verify_phone.dart';
 import 'package:nice_shot/presentation/features/camera/pages/camera_page.dart';
-import 'package:nice_shot/presentation/features/edited_videos/pages/edited_videos_page.dart';
 import 'package:nice_shot/presentation/features/permissions/allow_access_page.dart';
 import 'package:nice_shot/presentation/features/profile/pages/edit_profile_page.dart';
 import 'package:nice_shot/presentation/features/profile/pages/profile_page.dart';
-import 'package:nice_shot/presentation/features/raw_videos/raw_videos_page.dart';
 import 'package:nice_shot/presentation/features/settings/pages/reset_password_page.dart';
 import 'package:nice_shot/presentation/features/settings/pages/settings.dart';
 import '../../core/routes/routes.dart';
+import '../features/edited_videos/pages/edited_videos_page.dart';
 import '../features/main_layout/pages/home.dart';
+import '../features/raw_videos/pages/raw_videos_page.dart';
 
 class Routers {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -31,7 +31,7 @@ class Routers {
       case Routes.verifyCodePage:
         return MaterialPageRoute(builder: (_) => const VerifyCodePage());
       case Routes.cameraPage:
-        return MaterialPageRoute(builder: (_) =>  CameraPage());
+        return MaterialPageRoute(builder: (_) =>  const CameraPage());
       case Routes.profilePage:
         return MaterialPageRoute(builder: (_) => const ProfilePage());
       case Routes.editProfilePage:

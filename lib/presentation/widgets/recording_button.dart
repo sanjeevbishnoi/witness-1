@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:like_button/like_button.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 
 class RecordingButtonWidget extends StatelessWidget {

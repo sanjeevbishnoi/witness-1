@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/data/model/api/login_model.dart';
-import 'package:nice_shot/presentation/features/main_layout/pages/home.dart';
 import 'package:nice_shot/presentation/features/permissions/permissions.dart';
 import 'package:nice_shot/data/debugs/bloc_delegate.dart';
 import 'package:nice_shot/presentation/router/app_router.dart';
@@ -27,13 +26,9 @@ void main() async {
   await Hive.initFlutter();
   registerAdapters();
   await openBoxes();
-
-  await AppPermissions.checkPermissions().then(
-    (value) {
-      permissionsGranted = value;
-      print("permissionsGranted $value");
-    },
-  );
+  await AppPermissions.checkPermissions().then((value) {
+    permissionsGranted = value;
+  });
   String? initRoute;
   final user = CacheHelper.getData(key: "user");
   if (user != null) {
@@ -46,7 +41,6 @@ void main() async {
   if (user == null) {
     initRoute = Routes.registerPage;
   }
-
   BlocOverrides.runZoned(() {
     runApp(MyApp(initRoute: initRoute!));
   }, blocObserver: ApplicationBlocObserver());
@@ -72,3 +66,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

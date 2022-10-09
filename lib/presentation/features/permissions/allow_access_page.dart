@@ -31,14 +31,14 @@ class AllowAccessPage extends StatelessWidget {
               permissionWidget(
                 icon: Icons.camera_alt,
                 title: "CAMERA",
-                subTitle: "to record videos.",
+                subTitle: "to record edited_videos.",
                 context: context,
               ),
               const SizedBox(height: MySizes.verticalSpace),
               permissionWidget(
                 icon: Icons.mic,
                 title: "MICROPHONE",
-                subTitle: "to record videos with audio.",
+                subTitle: "to record edited_videos with audio.",
                 context: context,
               ),
               const SizedBox(height: MySizes.verticalSpace),

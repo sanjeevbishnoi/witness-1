@@ -18,7 +18,7 @@ class MySizes {
 }
 
 class MyColors {
-  static const Color primaryColor = Color(0xFFFF1200);
+  static const Color primaryColor = Color(0xFFFF1100);
   static const Color scaffoldBackgroundColor = Color(0xFFFAF9F9);
   static const Color backgroundColor = Color(0xFFFFFFFF);
   static const Color iconsColor = Color(0xFF8F8F8F);
@@ -34,7 +34,7 @@ final OutlineInputBorder outlineInputBorder = OutlineInputBorder(
 
 class Themes {
   static ThemeData theme = ThemeData(
-  // fontFamily: "Lato-Regular",
+  fontFamily: "Lato-Regular",
     primaryColor: MyColors.primaryColor,
     primarySwatch: Colors.red,
     scaffoldBackgroundColor: MyColors.scaffoldBackgroundColor,

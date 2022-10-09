@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/core/util/enums.dart';
 import 'package:nice_shot/data/model/api/User_model.dart';
 import 'package:nice_shot/presentation/features/profile/bloc/user_bloc.dart';
-import 'package:nice_shot/presentation/widgets/error_widget.dart';
 import 'package:nice_shot/presentation/widgets/form_widget.dart';
 import 'package:nice_shot/presentation/widgets/loading_widget.dart';
 import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
@@ -31,14 +29,25 @@ class EditProfilePage extends StatelessWidget {
           padding: const EdgeInsets.all(MySizes.widgetSideSpace),
           child: Column(
             children: [
-              FormWidget(
-                route: Routes.editProfilePage,
-                phoneController: phoneController,
-                usernameController: usernameController,
-                emailController: emailController,
-                dobController: dobController,
-                nationalityController: nationalityController,
-                context: context,
+              BlocBuilder<UserBloc, UserState>(
+                builder: (context, state) {
+                  UserModel? user = state.user!.data;
+                  usernameController.text = user?.name ?? "";
+                  phoneController.text = user?.mobile ?? "";
+                  emailController.text = user?.email ?? "";
+                  dobController.text = user?.birthDate ?? "";
+                  nationalityController.text = user?.nationality ?? "";
+
+                  return FormWidget(
+                    route: Routes.editProfilePage,
+                    phoneController: phoneController,
+                    usernameController: usernameController,
+                    emailController: emailController,
+                    dobController: dobController,
+                    nationalityController: nationalityController,
+                    context: context,
+                  );
+                },
               ),
               const SizedBox(height: MySizes.verticalSpace * 2),
               BlocConsumer<UserBloc, UserState>(
@@ -50,15 +59,6 @@ class EditProfilePage extends StatelessWidget {
                   }
                 },
                 builder: (context, state) {
-                  if(state.user != null){
-
-                    UserModel? user = state.user!.data;
-                    usernameController.text = user?.name ?? "";
-                    phoneController.text = user?.mobile ?? "";
-                    emailController.text = user?.email ?? "";
-                    dobController.text = user?.birthDate ?? "";
-                    nationalityController.text = user?.nationality ?? "";
-                  }
                   switch (state.updateDataState) {
                     case RequestState.loading:
                       return const LoadingWidget();

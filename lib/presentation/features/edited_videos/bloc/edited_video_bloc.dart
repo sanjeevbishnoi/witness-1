@@ -16,12 +16,12 @@ part 'edited_video_event.dart';
 part 'edited_video_state.dart';
 
 class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
-  final EditedVideosRepository editedVideosRepository;
+  final EditedVideosRepository videosRepository;
   StreamSubscription? _progressSubscription;
   StreamSubscription? _resultSubscription;
 
   EditedVideoBloc({
-    required this.editedVideosRepository,
+    required this.videosRepository,
   }) : super(const EditedVideoState()) {
     on<EditedVideoEvent>((event, emit) {});
     on<UploadVideoEvent>(_uploadVideo);
@@ -34,9 +34,9 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
     UploadVideoEvent event,
     Emitter<EditedVideoState> emit,
   ) async {
-    await editedVideosRepository.uploader.clearUploads();
+    await videosRepository.editedVideoUploader.clearUploads();
     _progressSubscription =
-        editedVideosRepository.uploader.progress.listen((progress) {
+        videosRepository.editedVideoUploader.progress.listen((progress) {
       emit(state.copyWith(
         uploadingState: RequestState.loading,
         index: event.index,
@@ -44,7 +44,9 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
         progressValue: progress.progress! >= 0 ? progress.progress : 0,
       ));
     });
-    final r = await editedVideosRepository.uploadVideo(video: event.video);
+    final r = await videosRepository.uploadVideo(
+      video: event.video
+    );
     r.fold(
       (failure) {
         emit(state.copyWith(
@@ -73,7 +75,7 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
     Emitter<EditedVideoState> emit,
   ) async {
     emit(state.copyWith(requestState: RequestState.loading));
-    final data = await editedVideosRepository.getEditedVideos(id: event.id);
+    final data = await videosRepository.getEditedVideos(id: event.id);
     data.fold(
       (failure) => emit(state.copyWith(
         requestState: RequestState.error,
@@ -91,7 +93,7 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
     Emitter<EditedVideoState> emit,
   ) async {
     emit(state.copyWith(uploadingState: RequestState.loading));
-    final data = await editedVideosRepository.cancelUploadVideo(
+    final data = await videosRepository.cancelUploadVideo(
       id: event.taskId,
     );
     data.fold(
@@ -108,7 +110,7 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
     Emitter<EditedVideoState> emit,
   ) async {
     emit(state.copyWith(requestState: RequestState.loading));
-    final data = await editedVideosRepository.deleteEditedVideo(id: event.id);
+    final data = await videosRepository.deleteEditedVideo(id: event.id);
 
     data.fold(
       (failure) => emit(state.copyWith(

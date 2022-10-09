@@ -9,6 +9,7 @@ import 'package:nice_shot/data/network/end_points.dart';
 import 'package:nice_shot/data/network/remote/dio_helper.dart';
 import '../../core/error/exceptions.dart';
 import 'package:http_parser/http_parser.dart';
+
 typedef MyResponse = Either<Failure, Response>;
 
 abstract class UserRepository {
@@ -22,6 +23,8 @@ abstract class UserRepository {
   Future<MyResponse> getUserData({required String id});
 
   Future<MyResponse> updateUserData({required UserModel userModel});
+
+  Future<MyResponse> updateUserImage({required String path});
 
   Future<Either<Failure, Response>> resetPassword({
     required String oldPassword,
@@ -119,7 +122,7 @@ class UserRepositoryImpl extends UserRepository {
         },
       );
       return Right(response);
-    } on ServerException{
+    } on ServerException {
       return Left(ServerFailure());
     }
   }
@@ -128,6 +131,26 @@ class UserRepositoryImpl extends UserRepository {
     try {
       return Right(response);
     } on ServerException {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<MyResponse> updateUserImage({required String path}) async {
+    var data = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        path,
+        filename: "upload.jpg",
+        contentType: MediaType("jpeg", "jpg"),
+      ),
+    });
+    var response = await DioHelper.postData(
+      url: Endpoints.userImage,
+      data: data,
+    );
+    try {
+      return Right(response);
+    } catch (error) {
       return Left(ServerFailure());
     }
   }

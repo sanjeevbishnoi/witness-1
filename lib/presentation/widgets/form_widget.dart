@@ -6,10 +6,12 @@ import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:nice_shot/core/util/enums.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../core/themes/app_theme.dart';
 import '../features/auth/bloc/auth_bloc.dart';
+import '../features/profile/bloc/user_bloc.dart';
 import 'text_field_widget.dart';
 
 enum Inputs {
@@ -25,6 +27,7 @@ enum Inputs {
   confirmPassword,
   newPassword,
   nationality,
+  profile,
 }
 
 class FormWidget extends StatelessWidget {
@@ -73,6 +76,10 @@ class FormWidget extends StatelessWidget {
         textFields(Inputs.email),
         const SizedBox(height: MySizes.verticalSpace),
         textFields(Inputs.password),
+      ];
+    } else if (route == Routes.profilePage) {
+      return [
+        textFields(Inputs.image),
       ];
     } else if (route == Routes.resetPassword) {
       return [
@@ -274,7 +281,7 @@ class FormWidget extends StatelessWidget {
                               image: FileImage(state.file!),
                               fit: BoxFit.cover,
                             )
-                          : const DecorationImage(
+                          :  const DecorationImage(
                               image: AssetImage(
                                 "assets/images/defaultImage.jpg",
                               ),

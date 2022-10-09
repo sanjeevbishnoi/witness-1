@@ -73,7 +73,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                   startValue: startValue,
                   endValue: endValue == 0 ? endTemp : endValue,
                   videoFileName: widget.flag.title,
-                  videoFolderName: "videos",
+                  videoFolderName: "edited_videos",
                   onSave: (String? outputPath) async {
                     final value = await getPath();
                     final file = File(outputPath!);

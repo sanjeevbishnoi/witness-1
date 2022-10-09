@@ -243,8 +243,8 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
       Offset point = Offset(xp, yp);
 
       await controller!.setFocusPoint(point);
-      await controller!.setExposurePoint(point);
-      Future.delayed(const Duration(seconds: 3)).whenComplete(() {
+     // await controller!.setExposurePoint(point);
+      Future.delayed(const Duration(seconds: 2)).whenComplete(() {
         showFocusCircle = false;
         emit(FocusState());
       });

@@ -30,7 +30,11 @@ class ResolutionsWidget extends StatelessWidget {
             value: preset,
             child: Text(
               preset.toString().split('.')[1].toUpperCase(),
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white),
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    color: cameraBloc.currentResolutionPreset == preset
+                        ? Colors.yellowAccent
+                        : Colors.white,
+                  ),
             ),
           ),
       ],

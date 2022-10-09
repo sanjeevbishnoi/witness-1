@@ -21,12 +21,12 @@ abstract class EditedVideosRepository {
 
   Future<Either<Failure, Unit>> cancelUploadVideo({required String id});
 
-  abstract FlutterUploader uploader;
+  abstract FlutterUploader editedVideoUploader;
 }
 
-class EditedVideosRepositoryImpl extends EditedVideosRepository {
+class VideosRepositoryImpl extends EditedVideosRepository {
   @override
-  FlutterUploader uploader = FlutterUploader();
+  FlutterUploader editedVideoUploader = FlutterUploader();
 
   @override
   Future<Generic> uploadVideo({required VideoModel video}) async {
@@ -37,7 +37,7 @@ class EditedVideosRepositoryImpl extends EditedVideosRepository {
     };
     try {
       DioHelper.dio!.options.headers = DioHelper.headers;
-      await uploader.enqueue(
+      await editedVideoUploader.enqueue(
         MultipartFormDataUpload(
           method: UploadMethod.POST,
           url: "${DioHelper.baseUrl}${Endpoints.editedVideos}",
@@ -47,7 +47,7 @@ class EditedVideosRepositoryImpl extends EditedVideosRepository {
           files: [FileItem(path: video.file!.path, field: 'file')],
         ),
       );
-      final response = await uploader.result.firstWhere(
+      final response = await editedVideoUploader.result.firstWhere(
         (element) => element.statusCode == 201,
       );
 
@@ -86,7 +86,7 @@ class EditedVideosRepositoryImpl extends EditedVideosRepository {
   @override
   Future<Either<Failure, Unit>> cancelUploadVideo({required String id}) async {
     try {
-      await uploader.cancel(taskId: id);
+      await editedVideoUploader.cancel(taskId: id);
       return const Right(unit);
     } on CancelUploadVideoException {
       return Left(CRUDVideoFailure());

@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:nice_shot/data/model/duration.g.dart';
-import 'package:nice_shot/data/model/flag_model.dart';
+import '../../data/model/duration.g.dart';
+import '../../data/model/flag_model.dart';
 import '../../data/network/local/cache_helper.dart';
 import '../../presentation/widgets/alert_dialog_widget.dart';
 import '../error/failure.dart';
@@ -49,14 +49,20 @@ String mapFailureToMessage({required Failure failure}) {
       return DEFAULT_FAILURE_MESSAGE;
   }
 }
-void logOut({required BuildContext context}){
+
+void logOut({required BuildContext context}) {
   showDialog(
     context: context,
     builder: (context) {
       return AlertDialogWidget(
         title: "Logout",
-        function: (){
+        function: () {
           CacheHelper.clearData(key: "user").then((value) {
+            // if (Platform.isAndroid) {
+            //   SystemNavigator.pop();
+            // } else if (Platform.isIOS) {
+            //   exit(0);
+            // }
             Navigator.pushNamed(context, Routes.loginPage);
           });
         },

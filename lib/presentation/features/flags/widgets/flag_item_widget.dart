@@ -32,25 +32,29 @@ class FlagItemWidget extends StatelessWidget {
     required this.videoIndex,
   }) : super(key: key);
 
-
   @override
   Widget build(BuildContext context) {
     TextEditingController controller = TextEditingController();
-
-    Duration flagPoint = flagModel.flagPoint!;
+    List flagPoint = flagModel.flagPoint!.split(":");
+    Duration point = Duration(
+      seconds: int.parse(flagPoint.last.toString().split(".").first),
+      minutes: int.parse(flagPoint[1]),
+      hours: int.parse(flagPoint.first),
+    );
     List duration = videoModel.videoDuration!.split(":");
     final videoDuration = Duration(
       seconds: int.parse(duration.last.toString().split(".").first),
       minutes: int.parse(duration[1]),
-      hours:int.parse( duration.first),
+      hours: int.parse(duration.first),
     );
-    Duration start = flagPoint -Duration(
-          seconds: flagPoint.inSeconds >= 10 ? 10 : flagPoint.inSeconds,
+    Duration start = point -
+        Duration(
+          seconds: point.inSeconds >= 10 ? 10 : point.inSeconds,
           minutes: 0,
         );
     Duration end = Duration(
-      seconds: (flagPoint.inSeconds + 10) <= videoDuration.inSeconds
-          ? flagPoint.inSeconds + 10
+      seconds: (point.inSeconds + 10) <= videoDuration.inSeconds
+          ? point.inSeconds + 10
           : videoDuration.inSeconds,
       minutes: 0,
     );
@@ -69,144 +73,142 @@ class FlagItemWidget extends StatelessWidget {
       flagModel.endDuration!.inSeconds.remainder(60),
     );
 
-    return Slidable(
-      endActionPane: ActionPane(
-        motion: const ScrollMotion(),
-        children: [
-          SlidableActionWidget(
-            color: Colors.blueAccent,
-            context: context,
-            function: () async {
-              myAlertDialog(
-                controller: controller,
-                context: context,
-                function: () async {
-                  if (controller.text.isNotEmpty) {
-                    await items.putAt(
-                      videoIndex,
-                      videoModel..flags![flagIndex].title = controller.text,
-                    );
-                    Navigator.pop(context);
-                  }
-                },
-              );
-            },
-            icon: Icons.edit,
-          ),
-          SlidableActionWidget(
-            color: Colors.red,
-            context: context,
-            function: () async {
-              VideoModel video = videoModel..flags!.removeAt(flagIndex);
-              await items.deleteAt(videoIndex);
-              await Boxes.videoBox.add(video);
-            },
-            icon: Icons.delete,
-          ),
-        ],
-      ),
-      closeOnScroll: true,
-      child: Container(
-        decoration: flagModel.isExtracted == true
-            ? BoxDecoration(
-                color: MyColors.backgroundColor,
-                borderRadius: BorderRadius.circular(MySizes.radius),
-                border: const Border.fromBorderSide(
-                  BorderSide(
-                    color: Colors.green,
-                    width: 0.5,
-                  ),
-                ),
-              )
-            : myBoxDecoration,
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(
-          leading: Text("${flagIndex + 1}"),
-          title: Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: Text(
-                  flagModel.title ?? "No title",
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (flagModel.isExtracted == true)
-                const Icon(
-                  Icons.check,
+    return Container(
+      decoration: flagModel.isExtracted == true
+          ? BoxDecoration(
+              color: MyColors.backgroundColor,
+              borderRadius: BorderRadius.circular(MySizes.radius),
+              border: const Border.fromBorderSide(
+                BorderSide(
                   color: Colors.green,
+                  width: 0.5,
                 ),
-            ],
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "STR: $startMinute:$startSecond - END: $endMinute:$endSecond",
-                style: Theme.of(context).textTheme.bodySmall,
               ),
-              const SizedBox(height: MySizes.verticalSpace),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+            )
+          : myBoxDecoration,
+      padding: const EdgeInsets.all(8.0),
+      child: ListTile(
+        leading: Text("${flagIndex + 1}"),
+        title: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Text(
+                flagModel.title ?? "No title",
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (flagModel.isExtracted == true)
+              const Icon(
+                Icons.check,
+                color: Colors.green,
+              ),
+          ],
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "STR: $startMinute:$startSecond - END: $endMinute:$endSecond",
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: MySizes.verticalSpace),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                LikeActionWidget(
+                  icon: MyIcons.thumb_down,
+                  isLike: flagModel.isLike,
+                  value: false,
+                  function: () {
+                    items.putAt(
+                      videoIndex,
+                      videoModel
+                        ..flags![flagIndex].isLike =
+                            flagModel.isLike == null || flagModel.isLike == true
+                                ? false
+                                : null,
+                    );
+                  },
+                ),
+                const SizedBox(
+                  width: MySizes.widgetSideSpace,
+                ),
+                LikeActionWidget(
+                  icon: MyIcons.thumb_up,
+                  isLike: flagModel.isLike,
+                  value: true,
+                  function: () {
+                    items.putAt(
+                      videoIndex,
+                      videoModel
+                        ..flags![flagIndex].isLike = flagModel.isLike == null ||
+                                flagModel.isLike == false
+                            ? true
+                            : null,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return TrimmerPage(
+                  file: File(videoModel.path!),
+                  flag: flagModel,
+                  data: videoModel,
+                  items: items,
+                  videoDuration: videoDuration,
+                  videoIndex: videoIndex,
+                  flagIndex: flagIndex,
+                );
+              },
+            ),
+          );
+        },
+        onLongPress: () {
+          showModalBottomSheet(
+            backgroundColor: Colors.white,
+            elevation: 8,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(10.0),
+              ),
+            ),
+            builder: (context) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  LikeActionWidget(
-                    icon: MyIcons.thumb_down,
-                    isLike: flagModel.isLike,
-                    value: false,
-                    function: () {
-                      items.putAt(
-                        videoIndex,
-                        videoModel
-                          ..flags![flagIndex].isLike =
-                              flagModel.isLike == null ||
-                                      flagModel.isLike == true
-                                  ? false
-                                  : null,
-                      );
+                  ActionWidget(
+                    title: "Delete",
+                    icon: Icons.delete_forever_rounded,
+                    function: () async {
+                      VideoModel video = videoModel..flags!.removeAt(flagIndex);
+                      await items.deleteAt(videoIndex);
+                      await Boxes.videoBox
+                          .add(video)
+                          .then((value) => Navigator.pop(context));
                     },
                   ),
-                  const SizedBox(
-                    width: MySizes.widgetSideSpace,
-                  ),
-                  LikeActionWidget(
-                    icon: MyIcons.thumb_up,
-                    isLike: flagModel.isLike,
-                    value: true,
+                  ActionWidget(
+                    title: "Edit title",
+                    icon: Icons.edit,
                     function: () {
-                      items.putAt(
-                        videoIndex,
-                        videoModel
-                          ..flags![flagIndex].isLike =
-                              flagModel.isLike == null ||
-                                      flagModel.isLike == false
-                                  ? true
-                                  : null,
-                      );
+                      Navigator.pop(context);
                     },
                   ),
                 ],
-              ),
-            ],
-          ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return TrimmerPage(
-                    file: File(videoModel.path!),
-                    flag: flagModel,
-                    data: videoModel,
-                    items: items,
-                    videoDuration: videoDuration,
-                    videoIndex: videoIndex,
-                    flagIndex: flagIndex,
-                  );
-                },
-              ),
-            );
-          },
-        ),
+              );
+            },
+            context: context,
+          );
+        },
       ),
     );
   }

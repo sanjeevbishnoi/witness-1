@@ -4,6 +4,7 @@ import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/data/network/local/cache_helper.dart';
 import 'package:nice_shot/presentation/features/profile/widgets/action_item_widget.dart';
 import 'package:nice_shot/presentation/widgets/alert_dialog_widget.dart';
+import 'package:nice_shot/presentation/widgets/slidable_action_widget.dart';
 
 import '../../../../core/functions/functions.dart';
 import '../../../../core/routes/routes.dart';
@@ -17,25 +18,25 @@ class SettingsPage extends StatelessWidget {
       padding: const EdgeInsets.all(MySizes.widgetSideSpace),
       child: Column(
         children: [
-          ActionItemWidget(
+          ActionWidget(
             icon: Icons.lock_clock_rounded,
             function: () => Navigator.pushNamed(
               context,
               Routes.resetPassword,
             ),
-            text: "Reset Password",
+            title: "Reset Password",
           ),
           const SizedBox(height: MySizes.verticalSpace),
-          ActionItemWidget(
+          ActionWidget(
             icon: Icons.delete_forever_rounded,
             function: () {},
-            text: "Delete Account",
+            title: "Delete Account",
           ),
           const SizedBox(height: MySizes.verticalSpace),
-          ActionItemWidget(
+          ActionWidget(
             icon: Icons.exit_to_app,
             function: () =>logOut(context: context),
-            text: "Logout",
+            title: "Logout",
           ),
         ],
       ),

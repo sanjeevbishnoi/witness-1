@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:nice_shot/core/util/global_variables.dart';
@@ -20,6 +22,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<GetUserDataEvent>(_onGetUserData);
     on<UpdateUserDataEvent>(_onUpdateUserData);
     on<ResetPasswordEvent>(_onResetPassword);
+    on<UpdateUserImageEvent>(_onUpdateUserImage);
   }
 
   Future<void> _onGetUserData(
@@ -56,6 +59,27 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       (r) {
         emit(state.copyWith(
           updateDataState: RequestState.loaded,
+          user: Data<UserModel>.fromJson(r.data),
+          message: r.data['message'] ?? UPDATE_USER_SUCCESS_MESSAGE,
+        ));
+      },
+    );
+  }
+
+  Future<void> _onUpdateUserImage(
+    UpdateUserImageEvent event,
+    Emitter<UserState> emit,
+  ) async {
+    emit(state.copyWith(updateImageState: RequestState.loading));
+    var result = await userRepository.updateUserImage(path: event.path);
+    result.fold(
+      (l) => emit(state.copyWith(
+        updateImageState: RequestState.error,
+        message: "${l.runtimeType}",
+      )),
+      (r) {
+        emit(state.copyWith(
+          updateImageState: RequestState.loaded,
           user: Data<UserModel>.fromJson(r.data),
           message: r.data['message'] ?? UPDATE_USER_SUCCESS_MESSAGE,
         ));

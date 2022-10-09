@@ -7,7 +7,7 @@ abstract class AuthEvent {
 class PickUserImageEvent extends AuthEvent {}
 
 class ChangeIconSuffixEvent extends AuthEvent {
-   bool isPassword = true;
+  bool isPassword = true;
 
   ChangeIconSuffixEvent({required this.isPassword});
 }

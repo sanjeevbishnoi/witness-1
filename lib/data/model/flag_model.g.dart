@@ -21,7 +21,7 @@ class FlagModelAdapter extends TypeAdapter<FlagModel> {
       videoDuration: fields[3] as String?,
       path: fields[2] as String?,
       title: fields[1] as String?,
-      flagPoint: fields[6] as Duration?,
+      flagPoint: fields[9] as String?,
       isLike: fields[4] as bool?,
       isExtracted: fields[5] as bool?,
       startDuration: fields[7] as Duration?,
@@ -37,7 +37,7 @@ class FlagModelAdapter extends TypeAdapter<FlagModel> {
       ..write(obj.isLike)
       ..writeByte(5)
       ..write(obj.isExtracted)
-      ..writeByte(6)
+      ..writeByte(9)
       ..write(obj.flagPoint)
       ..writeByte(7)
       ..write(obj.startDuration)

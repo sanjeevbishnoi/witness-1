@@ -48,7 +48,7 @@ class TrimmerBloc extends Bloc<TrimmerEvent, TrimmerState> {
         startValue: startValue,
         endValue: endValue,
         videoFileName: event.flagModel.title,
-        videoFolderName: "videos",
+        videoFolderName: "edited_videos",
         onSave: (String? outputPath) async {
           VideoModel videoModel = VideoModel(
             id: event.flagModel.id,

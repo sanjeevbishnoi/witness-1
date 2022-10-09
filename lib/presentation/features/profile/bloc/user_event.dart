@@ -10,6 +10,12 @@ class UpdateUserDataEvent extends UserEvent {
   UpdateUserDataEvent({required this.user});
 }
 
+class UpdateUserImageEvent extends UserEvent {
+  final String path;
+
+  UpdateUserImageEvent({required this.path});
+}
+
 class ResetPasswordEvent extends UserEvent {
   final String oldPassword;
   final String newPassword;

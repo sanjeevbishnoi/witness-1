@@ -77,7 +77,7 @@ class ActionsWidget extends StatelessWidget {
 
   void _onPressFlag() {
     //cameraBloc.audioPlayer.open(Audio("assets/audios/flags.mp3"));
-    FlagModel flag = FlagModel(flagPoint: cameraBloc.videoDuration);
+    FlagModel flag = FlagModel(flagPoint: cameraBloc.videoDuration.toString());
     cameraBloc.add(NewFlagEvent(flagModel: flag));
   }
 

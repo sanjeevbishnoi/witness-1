@@ -5,14 +5,17 @@ class UserState extends Equatable {
   final RequestState? requestState;
   final RequestState? updateDataState;
   final RequestState? resetPasswordState;
+  final RequestState? updateImageState;
   final String? message;
-
+  final File? file;
   const UserState({
     this.updateDataState,
     this.resetPasswordState,
+    this.updateImageState,
     this.user,
     this.requestState,
     this.message,
+    this.file,
   });
 
   @override
@@ -23,6 +26,8 @@ class UserState extends Equatable {
         message,
         updateDataState,
         resetPasswordState,
+    updateImageState,
+    file,
       ];
 
   UserState copyWith({
@@ -30,7 +35,9 @@ class UserState extends Equatable {
     RequestState? requestState,
     RequestState? updateDataState,
     RequestState? resetPasswordState,
+    RequestState? updateImageState,
     String? message,
+    File? file,
   }) {
     return UserState(
       requestState: requestState ?? this.requestState,
@@ -38,6 +45,8 @@ class UserState extends Equatable {
       user: user ?? this.user,
       resetPasswordState: resetPasswordState ?? this.resetPasswordState,
       updateDataState: updateDataState ?? this.updateDataState,
+      updateImageState: updateImageState ?? this.updateImageState,
+      file: file ?? this.file,
     );
   }
 }

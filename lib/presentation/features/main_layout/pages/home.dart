@@ -3,20 +3,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
-import 'package:nice_shot/presentation/features/edited_videos/pages/uploaded_edited_videos_page.dart';
 import 'package:nice_shot/presentation/features/main_layout/bloc/main_layout_bloc.dart';
 import 'package:nice_shot/presentation/features/profile/bloc/user_bloc.dart';
-import 'package:nice_shot/presentation/features/profile/bloc/user_bloc.dart';
 import 'package:nice_shot/presentation/features/profile/pages/profile_page.dart';
-import 'package:nice_shot/presentation/features/raw_videos/raw_videos_page.dart';
 import 'package:nice_shot/presentation/features/settings/pages/settings.dart';
 import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 import '../../../../core/functions/functions.dart';
 import '../../../../data/model/api/User_model.dart';
 import '../../../icons/icons.dart';
 import '../../edited_videos/pages/edited_videos_page.dart';
+import '../../edited_videos/pages/uploaded_videos_page.dart';
+import '../../raw_videos/pages/raw_videos_page.dart';
 
 class MainLayout extends StatelessWidget {
   const MainLayout({Key? key}) : super(key: key);
@@ -39,8 +37,8 @@ class MainLayout extends StatelessWidget {
                     UserModel? user = state.user?.data;
                     return DrawerHeader(
                       decoration:
-                          const BoxDecoration(color: MyColors.primaryColor),
-                      child:  Stack(
+                      const BoxDecoration(color: MyColors.primaryColor),
+                      child: Stack(
                         alignment: Alignment.topRight,
                         children: [
                           Center(
@@ -48,28 +46,30 @@ class MainLayout extends StatelessWidget {
                               children: [
                                 user?.logoUrl != null
                                     ? CircleAvatar(
-                                        radius: 50.0,
-                                        backgroundImage: NetworkImage(
-                                          "${user!.logoUrl}",
-                                        ),
-                                      )
+                                  radius: 40.0,
+                                  backgroundImage: NetworkImage(
+                                    "${user!.logoUrl}",
+                                  ),
+                                )
                                     : const CircleAvatar(
-                                        radius: 50.0,
-                                        backgroundImage: AssetImage(
-                                          "assets/images/defaultImage.jpg",
-                                        ),
-                                      ),
+                                  radius: 40.0,
+                                  backgroundImage: AssetImage(
+                                    "assets/images/defaultImage.jpg",
+                                  ),
+                                ),
                                 const SizedBox(height: MySizes.horizontalSpace),
                                 Expanded(
                                   child: Center(
-                                    child: Text(user?.name??"loading..",
-                                      style: Theme.of(context)
+                                    child: Text(
+                                      user?.name ?? "loading..",
+                                      style: Theme
+                                          .of(context)
                                           .textTheme
                                           .titleMedium!
                                           .copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            color: MyColors.backgroundColor,
-                                          ),
+                                        fontWeight: FontWeight.bold,
+                                        color: MyColors.backgroundColor,
+                                      ),
                                     ),
                                   ),
                                 )
@@ -103,13 +103,11 @@ class MainLayout extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: MySizes.widgetSideSpace),
-                Center(
-                  child: TextButton(
-                    onPressed: () => logOut(context: context),
-                    child: const Text(
-                      "LOGOUT",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                TextButton(
+                  onPressed: () => logOut(context: context),
+                  child: const Text(
+                    "LOGOUT",
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -123,7 +121,7 @@ class MainLayout extends StatelessWidget {
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
                   message:
-                      "Required permissions were not granted!, Open settings and give permissions.",
+                  "Required permissions were not granted!, Open settings and give permissions.",
                   label: "SETTINGS",
                   onPressed: () => openAppSettings(),
                 ));
@@ -138,24 +136,23 @@ class MainLayout extends StatelessWidget {
     );
   }
 }
-
 List<Widget> pages = [
-  const EditedVideoPage(),
   const RawVideosPage(),
+  const EditedVideoPage(),
   const UploadedEditedVideoPage(),
   const ProfilePage(),
   const SettingsPage(),
 ];
 List<String> drawerTitles = [
-  'Edited Videos',
   'Raw Videos',
+  'Edited Videos',
   'Uploaded Videos',
   'Profile',
   'Settings',
 ];
 List<Icon> drawerIcons = const [
-  Icon(Icons.video_settings, color: Colors.black54),
   Icon(MyIcons.flag, color: Colors.black54),
+  Icon(Icons.video_settings, color: Colors.black54),
   Icon(Icons.upload, color: Colors.black54),
   Icon(Icons.person, color: Colors.black54),
   Icon(Icons.settings, color: Colors.black54),

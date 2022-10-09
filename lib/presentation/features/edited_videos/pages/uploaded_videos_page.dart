@@ -1,17 +1,15 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/core/util/enums.dart';
 import 'package:nice_shot/data/model/api/video_model.dart';
-import 'package:nice_shot/presentation/features/edited_videos/bloc/edited_video_bloc.dart';
-import 'package:nice_shot/presentation/widgets/error_widget.dart';
 import 'package:nice_shot/presentation/widgets/loading_widget.dart';
 
 import '../../../../core/util/my_box_decoration.dart';
 import '../../video_player/video_player_page.dart';
+import '../bloc/edited_video_bloc.dart';
+import '../../../widgets/empty_video_list_widget.dart';
 
 class UploadedEditedVideoPage extends StatelessWidget {
   const UploadedEditedVideoPage({Key? key}) : super(key: key);
@@ -102,10 +100,7 @@ class UploadedEditedVideoPage extends StatelessWidget {
                       );
                     }),
                   )
-                : const Center(
-                    child: ErrorMessageWidget(
-                    message: "The video has not been uploaded yet!",
-                  ));
+                : const EmptyVideoListWidget();
           }
           return const LoadingWidget();
         },
