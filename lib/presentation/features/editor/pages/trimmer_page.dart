@@ -42,7 +42,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
   double endTemp = 0;
   int StartCurrentValue = 0;
   int EndCurrentValue = 0;
-  int userClicks=0;
+  int userClicks = 0;
 
   bool showNumberPickerDialog = false;
 
@@ -52,7 +52,6 @@ class _TrimmerPageState extends State<TrimmerPage> {
     trimmer.loadVideo(videoFile: widget.file);
     endTemp = widget.flag.endDuration!.inSeconds.toDouble();
     super.initState();
-
   }
 
   @override
@@ -68,19 +67,23 @@ class _TrimmerPageState extends State<TrimmerPage> {
         showDialog(
             context: context,
             builder: (context) {
-              return StatefulBuilder(
-                builder: (BuildContext context,
-                    void Function(void Function()) setState) {
-                  return WillPopScope(
-                    onWillPop: () async {
-                      showNumberPickerDialog = false;
-                      StartCurrentValue = 0;
-                      EndCurrentValue = 0;
-                      return true;
-                    },
-                    child: AlertDialog(
-                      title: const Text(
-                          "select the start & end point to mute between"),
+              return WillPopScope(
+                onWillPop: () async {
+                  showNumberPickerDialog = false;
+                  StartCurrentValue = 0;
+                  EndCurrentValue = 0;
+                  return true;
+                },
+                child: StatefulBuilder(
+                  builder: (BuildContext context,
+                      void Function(void Function()) setState) {
+                    return AlertDialog(
+                      title: const Text("select start & end point to mute"),
+                      content: Text(
+                        "the default start is the $startValue second and the end is the  $endTemp second\n "
+                        "the numbers interval are chosen from the video tag not the whole video ",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       actions: [
                         Column(
                           children: [
@@ -93,9 +96,14 @@ class _TrimmerPageState extends State<TrimmerPage> {
                                     NumberPicker(
                                         infiniteLoop: true,
                                         itemCount: 3,
-                                        value: StartCurrentValue == 0
+                                        value: (StartCurrentValue == 0
                                             ? startValue.toInt()
-                                            : StartCurrentValue,
+                                            : StartCurrentValue <
+                                                    (EndCurrentValue == 0
+                                                        ? endTemp.toInt()
+                                                        : EndCurrentValue)
+                                                ? StartCurrentValue
+                                                : EndCurrentValue - 1),
                                         minValue: startValue.toInt(),
                                         maxValue: endTemp.toInt() - 1,
                                         onChanged: (value) {
@@ -123,9 +131,6 @@ class _TrimmerPageState extends State<TrimmerPage> {
                                         onChanged: (value) {
                                           setState(() {
                                             EndCurrentValue = value;
-                                            // if(EndCurrentValue<=StartCurrentValue){
-                                            //   StartCurrentValue-=1;
-                                            // }
                                           });
                                         }),
                                   ],
@@ -136,15 +141,17 @@ class _TrimmerPageState extends State<TrimmerPage> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 TextButton(
-                                    onPressed: () {}, child: const Text("ok")),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    }, child: const Text("ok")),
                               ],
                             )
                           ],
                         )
                       ],
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               );
             });
       }
@@ -228,7 +235,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                       onChangeEnd: (value) {
                         setState(() {
                           endValue = value / 1000;
-                          endTemp=endValue;
+                          endTemp = endValue;
                         });
                       },
                       onChangePlaybackState: (value) {
@@ -243,11 +250,9 @@ class _TrimmerPageState extends State<TrimmerPage> {
                   ),
                   Expanded(
                     child: InkWell(
-                      onTap: () {
+                      onTap: () async {
                         showNumberPickerDialog = true;
-                        setState(() async {
-                          await trimmer.videoPlayerController!.pause();
-                        });
+                        await trimmer.videoPlayerController!.pause();
                       },
                       child: const Icon(
                         Icons.music_off_rounded,
@@ -271,11 +276,18 @@ class _TrimmerPageState extends State<TrimmerPage> {
                                 color: Colors.white,
                               ),
                         onPressed: () async {
-                          int duration=trimmer.videoPlayerController!.value.duration.inSeconds;
-                         int pausedValue= trimmer.videoPlayerController!.value.position.inSeconds;
+                          int duration = trimmer
+                              .videoPlayerController!.value.duration.inSeconds;
+                          int pausedValue = trimmer
+                              .videoPlayerController!.value.position.inSeconds;
                           bool playbackState =
                               await trimmer.videPlaybackControl(
-                            startValue: (pausedValue==0||pausedValue==endTemp||pausedValue==endTemp-1?(startValue):(pausedValue)) * 1000,
+                            startValue: (pausedValue == 0 ||
+                                        pausedValue == endTemp ||
+                                        pausedValue == endTemp - 1
+                                    ? (startValue)
+                                    : (pausedValue)) *
+                                1000,
                             endValue: endValue,
                           );
                           setState(() {
