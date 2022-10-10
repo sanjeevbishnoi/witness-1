@@ -9,6 +9,7 @@ import 'package:video_trimmer/video_trimmer.dart';
 import '../../../../core/functions/functions.dart';
 import '../../../../core/util/boxes.dart';
 import '../../../../data/model/video_model.dart';
+import '../../../widgets/loading_widget.dart';
 
 
 class TrimmerPage extends StatefulWidget {
@@ -45,14 +46,15 @@ class _TrimmerPageState extends State<TrimmerPage> {
   int EndCurrentValue = 0;
   int userClicks = 0;
   int pausedValue=0;
+  bool isLoading=false;
 
   bool showNumberPickerDialog = false;
 
   @override
   void initState() {
-    startValue = widget.flag.startDuration!.inSeconds.toDouble();
+    startValue = widget.flag.startDuration!.inSeconds.toDouble()*1000;
     trimmer.loadVideo(videoFile: widget.file);
-    endTemp = widget.flag.endDuration!.inSeconds.toDouble();
+    endTemp = widget.flag.endDuration!.inSeconds.toDouble()*1000;
     super.initState();
   }
 
@@ -82,7 +84,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                     return AlertDialog(
                       title: const Text("select start & end point to mute"),
                       content: Text(
-                        "the default start is the $startValue second and the end is the  ${endTemp.toInt()} second\n "
+                        "the default start is the ${startValue~/1000}th second and the end is the  ${endTemp~/1000}th second\n "
                         "the numbers interval are chosen from the video tag not the whole video ",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
@@ -99,15 +101,15 @@ class _TrimmerPageState extends State<TrimmerPage> {
                                         infiniteLoop: true,
                                         itemCount: 3,
                                         value: (StartCurrentValue == 0
-                                            ? startValue.toInt()
+                                            ? startValue~/1000
                                             : StartCurrentValue <
                                                     (EndCurrentValue == 0
-                                                        ? endTemp.toInt()
+                                                        ? endTemp~/1000
                                                         : EndCurrentValue)
                                                 ? StartCurrentValue
                                                 : EndCurrentValue - 1),
-                                        minValue: startValue.toInt(),
-                                        maxValue: endTemp.toInt() - 1,
+                                        minValue: startValue~/1000,
+                                        maxValue: (endTemp~/1000) - 1,
                                         onChanged: (value) {
                                           setState(() {
                                             StartCurrentValue = value;
@@ -123,12 +125,12 @@ class _TrimmerPageState extends State<TrimmerPage> {
                                         itemCount: 3,
                                         value: EndCurrentValue == 0
                                             ? (endValue == 0
-                                            ? endTemp.toInt()
+                                            ? endTemp~/1000
                                             : endValue.toInt())
                                             : (EndCurrentValue),
-                                        minValue: startValue.toInt() + 1,
+                                        minValue: (startValue~/1000) + 1,
                                         maxValue: endValue == 0
-                                            ? endTemp.toInt()
+                                            ? endTemp~/1000
                                             : endValue.toInt(),
                                         onChanged: (value) {
                                           setState(() {
@@ -166,26 +168,25 @@ class _TrimmerPageState extends State<TrimmerPage> {
           title: const Text("EDITOR"),
           actions: [
             IconButton(
-              icon: const Icon(
+              icon:  Icon(
                 Icons.save,
-                color: Colors.white,
+                color:!isLoading? Colors.white:Colors.white60,
               ),
-              onPressed: () async {
+              onPressed:!isLoading? () async {
+                isLoading=true;
+                setState((){});
                 await trimmer.saveTrimmedVideo(
-                  //ffmpegCommand: "",
+                  ffmpegCommand:  "-af \"volume=enable='between(t,${StartCurrentValue-startValue~/1000},${EndCurrentValue-startValue~/1000})':volume=0\"",
+                  customVideoFormat: ".mp4",
                   startValue: startValue,
                   endValue: endValue == 0 ? endTemp : endValue,
-                  onSave: (outputPath) async {
+                  onSave: (String? outputPath) async {
                     final value = await getPath();
-                    XFile file = XFile(outputPath.toString());
+                    final file = File(outputPath.toString());
                     String newPath =
                         "${value.path}/${DateTime.now().microsecondsSinceEpoch}.mp4";
-                    file.saveTo(newPath).then((value){
-                     File(outputPath.toString()).deleteSync();
-                    }).catchError((onError){
-                      print("this is error ${onError.toString()}");
-                    });
-
+                    await file.copy(newPath);
+                    File(file.path).deleteSync();
                     VideoModel videoModel = VideoModel(
                       id: widget.flag.id,
                       path: newPath,
@@ -209,7 +210,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                     });
                   },
                 );
-              },
+              }:null,
             ),
           ],
         ),
@@ -254,16 +255,20 @@ class _TrimmerPageState extends State<TrimmerPage> {
                     ),
                   ),
                   Expanded(
-                    child: InkWell(
-                      onTap: () async {
-                        showNumberPickerDialog = true;
-                        await trimmer.videoPlayerController!.pause();
-                      },
-                      child: const Icon(
-                        Icons.music_off_rounded,
-                        color: Colors.yellow,
-                      ),
-                    ),
+                      child: StatefulBuilder(
+                        builder: (context,setInnerState){
+                          return isLoading?const LoadingWidget(): InkWell(
+                            onTap: () async {
+                              showNumberPickerDialog = true;
+                              await trimmer.videoPlayerController!.pause();
+                            },
+                            child: const Icon(
+                              Icons.music_off_rounded,
+                              color: Colors.yellow,
+                            ),
+                          );
+                        },
+                      )
                   ),
                   Expanded(
                     child: Align(
@@ -315,3 +320,10 @@ class _TrimmerPageState extends State<TrimmerPage> {
     );
   }
 }
+
+
+
+
+
+
+
