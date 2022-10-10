@@ -131,7 +131,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
      // var value = await _getPath();
      // String newPath = "${value.path}/${file!.name}";
      // await file.saveTo(newPath);
-      event.video.path = file!.path;;
+      event.video.path = file!.path;
       if (event.video.flags!.isEmpty && event.fromUser == false) {
         paths.add(file.path);
         if (paths.length > 1) {
