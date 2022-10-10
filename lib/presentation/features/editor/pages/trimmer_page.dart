@@ -6,10 +6,10 @@ import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:video_trimmer/video_trimmer.dart';
-
 import '../../../../core/functions/functions.dart';
 import '../../../../core/util/boxes.dart';
 import '../../../../data/model/video_model.dart';
+
 
 class TrimmerPage extends StatefulWidget {
   final File file;
@@ -175,20 +175,17 @@ class _TrimmerPageState extends State<TrimmerPage> {
                   //ffmpegCommand: "",
                   startValue: startValue,
                   endValue: endValue == 0 ? endTemp : endValue,
-                 // videoFileName: widget.flag.title,
-                  onSave: (String? outputPath) async {
+                  onSave: (outputPath) async {
                     final value = await getPath();
                     XFile file = XFile(outputPath.toString());
                     String newPath =
                         "${value.path}/${DateTime.now().microsecondsSinceEpoch}.mp4";
                     file.saveTo(newPath).then((value){
-                      // print("this is neew path $newPath");
-                      // print("this isflufer neew file ${value.path}");
-
+                     File(outputPath.toString()).deleteSync();
                     }).catchError((onError){
-                      print("this is errror ${onError.toString()}");
+                      print("this is error ${onError.toString()}");
                     });
-                    File(outputPath.toString()).deleteSync();
+
                     VideoModel videoModel = VideoModel(
                       id: widget.flag.id,
                       path: newPath,

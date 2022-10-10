@@ -23,6 +23,8 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   ChewieController? _chewieController;
 
   Future _initVideoPlayer() async {
+    print("rama");
+    print(widget.path);
     _videoPlayerController = widget.path != null
         ? VideoPlayerController.file(File(
             widget.path!,
@@ -63,7 +65,6 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   @override
   void dispose() {
     _videoPlayerController!.dispose();
-    _chewieController!.dispose();
     super.dispose();
   }
 }
