@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -81,7 +82,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                     return AlertDialog(
                       title: const Text("select start & end point to mute"),
                       content: Text(
-                        "the default start is the $startValue second and the end is the  $endTemp second\n "
+                        "the default start is the $startValue second and the end is the  ${endTemp.toInt()} second\n "
                         "the numbers interval are chosen from the video tag not the whole video ",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
@@ -174,15 +175,20 @@ class _TrimmerPageState extends State<TrimmerPage> {
                   //ffmpegCommand: "",
                   startValue: startValue,
                   endValue: endValue == 0 ? endTemp : endValue,
-                  videoFileName: widget.flag.title,
-                  videoFolderName: "videos",
+                 // videoFileName: widget.flag.title,
                   onSave: (String? outputPath) async {
                     final value = await getPath();
-                    File file = File(outputPath.toString());
+                    XFile file = XFile(outputPath.toString());
                     String newPath =
                         "${value.path}/${DateTime.now().microsecondsSinceEpoch}.mp4";
-                    await file.copy(newPath);
-                    File(file.path).deleteSync();
+                    file.saveTo(newPath).then((value){
+                      // print("this is neew path $newPath");
+                      // print("this isflufer neew file ${value.path}");
+
+                    }).catchError((onError){
+                      print("this is errror ${onError.toString()}");
+                    });
+                    File(outputPath.toString()).deleteSync();
                     VideoModel videoModel = VideoModel(
                       id: widget.flag.id,
                       path: newPath,

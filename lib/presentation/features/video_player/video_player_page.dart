@@ -34,11 +34,6 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     await _videoPlayerController!.setLooping(false);
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController!,
-      // customControls: const CupertinoControls(
-      //   backgroundColor: MyColors.primaryColor,
-      //   iconColor: Colors.white,
-      //   showPlayButton: true,
-      // ),
     );
     _videoPlayerController!.play();
   }
