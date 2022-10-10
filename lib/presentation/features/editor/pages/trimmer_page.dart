@@ -42,6 +42,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
   double endTemp = 0;
   int StartCurrentValue = 0;
   int EndCurrentValue = 0;
+  int userClicks=0;
 
   bool showNumberPickerDialog = false;
 
@@ -51,6 +52,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
     trimmer.loadVideo(videoFile: widget.file);
     endTemp = widget.flag.endDuration!.inSeconds.toDouble();
     super.initState();
+
   }
 
   @override
@@ -226,6 +228,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                       onChangeEnd: (value) {
                         setState(() {
                           endValue = value / 1000;
+                          endTemp=endValue;
                         });
                       },
                       onChangePlaybackState: (value) {
@@ -242,8 +245,8 @@ class _TrimmerPageState extends State<TrimmerPage> {
                     child: InkWell(
                       onTap: () {
                         showNumberPickerDialog = true;
-                        setState(() {
-                          trimmer.videoPlayerController!.pause();
+                        setState(() async {
+                          await trimmer.videoPlayerController!.pause();
                         });
                       },
                       child: const Icon(
@@ -268,10 +271,11 @@ class _TrimmerPageState extends State<TrimmerPage> {
                                 color: Colors.white,
                               ),
                         onPressed: () async {
-                         int pausedValue= trimmer.videoPlayerController!.value.position.inSeconds.toInt();
+                          int duration=trimmer.videoPlayerController!.value.duration.inSeconds;
+                         int pausedValue= trimmer.videoPlayerController!.value.position.inSeconds;
                           bool playbackState =
                               await trimmer.videPlaybackControl(
-                            startValue: (pausedValue==0?(startValue):(pausedValue)) * 1000,
+                            startValue: (pausedValue==0||pausedValue==endTemp||pausedValue==endTemp-1?(startValue):(pausedValue)) * 1000,
                             endValue: endValue,
                           );
                           setState(() {
