@@ -19,7 +19,6 @@ class TrimmerPage extends StatefulWidget {
   final int videoIndex;
   final Duration videoDuration;
 
-
   const TrimmerPage({
     Key? key,
     required this.file,
@@ -41,10 +40,10 @@ class _TrimmerPageState extends State<TrimmerPage> {
   double endValue = 0.0;
   bool _isPlaying = false;
   double endTemp = 0;
-  int StartCurrentValue=0;
-  int EndCurrentValue=0;
+  int StartCurrentValue = 0;
+  int EndCurrentValue = 0;
 
-  bool showNumberPickerDialog=false;
+  bool showNumberPickerDialog = false;
 
   @override
   void initState() {
@@ -63,68 +62,89 @@ class _TrimmerPageState extends State<TrimmerPage> {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (showNumberPickerDialog){
+      if (showNumberPickerDialog) {
         showDialog(
-            context: context, builder: (context) {
-          return StatefulBuilder(
-            builder: (BuildContext context, void Function(void Function()) setState) {
-              return WillPopScope(
-                onWillPop: ()async{
-                  showNumberPickerDialog=false;
-                  return true;
-                },
-                child: AlertDialog(
-                  title: const Text(
-                      "select the start & end point to mute between"
-                  ),
-                  actions: [
-                    Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+            context: context,
+            builder: (context) {
+              return StatefulBuilder(
+                builder: (BuildContext context,
+                    void Function(void Function()) setState) {
+                  return WillPopScope(
+                    onWillPop: () async {
+                      showNumberPickerDialog = false;
+                      StartCurrentValue = 0;
+                      EndCurrentValue = 0;
+                      return true;
+                    },
+                    child: AlertDialog(
+                      title: const Text(
+                          "select the start & end point to mute between"),
+                      actions: [
+                        Column(
                           children: [
-                            NumberPicker(
-                                infiniteLoop: true,
-                                itemCount: 3,
-                                value:StartCurrentValue==0? startValue.toInt():StartCurrentValue,
-                                minValue: StartCurrentValue==0?startValue.toInt():StartCurrentValue,
-                                maxValue: EndCurrentValue==0? endTemp.toInt()-1:EndCurrentValue.toInt()-1,
-                                onChanged: (value) {
-                                  setState((){
-                                   StartCurrentValue = value;
-                                  });
-                                }
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Column(
+                                  children: [
+                                    const Text("Start"),
+                                    NumberPicker(
+                                        infiniteLoop: true,
+                                        itemCount: 3,
+                                        value: StartCurrentValue == 0
+                                            ? startValue.toInt()
+                                            : StartCurrentValue,
+                                        minValue: startValue.toInt(),
+                                        maxValue: endTemp.toInt() - 1,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            StartCurrentValue = value;
+                                          });
+                                        }),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    const Text("End"),
+                                    NumberPicker(
+                                        infiniteLoop: true,
+                                        itemCount: 3,
+                                        value: EndCurrentValue == 0
+                                            ? (endValue == 0
+                                            ? endTemp.toInt()
+                                            : endValue.toInt())
+                                            : (EndCurrentValue),
+                                        minValue: startValue.toInt() + 1,
+                                        maxValue: endValue == 0
+                                            ? endTemp.toInt()
+                                            : endValue.toInt(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            EndCurrentValue = value;
+                                            // if(EndCurrentValue<=StartCurrentValue){
+                                            //   StartCurrentValue-=1;
+                                            // }
+                                          });
+                                        }),
+                                  ],
+                                ),
+                              ],
                             ),
-                            NumberPicker(
-                                infiniteLoop: true,
-                                itemCount: 3,
-                                value: StartCurrentValue==0?startValue.toInt()+1:StartCurrentValue+1,
-                                minValue: StartCurrentValue==0?startValue.toInt()+1:StartCurrentValue+1,
-                                maxValue: endValue==0? endTemp.toInt():endValue.toInt(),
-                                onChanged: (value) {
-                                  setState((){
-                                    EndCurrentValue = value;
-                                    if(EndCurrentValue<=StartCurrentValue){
-                                      StartCurrentValue-=1;
-                                    }
-                                  });
-                                }
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                    onPressed: () {}, child: const Text("ok")),
+                              ],
                             )
                           ],
                         )
-
                       ],
-                    )
-
-                  ],
-
-                ),
+                    ),
+                  );
+                },
               );
-            },
-
-          );
-        }
-        );
+            });
       }
     });
 
@@ -172,7 +192,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
                         Routes.homePage,
-                            (route) => false,
+                        (route) => false,
                       );
                     });
                   },
@@ -183,86 +203,89 @@ class _TrimmerPageState extends State<TrimmerPage> {
         ),
         body: File(widget.file.path).existsSync() == true
             ? Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-              flex: 6,
-              child: Container(
-                color: Colors.black,
-                child: VideoViewer(trimmer: trimmer),
-              ),
-            ),
-            const Spacer(),
-            Expanded(
-              child: TrimEditor(
-                trimmer: trimmer,
-                viewerWidth: MediaQuery.of(context).size.width,
-                onChangeStart: (value) {
-                  setState(() {
-                    startValue = value;
-                  });
-                },
-                onChangeEnd: (value) {
-                  setState(() {
-                    endValue = value;
-                  });
-                },
-                onChangePlaybackState: (value) {
-                  setState(() {
-                    _isPlaying = value;
-                  });
-                },
-                flagModel: widget.flag,
-                videoDuration: widget.videoDuration,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Expanded(
-              child: InkWell(
-                onTap: (){
-                  showNumberPickerDialog=true;
-                  setState((){});
-                },
-                child: const Icon(
-                  Icons.music_off_rounded,
-                  color: Colors.yellow,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: TextButton(
-                  child: _isPlaying
-                      ? const Icon(
-                    Icons.pause,
-                    size: 50.0,
-                    color: Colors.white,
-                  )
-                      : const Icon(
-                    Icons.play_arrow,
-                    size: 50.0,
-                    color: Colors.white,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    flex: 6,
+                    child: Container(
+                      color: Colors.black,
+                      child: VideoViewer(trimmer: trimmer),
+                    ),
                   ),
-                  onPressed: () async {
-                    bool playbackState =
-                    await trimmer.videPlaybackControl(
-                      startValue: startValue*1000,
-                      endValue: endValue,
-                    );
-                    setState(() {
-                      _isPlaying = playbackState;
-                    });
-                  },
-                ),
-              ),
-            )
-          ],
-        )
+                  const Spacer(),
+                  Expanded(
+                    child: TrimEditor(
+                      trimmer: trimmer,
+                      viewerWidth: MediaQuery.of(context).size.width,
+                      onChangeStart: (value) {
+                        setState(() {
+                          startValue = value / 1000;
+                        });
+                      },
+                      onChangeEnd: (value) {
+                        setState(() {
+                          endValue = value / 1000;
+                        });
+                      },
+                      onChangePlaybackState: (value) {
+                        setState(() {
+                          _isPlaying = value;
+                        });
+                      },
+                      flagModel: widget.flag,
+                      videoDuration: widget.videoDuration,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        showNumberPickerDialog = true;
+                        setState(() {
+                          trimmer.videoPlayerController!.pause();
+                        });
+                      },
+                      child: const Icon(
+                        Icons.music_off_rounded,
+                        color: Colors.yellow,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: TextButton(
+                        child: _isPlaying
+                            ? const Icon(
+                                Icons.pause,
+                                size: 50.0,
+                                color: Colors.white,
+                              )
+                            : const Icon(
+                                Icons.play_arrow,
+                                size: 50.0,
+                                color: Colors.white,
+                              ),
+                        onPressed: () async {
+                         int pausedValue= trimmer.videoPlayerController!.value.position.inSeconds.toInt();
+                          bool playbackState =
+                              await trimmer.videPlaybackControl(
+                            startValue: (pausedValue==0?(startValue):(pausedValue)) * 1000,
+                            endValue: endValue,
+                          );
+                          setState(() {
+                            _isPlaying = playbackState;
+                          });
+                        },
+                      ),
+                    ),
+                  )
+                ],
+              )
             : const Center(
-          child: Text("Unknown video"),
-        ),
+                child: Text("Unknown video"),
+              ),
       ),
     );
   }
