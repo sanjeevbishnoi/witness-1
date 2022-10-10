@@ -41,7 +41,9 @@ class _TrimmerPageState extends State<TrimmerPage> {
   double endValue = 0.0;
   bool _isPlaying = false;
   double endTemp = 0;
-  int currentValue=3;
+  int StartCurrentValue=0;
+  int EndCurrentValue=0;
+
   bool showNumberPickerDialog=false;
 
   @override
@@ -60,54 +62,63 @@ class _TrimmerPageState extends State<TrimmerPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(endTemp);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (showNumberPickerDialog){
         showDialog(
             context: context, builder: (context) {
           return StatefulBuilder(
             builder: (BuildContext context, void Function(void Function()) setState) {
-              return AlertDialog(
-                title: const Text(
-                    "select the start & end point to mute between"
+              return WillPopScope(
+                onWillPop: ()async{
+                  showNumberPickerDialog=false;
+                  return true;
+                },
+                child: AlertDialog(
+                  title: const Text(
+                      "select the start & end point to mute between"
+                  ),
+                  actions: [
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            NumberPicker(
+                                infiniteLoop: true,
+                                itemCount: 3,
+                                value:StartCurrentValue==0? startValue.toInt():StartCurrentValue,
+                                minValue: StartCurrentValue==0?startValue.toInt():StartCurrentValue,
+                                maxValue: EndCurrentValue==0? endTemp.toInt()-1:EndCurrentValue.toInt()-1,
+                                onChanged: (value) {
+                                  setState((){
+                                   StartCurrentValue = value;
+                                  });
+                                }
+                            ),
+                            NumberPicker(
+                                infiniteLoop: true,
+                                itemCount: 3,
+                                value: StartCurrentValue==0?startValue.toInt()+1:StartCurrentValue+1,
+                                minValue: StartCurrentValue==0?startValue.toInt()+1:StartCurrentValue+1,
+                                maxValue: endValue==0? endTemp.toInt():endValue.toInt(),
+                                onChanged: (value) {
+                                  setState((){
+                                    EndCurrentValue = value;
+                                    if(EndCurrentValue<=StartCurrentValue){
+                                      StartCurrentValue-=1;
+                                    }
+                                  });
+                                }
+                            )
+                          ],
+                        )
+
+                      ],
+                    )
+
+                  ],
+
                 ),
-                actions: [
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          NumberPicker(
-                              infiniteLoop: true,
-                              itemCount: 3,
-                              value: startValue.toInt(),
-                              minValue: startValue.toInt(),
-                              maxValue: endValue==0? endTemp.toInt()-1:endValue.toInt()-1,
-                              onChanged: (value) {
-                                setState((){
-                                  currentValue = value;
-                                });
-                              }
-                          ),
-                          NumberPicker(
-                              itemCount: 3,
-                              value: currentValue,
-                              minValue: 0,
-                              maxValue: 100,
-                              onChanged: (value) {
-                                setState((){
-                                  currentValue = value;
-                                });
-                              }
-                          )
-                        ],
-                      )
-
-                    ],
-                  )
-
-                ],
-
               );
             },
 
@@ -212,49 +223,6 @@ class _TrimmerPageState extends State<TrimmerPage> {
                 onTap: (){
                   showNumberPickerDialog=true;
                   setState((){});
-                  // showDialog(
-                  //     context: context, builder:(context){
-                  //       print("setsttated");
-                  //       return AlertDialog(
-                  //         title:const  Text(
-                  //           "select the start & end point to mute between"
-                  //         ),
-                  //         actions: [
-                  //           Column(
-                  //             children: [
-                  //               Row(
-                  //                 mainAxisAlignment: MainAxisAlignment.center,
-                  //                 children: [
-                  //                   NumberPicker(
-                  //                     infiniteLoop: true,
-                  //                     itemCount: 3,
-                  //                     value: currentValue,
-                  //                     minValue: 0,
-                  //                     maxValue: 100,
-                  //                     onChanged: (value) {
-                  //                         //currentValue = value;
-                  //                     }
-                  //                   ),
-                  //                   NumberPicker(
-                  //                     itemCount: 3,
-                  //                     value: currentValue,
-                  //                     minValue: 0,
-                  //                     maxValue: 100,
-                  //                       onChanged: (value) {
-                  //                         //currentValue = value;
-                  //                       }
-                  //                   )
-                  //                 ],
-                  //               )
-                  //
-                  //             ],
-                  //           )
-                  //
-                  //         ],
-                  //
-                  //       );
-                  // }
-                  // );
                 },
                 child: const Icon(
                   Icons.music_off_rounded,
@@ -280,7 +248,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                   onPressed: () async {
                     bool playbackState =
                     await trimmer.videPlaybackControl(
-                      startValue: startValue,
+                      startValue: startValue*1000,
                       endValue: endValue,
                     );
                     setState(() {
