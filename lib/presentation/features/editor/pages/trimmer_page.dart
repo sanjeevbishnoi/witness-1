@@ -43,6 +43,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
   int StartCurrentValue = 0;
   int EndCurrentValue = 0;
   int userClicks = 0;
+  int pausedValue=0;
 
   bool showNumberPickerDialog = false;
 
@@ -170,19 +171,18 @@ class _TrimmerPageState extends State<TrimmerPage> {
               ),
               onPressed: () async {
                 await trimmer.saveTrimmedVideo(
-                  ffmpegCommand: "",
+                  //ffmpegCommand: "",
                   startValue: startValue,
                   endValue: endValue == 0 ? endTemp : endValue,
                   videoFileName: widget.flag.title,
                   videoFolderName: "videos",
                   onSave: (String? outputPath) async {
                     final value = await getPath();
-                    final file = File(outputPath!);
+                    File file = File(outputPath.toString());
                     String newPath =
                         "${value.path}/${DateTime.now().microsecondsSinceEpoch}.mp4";
                     await file.copy(newPath);
                     File(file.path).deleteSync();
-
                     VideoModel videoModel = VideoModel(
                       id: widget.flag.id,
                       path: newPath,
@@ -236,6 +236,8 @@ class _TrimmerPageState extends State<TrimmerPage> {
                         setState(() {
                           endValue = value / 1000;
                           endTemp = endValue;
+                          trimmer.videoPlayerController!.seekTo(const Duration(seconds: 0));
+                          pausedValue=trimmer.videoPlayerController!.value.position.inSeconds.toInt()-1;
                         });
                       },
                       onChangePlaybackState: (value) {
@@ -278,13 +280,15 @@ class _TrimmerPageState extends State<TrimmerPage> {
                         onPressed: () async {
                           int duration = trimmer
                               .videoPlayerController!.value.duration.inSeconds;
-                          int pausedValue = trimmer
-                              .videoPlayerController!.value.position.inSeconds;
+                          if(pausedValue!=-1){
+                           pausedValue = trimmer
+                                .videoPlayerController!.value.position.inSeconds;
+                          }
                           bool playbackState =
                               await trimmer.videPlaybackControl(
-                            startValue: (pausedValue == 0 ||
+                            startValue: ((pausedValue == 0 ||
                                         pausedValue == endTemp ||
-                                        pausedValue == endTemp - 1
+                                        pausedValue == endTemp - 1||pausedValue==-1)
                                     ? (startValue)
                                     : (pausedValue)) *
                                 1000,
@@ -292,6 +296,8 @@ class _TrimmerPageState extends State<TrimmerPage> {
                           );
                           setState(() {
                             _isPlaying = playbackState;
+                            pausedValue = trimmer
+                                .videoPlayerController!.value.position.inSeconds;
                           });
                         },
                       ),
