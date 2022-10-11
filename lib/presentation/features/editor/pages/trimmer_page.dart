@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -242,6 +243,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                           endTemp = endValue;
                           trimmer.videoPlayerController!.seekTo(const Duration(seconds: 0));
                           pausedValue=trimmer.videoPlayerController!.value.position.inSeconds.toInt()-1;
+                          print("yessssssssss $pausedValue");
                         });
                       },
                       onChangePlaybackState: (value) {
@@ -291,20 +293,23 @@ class _TrimmerPageState extends State<TrimmerPage> {
                           if(pausedValue!=-1){
                            pausedValue = trimmer
                                 .videoPlayerController!.value.position.inSeconds;
+                          }else{
+                            print("paused $pausedValue");
+                            print("start $startValue");
                           }
                           bool playbackState =
                               await trimmer.videPlaybackControl(
                             startValue: ((pausedValue == 0 ||
                                         pausedValue == endTemp ||
                                         pausedValue == endTemp - 1||pausedValue==-1)
-                                    ? (startValue)
+                                    ? (startValue~/1000)
                                     : (pausedValue)) *
                                 1000,
                             endValue: endValue,
                           );
                           setState(() {
                             _isPlaying = playbackState;
-                            pausedValue = trimmer
+                           pausedValue = trimmer
                                 .videoPlayerController!.value.position.inSeconds;
                           });
                         },
