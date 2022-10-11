@@ -25,6 +25,7 @@ abstract class UserRepository {
   Future<MyResponse> updateUserImage({required String path});
 
   Future<MyResponse> logout();
+
   Future<MyResponse> getCurrentUserData();
 
   Future<MyResponse> resetPassword({
@@ -158,7 +159,7 @@ class UserRepositoryImpl extends UserRepository {
   }
 
   @override
-  Future<Either<Failure,Response>> logout() async {
+  Future<Either<Failure, Response>> logout() async {
     final response = await DioHelper.postData(
       url: Endpoints.logout,
       data: {},
@@ -171,7 +172,7 @@ class UserRepositoryImpl extends UserRepository {
   }
 
   @override
-  Future<MyResponse> getCurrentUserData() async{
+  Future<MyResponse> getCurrentUserData() async {
     final response = await DioHelper.postData(
       url: Endpoints.me,
       data: {},

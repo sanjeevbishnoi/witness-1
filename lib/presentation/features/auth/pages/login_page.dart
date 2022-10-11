@@ -8,6 +8,7 @@ import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/core/util/enums.dart';
 import 'package:nice_shot/data/network/local/cache_helper.dart';
+import 'package:nice_shot/data/network/remote/dio_helper.dart';
 import 'package:nice_shot/presentation/features/auth/bloc/auth_bloc.dart';
 import 'package:nice_shot/presentation/features/auth/widgets/wrapper.dart';
 import 'package:nice_shot/presentation/widgets/form_widget.dart';
@@ -59,6 +60,8 @@ class LoginPage extends StatelessWidget {
                     setUser(user: data);
                     setToken(token: currentUserData!.token.toString());
                     setUserId(id: currentUserData!.user!.id.toString());
+                    print("user id: $userId");
+                    print("user id: $token");
                     Navigator.pushNamedAndRemoveUntil(
                       context,
                       Routes.homePage,
