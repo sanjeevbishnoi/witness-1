@@ -338,7 +338,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                             startValue: ((pausedValue == 0 ||
                                         pausedValue == endTemp ||
                                         pausedValue == endTemp - 1||pausedValue==-1)
-                                    ? (startValue)
+                                    ? (startValue~/1000)
                                     : (pausedValue)) *
                                 1000,
                             endValue: endValue,
