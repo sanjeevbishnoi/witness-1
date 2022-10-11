@@ -11,6 +11,7 @@ import 'package:nice_shot/presentation/widgets/loading_widget.dart';
 import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/secondary_button_widget.dart';
 
+import '../../../../logic/ui_bloc/ui_bloc.dart';
 import '../../../widgets/snack_bar_widget.dart';
 
 class RegisterPage extends StatelessWidget {
@@ -64,7 +65,7 @@ class RegisterPage extends StatelessWidget {
                 children: [
                   PrimaryButtonWidget(
                     function: () {
-                      if (state.file == null) {
+                      if (context.read<UiBloc>().state.file == null) {
                         return ScaffoldMessenger.of(context)
                             .showSnackBar(snackBarWidget(
                           message: "Choose image from gallery",
@@ -78,7 +79,7 @@ class RegisterPage extends StatelessWidget {
                               phoneController.text.replaceAll("+", "").trim(),
                           nationality: nationalityController.text,
                           password: passwordController.text,
-                          logo: state.file!,
+                          logo: context.read<UiBloc>().state.file!,
                           userName: nameController.text
                               .toLowerCase()
                               .replaceAll(" ", "_")

@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
+import 'package:nice_shot/presentation/features/edited_videos/bloc/edited_video_bloc.dart';
 import 'package:nice_shot/presentation/features/main_layout/bloc/main_layout_bloc.dart';
 import 'package:nice_shot/presentation/features/profile/bloc/user_bloc.dart';
 import 'package:nice_shot/presentation/features/profile/pages/profile_page.dart';
 import 'package:nice_shot/presentation/features/settings/pages/settings.dart';
+import 'package:nice_shot/presentation/widgets/logout_widget.dart';
 import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
+import 'package:nice_shot/providers.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../../core/functions/functions.dart';
+import '../../../../core/util/enums.dart';
 import '../../../../data/model/api/User_model.dart';
+import '../../../../data/network/local/cache_helper.dart';
 import '../../../icons/icons.dart';
+import '../../../widgets/alert_dialog_widget.dart';
+import '../../auth/bloc/auth_bloc.dart';
 import '../../edited_videos/pages/edited_videos_page.dart';
 import '../../edited_videos/pages/uploaded_videos_page.dart';
 import '../../permissions/permissions.dart';
@@ -48,121 +56,121 @@ class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MainLayoutBloc, MainLayoutState>(
-      builder: (BuildContext context, state) {
-        MainLayoutBloc bloc = context.read<MainLayoutBloc>();
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(drawerTitles[bloc.currentIndex].toUpperCase()),
-          ),
-          drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                BlocBuilder<UserBloc, UserState>(
-                  builder: (context, state) {
-                    UserModel? user = state.user?.data;
-                    return DrawerHeader(
-                      decoration:
-                          const BoxDecoration(color: MyColors.primaryColor),
-                      child: Stack(
-                        alignment: Alignment.topRight,
-                        children: [
-                          Center(
-                            child: Column(
-                              children: [
-                                user?.logoUrl != null
-                                    ? CircleAvatar(
-                                        radius: 40.0,
-                                        backgroundImage: NetworkImage(
-                                          "${user!.logoUrl}",
-                                        ),
-                                      )
-                                    : const CircleAvatar(
-                                        radius: 40.0,
-                                        backgroundImage: AssetImage(
-                                          "assets/images/defaultImage.jpg",
-                                        ),
-                                      ),
-                                const SizedBox(height: MySizes.horizontalSpace),
-                                Expanded(
-                                  child: Center(
-                                    child: Text(
-                                      user?.name ?? "loading..",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium!
-                                          .copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            color: MyColors.backgroundColor,
+    return Builder(
+      builder: (context) {
+        context.read<UserBloc>().add(GetUserDataEvent());
+        return BlocBuilder<MainLayoutBloc, MainLayoutState>(
+              builder: (BuildContext context, state) {
+                MainLayoutBloc bloc = context.read<MainLayoutBloc>();
+                return Scaffold(
+                  appBar: AppBar(
+                    title: Text(drawerTitles[bloc.currentIndex].toUpperCase()),
+                  ),
+                  drawer: Drawer(
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      children: [
+                        BlocBuilder<UserBloc, UserState>(
+                          builder: (context, state) {
+                            UserModel? user = state.user?.data;
+                            return DrawerHeader(
+                              decoration:
+                              const BoxDecoration(color: MyColors.primaryColor),
+                              child: Stack(
+                                alignment: Alignment.topRight,
+                                children: [
+                                  Center(
+                                    child: Column(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 40.0,
+                                          backgroundColor: Colors.red.shade100,
+                                          backgroundImage: NetworkImage(
+                                            "${user?.logoUrl}",
                                           ),
+                                        ),
+                                        const SizedBox(
+                                            height: MySizes.horizontalSpace),
+                                        Expanded(
+                                          child: Center(
+                                            child: Text(
+                                              user?.name ?? "loading..",
+                                              style: Theme
+                                                  .of(context)
+                                                  .textTheme
+                                                  .titleMedium!
+                                                  .copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: MyColors.backgroundColor,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
                                     ),
                                   ),
-                                )
-                              ],
-                            ),
-                          ),
-                          InkWell(
-                            onTap: () => Navigator.pop(context),
-                            child: const Icon(Icons.close, color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: drawerTitles.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      tileColor: bloc.currentIndex == index
-                          ? Colors.grey.shade200
-                          : MyColors.scaffoldBackgroundColor,
-                      leading: drawerIcons[index],
-                      title: Text(drawerTitles[index]),
-                      onTap: () {
-                        Navigator.pop(context);
-                        bloc.add(ChangeScaffoldBodyEvent(index));
-                      },
-                    );
-                  },
-                ),
-                const SizedBox(height: MySizes.widgetSideSpace),
-                TextButton(
-                  onPressed: () => logOut(context: context),
-                  child: const Text(
-                    "LOGOUT",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  InkWell(
+                                    onTap: () => Navigator.pop(context),
+                                    child: const Icon(
+                                        Icons.close, color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        ListView.separated(
+                          separatorBuilder: (context, index) =>
+                          index == 3 ? const Padding(
+                            padding: EdgeInsets.all(MySizes.widgetSideSpace),
+                            child: Text("Others"),
+                          ) : const SizedBox(),
+                          shrinkWrap: true,
+                          itemCount: drawerTitles.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              tileColor: bloc.currentIndex == index
+                                  ? Colors.grey.shade200
+                                  : MyColors.scaffoldBackgroundColor,
+                              leading: drawerIcons[index],
+                              title: Text(drawerTitles[index]),
+                              onTap: () {
+                                Navigator.pop(context);
+                                bloc.add(ChangeScaffoldBodyEvent(index));
+                              },
+                            );
+                          },
+                        ),
+                        const LogoutWidget(),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          floatingActionButton: FloatingActionButton(
-            elevation: 5.0,
-            onPressed: () async {
-              if (permissionsGranted) {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  Routes.cameraPage,
-                  (route) => false,
+                  floatingActionButton: FloatingActionButton(
+                    elevation: 5.0,
+                    onPressed: () async {
+                      if (permissionsGranted) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          Routes.cameraPage,
+                              (route) => false,
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                          message:
+                          "Required permissions were not granted!, Open settings and give permissions.",
+                          label: "SETTINGS",
+                          onPressed: () => openAppSettings(),
+                        ));
+                      }
+                    },
+                    backgroundColor: MyColors.primaryColor,
+                    child: const Icon(Icons.camera_alt),
+                  ),
+                  body: pages[bloc.currentIndex],
                 );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
-                  message:
-                      "Required permissions were not granted!, Open settings and give permissions.",
-                  label: "SETTINGS",
-                  onPressed: () => openAppSettings(),
-                ));
-              }
-            },
-            backgroundColor: MyColors.primaryColor,
-            child: const Icon(Icons.camera_alt),
-          ),
-          body: pages[bloc.currentIndex],
-        );
-      },
+              },
+            );
+      }
     );
   }
 }

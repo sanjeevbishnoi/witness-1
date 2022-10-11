@@ -1,8 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:nice_shot/data/model/api/login_model.dart';
 
 bool permissionsGranted = false;
-String token = "Bearer ${currentUserData?.token}";
+String? myToken;
+String? myId;
+
+String? get token => myToken;
+
+String? get userId => myId;
 LoginModel? currentUserData;
-String? userId = "${currentUserData!.user!.id}";
-final GlobalKey<ScaffoldState> scaffoldkey = GlobalKey<ScaffoldState>();
+
+LoginModel? get user => currentUserData;

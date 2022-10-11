@@ -3,8 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:nice_shot/core/error/failure.dart';
 import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/data/model/api/User_model.dart';
-import 'package:nice_shot/data/model/api/data_model.dart';
-import 'package:nice_shot/data/model/api/login_model.dart';
 import 'package:nice_shot/data/network/end_points.dart';
 import 'package:nice_shot/data/network/remote/dio_helper.dart';
 import '../../core/error/exceptions.dart';
@@ -26,7 +24,10 @@ abstract class UserRepository {
 
   Future<MyResponse> updateUserImage({required String path});
 
-  Future<Either<Failure, Response>> resetPassword({
+  Future<MyResponse> logout();
+  Future<MyResponse> getCurrentUserData();
+
+  Future<MyResponse> resetPassword({
     required String oldPassword,
     required String newPassword,
   });
@@ -82,6 +83,7 @@ class UserRepositoryImpl extends UserRepository {
       url: "${Endpoints.user}/$id",
     );
     try {
+      print("user token: ${response.data}");
       return Right(response);
     } catch (error) {
       return Left(ServerFailure());
@@ -151,6 +153,33 @@ class UserRepositoryImpl extends UserRepository {
     try {
       return Right(response);
     } catch (error) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure,Response>> logout() async {
+    final response = await DioHelper.postData(
+      url: Endpoints.logout,
+      data: {},
+    );
+    try {
+      return Right(response);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<MyResponse> getCurrentUserData() async{
+    final response = await DioHelper.postData(
+      url: Endpoints.me,
+      data: {},
+    );
+    try {
+      print("username: ${UserModel.fromJson(response.data).userName}");
+      return Right(response);
+    } on ServerException {
       return Left(ServerFailure());
     }
   }

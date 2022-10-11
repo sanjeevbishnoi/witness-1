@@ -1,45 +1,23 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:nice_shot/core/strings/messages.dart';
 import 'package:nice_shot/core/util/enums.dart';
 import 'package:nice_shot/data/model/api/User_model.dart';
 import 'package:nice_shot/data/model/api/data_model.dart';
 import 'package:nice_shot/data/repositories/user_repository.dart';
-
 import '../../../../data/model/api/login_model.dart';
+import '../../profile/bloc/user_bloc.dart';
 
 part 'auth_event.dart';
 
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  var picker = ImagePicker();
   final UserRepository userRepository;
-  bool isPassword = false;
 
   AuthBloc({required this.userRepository}) : super(const AuthState()) {
     on<AuthEvent>((event, emit) async {
-      if (event is PickUserImageEvent) {
-        await pickImage().then((value) {
-          emit(state.copyWith(file: value!));
-        });
-      } else if (event is PickProfileImageEvent) {
-        await pickImage().then((value) {
-          emit(state.copyWith(profileImage: value!));
-        });
-      } else if (event is ChangeIconSuffixEvent) {
-        isPassword = !event.isPassword;
-        emit(state.copyWith(
-          icon:
-              event.isPassword ? Icons.visibility_sharp : Icons.visibility_off,
-          isPassword: event.isPassword,
-        ));
-      } else if (event is CreateAccountEvent) {
+      if (event is CreateAccountEvent) {
         emit(state.copyWith(registerState: RequestState.loading));
         var result = await userRepository.createUser(userModel: event.user);
         result.fold(
@@ -69,17 +47,42 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             );
           },
         );
+      } else if (event is LogoutEvent) {
+        final result = await userRepository.logout();
+        result.fold(
+            (l) => emit(
+                  state.copyWith(
+                    logoutState: RequestState.error,
+                    message: l.toString(),
+                  ),
+                ),
+            (r) => {
+                  emit(
+                    state.copyWith(
+                      logoutState: RequestState.loaded,
+                      message: r.data['message'],
+                    ),
+                  ),
+                });
       }
+      // else if (event is GetCurrentUserData) {
+      //   emit(state.copyWith(getMe: RequestState.loading));
+      //   final result = await userRepository.getCurrentUserData();
+      //   result.fold(
+      //     (l) => emit(
+      //       state.copyWith(
+      //         getMe: RequestState.error,
+      //         message: l.toString(),
+      //       ),
+      //     ),
+      //     (r) => emit(
+      //       state.copyWith(
+      //         getMe: RequestState.loaded,
+      //         currentUser: UserModel.fromJson(r.data),
+      //       ),
+      //     ),
+      //   );
+      // }
     });
-  }
-
-  Future<File?> pickImage() async {
-    final file = await picker.getImage(
-      source: ImageSource.gallery,
-    );
-    if (file != null) {
-      return File(file.path);
-    }
-    return null;
   }
 }

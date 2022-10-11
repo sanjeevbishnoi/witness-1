@@ -20,7 +20,7 @@ class ActionWidget extends StatelessWidget {
     return InkWell(
       onTap: () => function(),
       child: ListTile(
-        leading: Icon(icon),
+        leading: Icon(icon,color: Colors.black54),
         title: Text(title),
       ),
     );

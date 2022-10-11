@@ -8,11 +8,11 @@ import '../end_points.dart';
 class DioHelper {
   static String baseUrl = "http://91.232.125.244:8085";
   static String contentType = "application/json";
-  static String authorization = token;
+  static String? authorization = token;
   static Map<String, String> headers = {
     'Accept': contentType,
     'Content-Type': contentType,
-    'Authorization': authorization,
+    'Authorization': authorization ?? "",
   };
   static Dio? dio;
 

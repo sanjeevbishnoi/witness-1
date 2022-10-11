@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nice_shot/core/functions/functions.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/core/util/enums.dart';
@@ -14,8 +15,6 @@ import 'package:nice_shot/presentation/widgets/loading_widget.dart';
 import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/secondary_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
-
-import '../../../../core/internet_connection.dart';
 import '../../../../core/util/global_variables.dart';
 import '../../../../data/model/api/login_model.dart';
 
@@ -56,11 +55,10 @@ class LoginPage extends StatelessWidget {
                     value: json.encode(state.login!),
                   ).then((value) {
                     final user = CacheHelper.getData(key: "user");
-                    currentUserData = LoginModel.fromJson(json.decode(user));
-                    userId = "${currentUserData!.user!.id}";
-                    // context.read<UserBloc>().add(GetUserDataEvent());
-                    // context.read<EditedVideoBloc>()
-                    //     .add(GetEditedVideosEvent(id: userId!));
+                    final data = LoginModel.fromJson(json.decode(user));
+                    setUser(user: data);
+                    setToken(token: currentUserData!.token.toString());
+                    setUserId(id: currentUserData!.user!.id.toString());
                     Navigator.pushNamedAndRemoveUntil(
                       context,
                       Routes.homePage,
@@ -89,10 +87,12 @@ class LoginPage extends StatelessWidget {
                     PrimaryButtonWidget(
                       function: () async {
                         if (_formKey.currentState!.validate()) {
-                          context.read<AuthBloc>().add(LoginEvent(
-                            email: emailController.text,
-                            password: passwordController.text,
-                          ));
+                          context.read<AuthBloc>().add(
+                                LoginEvent(
+                                  email: emailController.text,
+                                  password: passwordController.text,
+                                ),
+                              );
                         }
                       },
                       text: "login",

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +38,10 @@ ConnectionStatusSingleton.getInstance();
   String? initRoute;
   final user = CacheHelper.getData(key: "user");
   if (user != null) {
-    currentUserData = LoginModel.fromJson(json.decode(user));
+   final data = LoginModel.fromJson(json.decode(user));
+    setUser(user: data);
+    setToken(token: currentUserData!.token.toString());
+    setUserId(id: currentUserData!.user!.id.toString());
     initRoute = Routes.homePage;
   }
   if (user == null && permissionsGranted) {

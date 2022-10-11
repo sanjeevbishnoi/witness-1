@@ -2,25 +2,23 @@ part of 'auth_bloc.dart';
 
 class AuthState extends Equatable {
   final Data<UserModel>? user;
+  final UserModel? currentUser;
   final RequestState? registerState;
   final RequestState? loginState;
+  final RequestState? logoutState;
+  final RequestState? getMe;
   final String? message;
-  final File? file;
-  final bool isPassword;
-  final IconData? icon;
   final LoginModel? login;
-  final   File? profileImage;
 
   const AuthState({
     this.user,
     this.registerState,
     this.loginState,
+    this.logoutState,
     this.message,
-    this.file,
-    this.isPassword = true,
-    this.icon,
     this.login,
-    this.profileImage,
+    this.getMe,
+    this.currentUser,
   });
 
   @override
@@ -29,35 +27,32 @@ class AuthState extends Equatable {
         user,
         registerState,
         message,
-        file,
-        isPassword,
-        icon,
         login,
         loginState,
-    profileImage,
+        logoutState,
+        getMe,
+        currentUser,
       ];
 
   AuthState copyWith({
     Data<UserModel>? user,
     RequestState? registerState,
     RequestState? loginState,
+    RequestState? logoutState,
+    RequestState? getMe,
     String? message,
-    File? file,
-    File? profileImage,
-    bool? isPassword,
-    IconData? icon,
     LoginModel? login,
+    UserModel? currentUser,
   }) {
     return AuthState(
       registerState: registerState ?? this.registerState,
       loginState: loginState ?? this.loginState,
+      getMe: getMe ?? this.getMe,
+      logoutState: logoutState ?? this.logoutState,
       message: message ?? this.message,
       user: user ?? this.user,
-      file: file ?? this.file,
-      isPassword: isPassword ?? this.isPassword,
-      icon: icon ?? this.icon,
       login: login ?? this.login,
-      profileImage: profileImage ?? this.profileImage,
+      currentUser: currentUser ?? this.currentUser,
     );
   }
 }

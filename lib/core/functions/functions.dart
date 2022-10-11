@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../../data/model/api/login_model.dart';
 import '../../data/model/duration.g.dart';
 import '../../data/model/flag_model.dart';
 import '../../data/network/local/cache_helper.dart';
@@ -12,6 +13,7 @@ import '../error/failure.dart';
 import '../../data/model/video_model.dart';
 import '../routes/routes.dart';
 import '../strings/failures.dart';
+import '../util/global_variables.dart';
 
 String strDigits(int n) => n.toString().padLeft(2, '0');
 
@@ -50,24 +52,14 @@ String mapFailureToMessage({required Failure failure}) {
   }
 }
 
-void logOut({required BuildContext context}) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialogWidget(
-        title: "Logout",
-        function: () {
-          CacheHelper.clearData(key: "user").then((value) {
-            // if (Platform.isAndroid) {
-            //   SystemNavigator.pop();
-            // } else if (Platform.isIOS) {
-            //   exit(0);
-            // }
-            Navigator.pushNamed(context, Routes.loginPage);
-          });
-        },
-        message: "Are you sure logout from application?",
-      );
-    },
-  );
+void setToken({required String token}) {
+  myToken = "Bearer $token";
+}
+
+void setUserId({required String id}) {
+  myId = id;
+}
+
+void setUser({required LoginModel user}) {
+  currentUserData = user;
 }

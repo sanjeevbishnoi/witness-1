@@ -4,14 +4,7 @@ abstract class AuthEvent {
   const AuthEvent();
 }
 
-class PickUserImageEvent extends AuthEvent {}
-class PickProfileImageEvent extends AuthEvent {}
-
-class ChangeIconSuffixEvent extends AuthEvent {
-  bool isPassword = true;
-
-  ChangeIconSuffixEvent({required this.isPassword});
-}
+class LogoutEvent extends AuthEvent {}
 
 class LoginEvent extends AuthEvent {
   final String email;
@@ -19,6 +12,8 @@ class LoginEvent extends AuthEvent {
 
   LoginEvent({required this.email, required this.password});
 }
+
+//class GetCurrentUserData extends AuthEvent {}
 
 class CreateAccountEvent extends AuthEvent {
   final UserModel user;

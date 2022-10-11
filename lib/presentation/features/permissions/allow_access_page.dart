@@ -5,6 +5,7 @@ import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/routes/routes.dart';
+import '../../../data/network/local/cache_helper.dart';
 import 'permissions.dart';
 
 class AllowAccessPage extends StatelessWidget {
@@ -56,9 +57,10 @@ class AllowAccessPage extends StatelessWidget {
                   await Permission.microphone.request().then((value) {
                     AppPermissions.checkPermissions().then((value) {
                       permissionsGranted = value;
+                      final user = CacheHelper.getData(key: "user");
                       Navigator.pushNamedAndRemoveUntil(
                         context,
-                        Routes.registerPage,
+                        user == null?Routes.registerPage:Routes.homePage,
                         (route) => false,
                       );
                     });

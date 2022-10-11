@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/data/repositories/edited_video_repository.dart';
 import 'package:nice_shot/data/repositories/user_repository.dart';
+import 'package:nice_shot/logic/ui_bloc/ui_bloc.dart';
 import 'package:nice_shot/presentation/features/auth/bloc/auth_bloc.dart';
 import 'package:nice_shot/presentation/features/camera/bloc/bloc.dart';
 import 'package:nice_shot/presentation/features/edited_videos/bloc/edited_video_bloc.dart';
@@ -19,19 +20,19 @@ List<BlocProvider> providers = [
   BlocProvider<TrimmerBloc>(
     create: (_) => TrimmerBloc(),
   ),
-
   BlocProvider<EditedVideoBloc>(
     create: (_) => EditedVideoBloc(
       videosRepository: VideosRepositoryImpl(),
-    )..add(GetEditedVideosEvent(id: userId!)),
+    )..add(GetEditedVideosEvent(id: userId != null? userId!:"")),
   ),
-
   BlocProvider<UserBloc>(
     create: (_) =>
-    UserBloc(userRepository: UserRepositoryImpl())..add(GetUserDataEvent()),
+        UserBloc(userRepository: UserRepositoryImpl())..add(GetUserDataEvent()),
   ),
-
   BlocProvider<MainLayoutBloc>(
     create: (_) => MainLayoutBloc(),
+  ),
+  BlocProvider<UiBloc>(
+    create: (_) => UiBloc(),
   ),
 ];

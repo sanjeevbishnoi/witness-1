@@ -23,7 +23,8 @@ class UploadedEditedVideoPage extends StatelessWidget {
           if (state.requestState == RequestState.loading) {
             return const LoadingWidget();
           } else if (state.requestState == RequestState.loaded) {
-            return state.data!.data!.length > 0
+            if(state.data!.data != null) {
+              return state.data!.data!.isNotEmpty
                 ? GridView.count(
                     shrinkWrap: true,
                     //physics: const NeverScrollableScrollPhysics(),
@@ -98,6 +99,7 @@ class UploadedEditedVideoPage extends StatelessWidget {
                     }),
                   )
                 : const EmptyVideoListWidget();
+            }
           }
           return const LoadingWidget();
         },

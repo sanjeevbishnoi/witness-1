@@ -23,7 +23,7 @@ class FieldAlertDialogWidget extends StatelessWidget {
               autofocus: true,
               cursorColor: MyColors.primaryColor,
               decoration: const InputDecoration(
-                focusedBorder: InputBorder.none,
+                prefixIcon: Icon(Icons.title),
                 labelText: 'Edit title',
               ),
             ),

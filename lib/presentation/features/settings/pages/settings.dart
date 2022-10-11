@@ -8,6 +8,7 @@ import 'package:nice_shot/presentation/widgets/slidable_action_widget.dart';
 
 import '../../../../core/functions/functions.dart';
 import '../../../../core/routes/routes.dart';
+import '../../../widgets/logout_widget.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -33,11 +34,7 @@ class SettingsPage extends StatelessWidget {
             title: "Delete Account",
           ),
           const SizedBox(height: MySizes.verticalSpace),
-          ActionWidget(
-            icon: Icons.exit_to_app,
-            function: () =>logOut(context: context),
-            title: "Logout",
-          ),
+          const LogoutWidget(),
         ],
       ),
     );

@@ -11,6 +11,7 @@ import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../core/themes/app_theme.dart';
+import '../../logic/ui_bloc/ui_bloc.dart';
 import '../features/auth/bloc/auth_bloc.dart';
 import 'text_field_widget.dart';
 
@@ -247,10 +248,10 @@ class FormWidget extends StatelessWidget {
       // );
       case Inputs.password:
         return Builder(builder: (context) {
-          context.read<AuthBloc>().add(
+          context.read<UiBloc>().add(
                 ChangeIconSuffixEvent(isPassword: false),
               );
-          return BlocConsumer<AuthBloc, AuthState>(
+          return BlocConsumer<UiBloc, UiState>(
             listener: (context, state) {
               // if (state.showPassword) {
               //   isPassword = !isPassword;
@@ -262,12 +263,12 @@ class FormWidget extends StatelessWidget {
                 hint: 'Enter password',
                 keyboard: TextInputType.text,
                 prefixIcon: Icons.lock,
-                isPassword: context.read<AuthBloc>().isPassword,
+                isPassword: context.read<UiBloc>().isPassword,
                 suffixIcon: state.icon,
                 suffixIconPressed: () {
-                  context.read<AuthBloc>().add(
+                  context.read<UiBloc>().add(
                         ChangeIconSuffixEvent(
-                          isPassword: context.read<AuthBloc>().isPassword,
+                          isPassword: context.read<UiBloc>().isPassword,
                         ),
                       );
                 },
@@ -370,7 +371,7 @@ class FormWidget extends StatelessWidget {
           },
         );
       case Inputs.image:
-        return BlocBuilder<AuthBloc, AuthState>(
+        return BlocBuilder<UiBloc, UiState>(
           builder: (context, state) {
             return Stack(
               alignment: Alignment.bottomRight,
@@ -401,7 +402,7 @@ class FormWidget extends StatelessWidget {
                     ),
                     child: const Icon(Icons.camera_alt, color: Colors.white),
                   ),
-                  onTap: () => context.read<AuthBloc>().add(
+                  onTap: () => context.read<UiBloc>().add(
                         PickUserImageEvent(),
                       ),
                 ),
