@@ -11,6 +11,7 @@ import '../../../../core/util/boxes.dart';
 import '../../../../data/model/video_model.dart';
 import '../../../../shared/constants.dart';
 import '../../../widgets/loading_widget.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 
 
 class TrimmerPage extends StatefulWidget {
@@ -206,47 +207,23 @@ class _TrimmerPageState extends State<TrimmerPage> {
                       widget.data..flags![widget.flagIndex].isExtracted = true,
                     )
                         .then((value) {
+                      File outputPath=File('${valuee.path}/${DateTime.now().microsecondsSinceEpoch}.mp4');
+                      String command = '-i $newPath -i $logoPath -filter_complex overlay=10:10 -codec:a copy ${outputPath.path}';
+                          file.create(recursive: true).then((value) {
+                            FFmpegKit.executeAsync(
+                               command
+                            ).then((session) async {
                               Navigator.pushNamedAndRemoveUntil(
                                 context,
                                 Routes.homePage,
                                     (route) => false,
                               );
+                          }).catchError((error){
+                          });
 
-                      // File outputPath=File('${valuee.path}/${DateTime.now().microsecondsSinceEpoch}.mp4');
-                      // String command = '-i $newPath -i $logoPath -filter_complex overlay=10:10 -codec:a copy ${outputPath.path}';
-                      //     file.create(recursive: true).then((value) {
-                      //       FFmpegKit.executeAsync(
-                      //          command
-                      //       ).then((session) async {
-                      //         Navigator.pushNamedAndRemoveUntil(
-                      //           context,
-                      //           Routes.homePage,
-                      //               (route) => false,
-                      //         );
-                      //
-                      //         session.getReturnCode().then((returnCode){
-                      //           if (returnCode!.isValueSuccess()) {
-                      //             print("sucessssss");
-                      //             // SUCCESS
-                      //           } else if (returnCode.isValueError()) {
-                      //             print("errr;el;kgor");
-                      //             // CANCEL
-                      //           } else {
-                      //             print("elseee");
-                      //
-                      //             // ERROR
-                      //
-                      //           }
-                      //
-                      //         });
-                      //
-                      //     }).catchError((error){
-                      //    ;
-                      //     });
-                      //
-                      //     }).catchError((onError){
-                      //       print(onError.toString());
-                      //     });
+                          }).catchError((onError){
+                            print(onError.toString());
+                          });
 
                     });
                   },
