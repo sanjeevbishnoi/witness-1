@@ -9,6 +9,7 @@ import 'package:video_trimmer/video_trimmer.dart';
 import '../../../../core/functions/functions.dart';
 import '../../../../core/util/boxes.dart';
 import '../../../../data/model/video_model.dart';
+import '../../../../shared/constants.dart';
 import '../../../widgets/loading_widget.dart';
 
 
@@ -173,18 +174,21 @@ class _TrimmerPageState extends State<TrimmerPage> {
                 color:!isLoading? Colors.white:Colors.white60,
               ),
               onPressed:!isLoading? () async {
+                final valuee = await getPath();
                 isLoading=true;
                 setState((){});
                 await trimmer.saveTrimmedVideo(
-                  ffmpegCommand:  "-af \"volume=enable='between(t,${StartCurrentValue-startValue~/1000},${EndCurrentValue-startValue~/1000})':volume=0\"",
+                  ffmpegCommand:
+                  "-af \"volume=enable='between(t,${StartCurrentValue-startValue~/1000},${EndCurrentValue-startValue~/1000})':volume=0\" "
+                  ,
                   customVideoFormat: ".mp4",
                   startValue: startValue,
                   endValue: endValue == 0 ? endTemp : endValue,
                   onSave: (String? outputPath) async {
-                    final value = await getPath();
+
                     final file = File(outputPath.toString());
                     String newPath =
-                        "${value.path}/${DateTime.now().microsecondsSinceEpoch}.mp4";
+                        "${valuee.path}/${DateTime.now().microsecondsSinceEpoch}.mp4";
                     await file.copy(newPath);
                     File(file.path).deleteSync();
                     VideoModel videoModel = VideoModel(
@@ -202,11 +206,48 @@ class _TrimmerPageState extends State<TrimmerPage> {
                       widget.data..flags![widget.flagIndex].isExtracted = true,
                     )
                         .then((value) {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        Routes.homePage,
-                        (route) => false,
-                      );
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                Routes.homePage,
+                                    (route) => false,
+                              );
+
+                      // File outputPath=File('${valuee.path}/${DateTime.now().microsecondsSinceEpoch}.mp4');
+                      // String command = '-i $newPath -i $logoPath -filter_complex overlay=10:10 -codec:a copy ${outputPath.path}';
+                      //     file.create(recursive: true).then((value) {
+                      //       FFmpegKit.executeAsync(
+                      //          command
+                      //       ).then((session) async {
+                      //         Navigator.pushNamedAndRemoveUntil(
+                      //           context,
+                      //           Routes.homePage,
+                      //               (route) => false,
+                      //         );
+                      //
+                      //         session.getReturnCode().then((returnCode){
+                      //           if (returnCode!.isValueSuccess()) {
+                      //             print("sucessssss");
+                      //             // SUCCESS
+                      //           } else if (returnCode.isValueError()) {
+                      //             print("errr;el;kgor");
+                      //             // CANCEL
+                      //           } else {
+                      //             print("elseee");
+                      //
+                      //             // ERROR
+                      //
+                      //           }
+                      //
+                      //         });
+                      //
+                      //     }).catchError((error){
+                      //    ;
+                      //     });
+                      //
+                      //     }).catchError((onError){
+                      //       print(onError.toString());
+                      //     });
+
                     });
                   },
                 );
