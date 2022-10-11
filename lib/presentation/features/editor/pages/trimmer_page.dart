@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -85,7 +84,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                       title: const Text("select start & end point to mute"),
                       content: Text(
                         "the default start is the ${startValue~/1000}th second and the end is the  ${endTemp~/1000}th second\n "
-                        "the numbers interval are chosen from the video tag not the whole video ",
+                            "the numbers interval are chosen from the video tag not the whole video ",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       actions: [
@@ -103,11 +102,11 @@ class _TrimmerPageState extends State<TrimmerPage> {
                                         value: (StartCurrentValue == 0
                                             ? startValue~/1000
                                             : StartCurrentValue <
-                                                    (EndCurrentValue == 0
-                                                        ? endTemp~/1000
-                                                        : EndCurrentValue)
-                                                ? StartCurrentValue
-                                                : EndCurrentValue - 1),
+                                            (EndCurrentValue == 0
+                                                ? endTemp~/1000
+                                                : EndCurrentValue)
+                                            ? StartCurrentValue
+                                            : EndCurrentValue - 1),
                                         minValue: startValue~/1000,
                                         maxValue: (endTemp~/1000) - 1,
                                         onChanged: (value) {
@@ -205,7 +204,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
                         Routes.homePage,
-                        (route) => false,
+                            (route) => false,
                       );
                     });
                   },
@@ -216,114 +215,107 @@ class _TrimmerPageState extends State<TrimmerPage> {
         ),
         body: File(widget.file.path).existsSync() == true
             ? Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Expanded(
-                    flex: 6,
-                    child: Container(
-                      color: Colors.black,
-                      child: VideoViewer(trimmer: trimmer),
-                    ),
-                  ),
-                  const Spacer(),
-                  Expanded(
-                    child: TrimEditor(
-                      trimmer: trimmer,
-                      viewerWidth: MediaQuery.of(context).size.width,
-                      onChangeStart: (value) {
-                        setState(() {
-                          startValue = value / 1000;
-                        });
-                      },
-                      onChangeEnd: (value) {
-                        setState(() {
-                          endValue = value / 1000;
-                          endTemp = endValue;
-                          trimmer.videoPlayerController!.seekTo(const Duration(seconds: 0));
-                          pausedValue=trimmer.videoPlayerController!.value.position.inSeconds.toInt()-1;
-                        });
-                      },
-                      onChangePlaybackState: (value) {
-                        setState(() {
-                          _isPlaying = value;
-                        });
-                      },
-                      flagModel: widget.flag,
-                      videoDuration: widget.videoDuration,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Expanded(
-                      child: StatefulBuilder(
-                        builder: (context,setInnerState){
-                          return isLoading?const LoadingWidget(): InkWell(
-                            onTap: () async {
-                              showNumberPickerDialog = true;
-                              await trimmer.videoPlayerController!.pause();
-                            },
-                            child: const Icon(
-                              Icons.music_off_rounded,
-                              color: Colors.yellow,
-                            ),
-                          );
-                        },
-                      )
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: TextButton(
-                        child: _isPlaying
-                            ? const Icon(
-                                Icons.pause,
-                                size: 50.0,
-                                color: Colors.white,
-                              )
-                            : const Icon(
-                                Icons.play_arrow,
-                                size: 50.0,
-                                color: Colors.white,
-                              ),
-                        onPressed: () async {
-                          int duration = trimmer
-                              .videoPlayerController!.value.duration.inSeconds;
-                          if(pausedValue!=-1){
-                           pausedValue = trimmer
-                                .videoPlayerController!.value.position.inSeconds;
-                          }
-                          bool playbackState =
-                              await trimmer.videPlaybackControl(
-                            startValue: ((pausedValue == 0 ||
-                                        pausedValue == endTemp ||
-                                        pausedValue == endTemp - 1||pausedValue==-1)
-                                    ? (startValue)
-                                    : (pausedValue)) *
-                                1000,
-                            endValue: endValue,
-                          );
-                          setState(() {
-                            _isPlaying = playbackState;
-                            pausedValue = trimmer
-                                .videoPlayerController!.value.position.inSeconds;
-                          });
-                        },
-                      ),
-                    ),
-                  )
-                ],
-              )
-            : const Center(
-                child: Text("Unknown video"),
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              flex: 5,
+              child: Container(
+                color: Colors.black,
+                child: VideoViewer(trimmer: trimmer),
               ),
+            ),
+            const Spacer(),
+            Expanded(
+              child: TrimEditor(
+                trimmer: trimmer,
+                viewerWidth: MediaQuery.of(context).size.width,
+                onChangeStart: (value) {
+                  setState(() {
+                    startValue = value / 1000;
+                  });
+                },
+                onChangeEnd: (value) {
+                  setState(() {
+                    endValue = value / 1000;
+                    endTemp = endValue;
+                    trimmer.videoPlayerController!.seekTo(const Duration(seconds: 0));
+                    pausedValue=trimmer.videoPlayerController!.value.position.inSeconds.toInt()-1;
+                  });
+                },
+                onChangePlaybackState: (value) {
+                  setState(() {
+                    _isPlaying = value;
+                  });
+                },
+                flagModel: widget.flag,
+                videoDuration: widget.videoDuration,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Expanded(
+                child: StatefulBuilder(
+                  builder: (context,setInnerState){
+                    return isLoading?const LoadingWidget(): InkWell(
+                      onTap: () async {
+                        showNumberPickerDialog = true;
+                        await trimmer.videoPlayerController!.pause();
+                      },
+                      child: const Icon(
+                        Icons.music_off_rounded,
+                        color: Colors.yellow,
+                      ),
+                    );
+                  },
+                )
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: TextButton(
+                  child: _isPlaying
+                      ? const Icon(
+                    Icons.pause,
+                    size: 50.0,
+                    color: Colors.white,
+                  )
+                      : const Icon(
+                    Icons.play_arrow,
+                    size: 50.0,
+                    color: Colors.white,
+                  ),
+                  onPressed: () async {
+                    int duration = trimmer
+                        .videoPlayerController!.value.duration.inSeconds;
+                    if(pausedValue!=-1){
+                      pausedValue = trimmer
+                          .videoPlayerController!.value.position.inSeconds;
+                    }
+                    bool playbackState =
+                    await trimmer.videPlaybackControl(
+                      startValue: ((pausedValue == 0 ||
+                          pausedValue == endTemp ||
+                          pausedValue == endTemp - 1||pausedValue==-1)
+                          ? (startValue)
+                          : (pausedValue)) *
+                          1000,
+                      endValue: endValue,
+                    );
+                    setState(() {
+                      _isPlaying = playbackState;
+                      pausedValue = trimmer
+                          .videoPlayerController!.value.position.inSeconds;
+                    });
+                  },
+                ),
+              ),
+            )
+          ],
+        )
+            : const Center(
+          child: Text("Unknown video"),
+        ),
       ),
     );
   }
 }
-
-
-
-
-
-
-

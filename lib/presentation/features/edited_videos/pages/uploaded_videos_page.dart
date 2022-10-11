@@ -23,7 +23,7 @@ class UploadedEditedVideoPage extends StatelessWidget {
           if (state.requestState == RequestState.loading) {
             return const LoadingWidget();
           } else if (state.requestState == RequestState.loaded) {
-            return state.data!.data!.isNotEmpty
+            return state.data!.data!.length > 0
                 ? GridView.count(
                     shrinkWrap: true,
                     //physics: const NeverScrollableScrollPhysics(),
@@ -36,9 +36,6 @@ class UploadedEditedVideoPage extends StatelessWidget {
 
                       return InkWell(
                         onTap: () {
-                          // context.read<EditedVideoBloc>().add(DeleteEditedVideoEvent(
-                          //       id: data.id.toString(),
-                          //     ));
                           Navigator.push(context, MaterialPageRoute(
                             builder: (context) {
                               return VideoPlayerPage(url: data.videoUrl);

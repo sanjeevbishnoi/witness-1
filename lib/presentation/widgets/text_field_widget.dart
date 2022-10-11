@@ -1,9 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+extension extString on String {
+  bool get isValidEmail {
+    final emailRegExp = RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+    return emailRegExp.hasMatch(this);
+  }
+
+  bool get isValidName {
+    final nameRegExp =
+        RegExp(r"^\s*[A-Za-z]");
+    return nameRegExp.hasMatch(this);
+  }
+
+  bool get isValidPassword {
+    final passwordRegExp = RegExp(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$");
+    return passwordRegExp.hasMatch(this);
+  }
+
+  bool get isNotNull {
+    return this != null;
+  }
+
+  bool get isValidPhone {
+    final phoneRegExp = RegExp(r"[0-9]{10}$");
+    return phoneRegExp.hasMatch(this);
+  }
+
+  bool get isValidDate {
+    final dateRegExp = RegExp("[0-9/]");
+    return dateRegExp.hasMatch(this);
+  }
+}
 
 class TextFieldWidget extends StatelessWidget {
   final TextEditingController controller;
   final TextInputType keyboard;
-  final Function validator;
+  final Function(String) validator;
   final String hint;
   final IconData? prefixIcon;
   final bool isPassword;
@@ -13,6 +46,7 @@ class TextFieldWidget extends StatelessWidget {
   final Function? suffixIconPressed;
   final Function? onSubmit;
   final Function? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
 
   const TextFieldWidget({
     Key? key,
@@ -26,6 +60,7 @@ class TextFieldWidget extends StatelessWidget {
     this.suffixIcon,
     this.onTap,
     this.suffixIconPressed,
+    this.inputFormatters,
     this.onSubmit,
     this.onChanged,
   }) : super(key: key);
@@ -33,6 +68,7 @@ class TextFieldWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      inputFormatters: inputFormatters,
       controller: controller,
       keyboardType: keyboard,
       obscureText: isPassword,
@@ -51,7 +87,7 @@ class TextFieldWidget extends StatelessWidget {
             : null,
       ),
       onTap: () => onTap!(),
-      validator: (value) => validator(value),
+      validator: (value) => validator(value!),
       onFieldSubmitted: (value) => onSubmit ?? (value),
       onChanged: (value) => onChanged ?? (value),
     );

@@ -9,6 +9,7 @@ class AuthState extends Equatable {
   final bool isPassword;
   final IconData? icon;
   final LoginModel? login;
+  final   File? profileImage;
 
   const AuthState({
     this.user,
@@ -19,6 +20,7 @@ class AuthState extends Equatable {
     this.isPassword = true,
     this.icon,
     this.login,
+    this.profileImage,
   });
 
   @override
@@ -28,10 +30,11 @@ class AuthState extends Equatable {
         registerState,
         message,
         file,
-    isPassword,
+        isPassword,
         icon,
         login,
-    loginState,
+        loginState,
+    profileImage,
       ];
 
   AuthState copyWith({
@@ -40,6 +43,7 @@ class AuthState extends Equatable {
     RequestState? loginState,
     String? message,
     File? file,
+    File? profileImage,
     bool? isPassword,
     IconData? icon,
     LoginModel? login,
@@ -53,6 +57,7 @@ class AuthState extends Equatable {
       isPassword: isPassword ?? this.isPassword,
       icon: icon ?? this.icon,
       login: login ?? this.login,
+      profileImage: profileImage ?? this.profileImage,
     );
   }
 }

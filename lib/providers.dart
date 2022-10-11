@@ -16,10 +16,10 @@ List<BlocProvider> providers = [
   BlocProvider<CameraBloc>(
     create: (_) => CameraBloc()..add(InitCameraEvent()),
   ),
-
   BlocProvider<TrimmerBloc>(
     create: (_) => TrimmerBloc(),
   ),
+
   BlocProvider<EditedVideoBloc>(
     create: (_) => EditedVideoBloc(
       videosRepository: VideosRepositoryImpl(),

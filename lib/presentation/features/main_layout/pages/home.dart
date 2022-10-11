@@ -14,10 +14,37 @@ import '../../../../data/model/api/User_model.dart';
 import '../../../icons/icons.dart';
 import '../../edited_videos/pages/edited_videos_page.dart';
 import '../../edited_videos/pages/uploaded_videos_page.dart';
+import '../../permissions/permissions.dart';
 import '../../raw_videos/pages/raw_videos_page.dart';
 
-class MainLayout extends StatelessWidget {
+class MainLayout extends StatefulWidget {
   const MainLayout({Key? key}) : super(key: key);
+
+  @override
+  State<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed) {
+      await AppPermissions.checkPermissions().then((value) {
+        permissionsGranted = value;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +64,7 @@ class MainLayout extends StatelessWidget {
                     UserModel? user = state.user?.data;
                     return DrawerHeader(
                       decoration:
-                      const BoxDecoration(color: MyColors.primaryColor),
+                          const BoxDecoration(color: MyColors.primaryColor),
                       child: Stack(
                         alignment: Alignment.topRight,
                         children: [
@@ -46,30 +73,29 @@ class MainLayout extends StatelessWidget {
                               children: [
                                 user?.logoUrl != null
                                     ? CircleAvatar(
-                                  radius: 40.0,
-                                  backgroundImage: NetworkImage(
-                                    "${user!.logoUrl}",
-                                  ),
-                                )
+                                        radius: 40.0,
+                                        backgroundImage: NetworkImage(
+                                          "${user!.logoUrl}",
+                                        ),
+                                      )
                                     : const CircleAvatar(
-                                  radius: 40.0,
-                                  backgroundImage: AssetImage(
-                                    "assets/images/defaultImage.jpg",
-                                  ),
-                                ),
+                                        radius: 40.0,
+                                        backgroundImage: AssetImage(
+                                          "assets/images/defaultImage.jpg",
+                                        ),
+                                      ),
                                 const SizedBox(height: MySizes.horizontalSpace),
                                 Expanded(
                                   child: Center(
                                     child: Text(
                                       user?.name ?? "loading..",
-                                      style: Theme
-                                          .of(context)
+                                      style: Theme.of(context)
                                           .textTheme
                                           .titleMedium!
                                           .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: MyColors.backgroundColor,
-                                      ),
+                                            fontWeight: FontWeight.bold,
+                                            color: MyColors.backgroundColor,
+                                          ),
                                     ),
                                   ),
                                 )
@@ -117,11 +143,15 @@ class MainLayout extends StatelessWidget {
             elevation: 5.0,
             onPressed: () async {
               if (permissionsGranted) {
-                Navigator.pushNamed(context, Routes.cameraPage);
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  Routes.cameraPage,
+                  (route) => false,
+                );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
                   message:
-                  "Required permissions were not granted!, Open settings and give permissions.",
+                      "Required permissions were not granted!, Open settings and give permissions.",
                   label: "SETTINGS",
                   onPressed: () => openAppSettings(),
                 ));
@@ -136,6 +166,7 @@ class MainLayout extends StatelessWidget {
     );
   }
 }
+
 List<Widget> pages = [
   const RawVideosPage(),
   const EditedVideoPage(),

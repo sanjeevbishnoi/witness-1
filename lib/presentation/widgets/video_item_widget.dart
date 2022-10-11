@@ -16,6 +16,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/functions/functions.dart';
 import '../../core/util/enums.dart';
 import '../../core/util/global_variables.dart';
+import '../../core/util/my_alert_dialog.dart';
 import '../../data/model/video_model.dart';
 import 'alert_dialog_widget.dart';
 import '../features/flags/pages/flags_by_video.dart';
@@ -73,113 +74,132 @@ class VideoItemWidget extends StatelessWidget {
                 final title = data.title ?? "No title";
                 if (File(data.path!).existsSync() == true) {
                   return Align(
-                    child: InkWell(
-                      onLongPress: () {
-                        showModalBottomSheet(
-                          backgroundColor: Colors.white,
-                          elevation: 8,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(10.0),
-                            ),
-                          ),
-                          builder: (context) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ActionWidget(
-                                  title: "Delete",
-                                  icon: Icons.delete_forever_rounded,
-                                  function: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialogWidget(
-                                          message: "are you sure delete $title",
-                                          title: "delete video",
-                                          function: () async {
-                                            await File(data.path!)
-                                                .delete()
-                                                .then((value) {
-                                              items.deleteAt(index);
+                    child: Container(
+                      height: 110.0,
+                      width: double.infinity,
+                      decoration: myBoxDecoration,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onLongPress: () {
+                            showModalBottomSheet(
+                              backgroundColor: Colors.white,
+                              elevation: 8,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(10.0),
+                                ),
+                              ),
+                              builder: (context) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ActionWidget(
+                                      title: "Delete",
+                                      icon: Icons.delete_forever_rounded,
+                                      function: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialogWidget(
+                                              message:
+                                                  "are you sure delete $title",
+                                              title: "delete video",
+                                              function: () async {
+                                                await File(data.path!)
+                                                    .delete()
+                                                    .then((value) {
+                                                  items.deleteAt(index);
 
-                                              Navigator.pop(context);
-                                            });
+                                                  Navigator.pop(context);
+                                                });
+                                              },
+                                            );
                                           },
+                                        ).then(
+                                            (value) => Navigator.pop(context));
+                                      },
+                                    ),
+                                    ActionWidget(
+                                      title: "Edit title",
+                                      icon: Icons.edit,
+                                      function: () {
+                                        myAlertDialog(
+                                          controller: controller,
+                                          context: context,
+                                          function: () async {
+                                            if (controller.text.isNotEmpty) {
+                                              await items
+                                                  .putAt(
+                                                    index,
+                                                    data
+                                                      ..title = controller.text,
+                                                  )
+                                                  .then(
+                                                    (value) =>
+                                                        Navigator.pop(context),
+                                                  );
+                                            }
+                                          },
+
                                         );
                                       },
-                                    ).then((value) => Navigator.pop(context));
-                                  },
-                                ),
-                                ActionWidget(
-                                  title: "Edit title",
-                                  icon: Icons.edit,
-                                  function: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                if (isEditedVideo)
-                                  ActionWidget(
-                                    title: "Share",
-                                    icon: Icons.share,
-                                    function: () async {
-                                      await Share.shareFiles(
-                                        [data.path!],
-                                        text: data.title,
-                                      ).then((value) => Navigator.pop(context));
-                                    },
-                                  ),
-                                ActionWidget(
-                                  title: "Upload",
-                                  icon: Icons.upload,
-                                  function: () {
-                                    videoBloc.add(
-                                      UploadVideoEvent(
-                                        index: index,
-                                        video: video.VideoModel(
-                                          categoryId: "1",
-                                          name: title,
-                                          userId: userId,
-                                          file: File(data.path!),
-                                        ),
+                                    ),
+                                    if (isEditedVideo)
+                                      ActionWidget(
+                                        title: "Share",
+                                        icon: Icons.share,
+                                        function: () async {
+                                          await Share.shareFiles(
+                                            [data.path!],
+                                            text: data.title,
+                                          ).then((value) =>
+                                              Navigator.pop(context));
+                                        },
                                       ),
-                                    );
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
+                                    ActionWidget(
+                                      title: "Upload",
+                                      icon: Icons.upload,
+                                      function: () {
+                                        videoBloc.add(
+                                          UploadVideoEvent(
+                                            index: index,
+                                            video: video.VideoModel(
+                                              categoryId: "1",
+                                              name: title,
+                                              userId: userId,
+                                              file: File(data.path!),
+                                            ),
+                                          ),
+                                        );
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                              context: context,
                             );
                           },
-                          context: context,
-                        );
-                      },
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              if (isEditedVideo) {
-                                return VideoPlayerPage(path: data.path);
-                              }
-                              return FlagsByVideoPage(
-                                flags: data.flags ?? [],
-                                path: data.path ?? "",
-                                data: data,
-                                videoIndex: index,
-                              );
-                            },
-                          ),
-                        );
-                      },
-                      child: SizedBox(
-                        child: Container(
-                          height: 110.0,
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(
-                            MySizes.widgetSideSpace / 2,
-                          ),
-                          decoration: myBoxDecoration,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  if (isEditedVideo) {
+                                    return VideoPlayerPage(path: data.path);
+                                  }
+                                  return FlagsByVideoPage(
+                                    flags: data.flags ?? [],
+                                    path: data.path ?? "",
+                                    data: data,
+                                    videoIndex: index,
+                                  );
+                                },
+                              ),
+                            );
+                          },
                           child: Row(
                             children: [
                               VideoImageWidget(
@@ -203,8 +223,11 @@ class VideoItemWidget extends StatelessWidget {
                                         ),
                                         const Spacer(),
                                         !isEditedVideo
-                                            ? FlagCountWidget(
-                                                count: data.flags!.length)
+                                            ? Padding(
+                                              padding: const EdgeInsets.only(right: 8.0),
+                                              child: FlagCountWidget(
+                                                  count: data.flags!.length),
+                                            )
                                             : Container(),
                                       ],
                                     ),

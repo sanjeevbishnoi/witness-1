@@ -14,7 +14,7 @@ class FieldAlertDialogWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      contentPadding: const EdgeInsets.all(20.0),
+      contentPadding: const EdgeInsets.all(MySizes.widgetSideSpace),
       content: Row(
         children: [
           Expanded(
@@ -23,10 +23,9 @@ class FieldAlertDialogWidget extends StatelessWidget {
               autofocus: true,
               cursorColor: MyColors.primaryColor,
               decoration: const InputDecoration(
-                  focusedBorder: InputBorder.none,
-                  labelText: 'Edit name',
-                  hintText: 'eg. Nice shot',
-                  labelStyle: TextStyle(color: MyColors.primaryColor)),
+                focusedBorder: InputBorder.none,
+                labelText: 'Edit title',
+              ),
             ),
           )
         ],

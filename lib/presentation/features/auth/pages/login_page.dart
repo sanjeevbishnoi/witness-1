@@ -15,15 +15,15 @@ import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/secondary_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
 
+import '../../../../core/internet_connection.dart';
 import '../../../../core/util/global_variables.dart';
 import '../../../../data/model/api/login_model.dart';
-import '../../edited_videos/bloc/edited_video_bloc.dart';
-import '../../profile/bloc/user_bloc.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({Key? key}) : super(key: key);
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +32,14 @@ class LoginPage extends StatelessWidget {
         title: "Login",
         body: Column(
           children: [
-            FormWidget(
-              route: Routes.loginPage,
-              emailController: emailController,
-              passwordController: passwordController,
-              context: context,
+            Form(
+              key: _formKey,
+              child: FormWidget(
+                route: Routes.loginPage,
+                emailController: emailController,
+                passwordController: passwordController,
+                context: context,
+              ),
             ),
             const SizedBox(height: MySizes.verticalSpace),
             BlocConsumer<AuthBloc, AuthState>(
@@ -54,11 +57,10 @@ class LoginPage extends StatelessWidget {
                   ).then((value) {
                     final user = CacheHelper.getData(key: "user");
                     currentUserData = LoginModel.fromJson(json.decode(user));
-                    userId = currentUserData!.user!.id.toString();
-                    context.read<UserBloc>().add(GetUserDataEvent());
-                    context.read<EditedVideoBloc>().add(GetEditedVideosEvent(
-                          id: userId!,
-                        ));
+                    userId = "${currentUserData!.user!.id}";
+                    // context.read<UserBloc>().add(GetUserDataEvent());
+                    // context.read<EditedVideoBloc>()
+                    //     .add(GetEditedVideosEvent(id: userId!));
                     Navigator.pushNamedAndRemoveUntil(
                       context,
                       Routes.homePage,
@@ -85,11 +87,13 @@ class LoginPage extends StatelessWidget {
                 return Column(
                   children: [
                     PrimaryButtonWidget(
-                      function: () {
-                        context.read<AuthBloc>().add(LoginEvent(
-                              email: emailController.text,
-                              password: passwordController.text,
-                            ));
+                      function: () async {
+                        if (_formKey.currentState!.validate()) {
+                          context.read<AuthBloc>().add(LoginEvent(
+                            email: emailController.text,
+                            password: passwordController.text,
+                          ));
+                        }
                       },
                       text: "login",
                     ),

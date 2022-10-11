@@ -35,7 +35,7 @@ class Routers {
       case Routes.profilePage:
         return MaterialPageRoute(builder: (_) => const ProfilePage());
       case Routes.editProfilePage:
-        return MaterialPageRoute(builder: (_) => const EditProfilePage());
+        return MaterialPageRoute(builder: (_) =>  EditProfilePage());
       case Routes.allowAccessPage:
         return MaterialPageRoute(builder: (_) => const AllowAccessPage());
       case Routes.resetPassword:

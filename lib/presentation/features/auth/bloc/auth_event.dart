@@ -5,6 +5,7 @@ abstract class AuthEvent {
 }
 
 class PickUserImageEvent extends AuthEvent {}
+class PickProfileImageEvent extends AuthEvent {}
 
 class ChangeIconSuffixEvent extends AuthEvent {
   bool isPassword = true;

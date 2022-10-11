@@ -1,17 +1,17 @@
 // ignore_for_file: must_be_immutable
 
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:nice_shot/core/util/enums.dart';
+import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../core/themes/app_theme.dart';
 import '../features/auth/bloc/auth_bloc.dart';
-import '../features/profile/bloc/user_bloc.dart';
 import 'text_field_widget.dart';
 
 enum Inputs {
@@ -41,10 +41,10 @@ class FormWidget extends StatelessWidget {
   TextEditingController? confirmPasswordController;
   TextEditingController? nationalityController;
   TextEditingController? newPasswordController;
-  BuildContext? context;
+  final BuildContext context;
   final String route;
-
-  //bool isPassword = false;
+  bool? isRegister;
+  bool? resetPassword;
 
   FormWidget({
     Key? key,
@@ -55,11 +55,13 @@ class FormWidget extends StatelessWidget {
     this.codeController,
     this.promoCodeController,
     this.dobController,
-    this.context,
+    required this.context,
     this.confirmPasswordController,
     this.nationalityController,
     this.newPasswordController,
     required this.route,
+    this.isRegister = false,
+    this.resetPassword = false,
   }) : super(key: key);
 
   @override
@@ -153,7 +155,17 @@ class FormWidget extends StatelessWidget {
           hint: 'Enter name',
           keyboard: TextInputType.text,
           prefixIcon: Icons.person,
-          validator: () {},
+          validator: (value) {
+            if (value.isEmpty) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Enter your name",
+              ));
+            } else if (!value.isValidName) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Enter a valid name",
+              ));
+            }
+          },
           onTap: () {},
         );
       case Inputs.email:
@@ -162,7 +174,17 @@ class FormWidget extends StatelessWidget {
           hint: 'Enter email',
           keyboard: TextInputType.emailAddress,
           prefixIcon: Icons.email,
-          validator: () {},
+          validator: (value) {
+            if (value.isEmpty) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Enter your email",
+              ));
+            } else if (!value.isValidEmail) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Enter a valid email",
+              ));
+            }
+          },
           onTap: () {},
         );
       case Inputs.nationality:
@@ -171,30 +193,58 @@ class FormWidget extends StatelessWidget {
           hint: 'Enter nationality',
           keyboard: TextInputType.text,
           prefixIcon: Icons.home_sharp,
-          validator: () {},
+          validator: (value) {
+            if (value.isEmpty) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Enter your nationality",
+              ));
+            } else if (!value.isValidName) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Enter a valid nationality",
+              ));
+            }
+          },
           onTap: () {},
         );
       case Inputs.phone:
-        return IntlPhoneField(
-          initialCountryCode: 'IN',
-          controller: phoneController,
-          disableLengthCheck: true,
-          pickerDialogStyle: PickerDialogStyle(
-            countryNameStyle: Theme.of(context!).textTheme.bodySmall,
-            countryCodeStyle: Theme.of(context!).textTheme.bodySmall,
-            listTileDivider: Container(),
-            searchFieldInputDecoration: const InputDecoration(
-              hintText: 'search',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          showCountryFlag: true,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (phone) {},
-          onCountryChanged: (country) {},
+        return TextFieldWidget(
+          controller: phoneController!,
+          hint: 'Enter mobile number',
+          keyboard: TextInputType.phone,
+          prefixIcon: Icons.phone,
+          validator: (value) {
+            if (value.isEmpty) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Enter your mobile number",
+              ));
+            } else if (!value.isValidPhone) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Enter a valid mobile number",
+              ));
+            }
+          },
+          onTap: () {},
         );
+      // return IntlPhoneField(
+      //   initialCountryCode: 'IN',
+      //   controller: phoneController,
+      //   disableLengthCheck: true,
+      //   pickerDialogStyle: PickerDialogStyle(
+      //     countryNameStyle: Theme.of(context).textTheme.bodySmall,
+      //     countryCodeStyle: Theme.of(context).textTheme.bodySmall,
+      //     listTileDivider: Container(),
+      //     searchFieldInputDecoration: const InputDecoration(
+      //       hintText: 'search',
+      //       border: OutlineInputBorder(),
+      //     ),
+      //   ),
+      //   showCountryFlag: true,
+      //   decoration: const InputDecoration(
+      //     border: OutlineInputBorder(),
+      //   ),
+      //   onChanged: (phone) {},
+      //   onCountryChanged: (country) {},
+      // );
       case Inputs.password:
         return Builder(builder: (context) {
           context.read<AuthBloc>().add(
@@ -221,7 +271,27 @@ class FormWidget extends StatelessWidget {
                         ),
                       );
                 },
-                validator: () {},
+                validator: (value) {
+                  if (isRegister == true) {
+                    if (value.isEmpty) {
+                      return ScaffoldMessenger.of(context)
+                          .showSnackBar(snackBarWidget(
+                        message: "Enter the password",
+                      ));
+                    } else if (!value.isValidPassword) {
+                      return ScaffoldMessenger.of(context)
+                          .showSnackBar(snackBarWidget(
+                        message:
+                            "The password must contain at least eight characters, at least one letter and one number",
+                      ));
+                    }
+                  } else if (value.isEmpty) {
+                    return ScaffoldMessenger.of(context)
+                        .showSnackBar(snackBarWidget(
+                      message: "Enter the password",
+                    ));
+                  }
+                },
                 onTap: () {},
               );
             },
@@ -234,7 +304,20 @@ class FormWidget extends StatelessWidget {
           keyboard: TextInputType.text,
           prefixIcon: Icons.lock,
           isPassword: true,
-          validator: () {},
+          validator: (value) {
+            if (value.isEmpty) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Confirm password",
+              ));
+            } else if (value !=
+                (resetPassword == true
+                    ? newPasswordController!.text
+                    : passwordController!.text)) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Passwords do not match",
+              ));
+            }
+          },
           onTap: () {},
         );
       case Inputs.newPassword:
@@ -244,7 +327,18 @@ class FormWidget extends StatelessWidget {
           keyboard: TextInputType.text,
           prefixIcon: Icons.lock,
           isPassword: true,
-          validator: () {},
+          validator: (value) {
+            if (value.isEmpty) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Enter new password",
+              ));
+            } else if (!value.isValidPassword) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message:
+                    "The password must contain at least eight characters, at least one letter and one number:",
+              ));
+            }
+          },
           onTap: () {},
         );
       case Inputs.dob:
@@ -253,10 +347,20 @@ class FormWidget extends StatelessWidget {
           hint: 'Enter date of birth',
           keyboard: TextInputType.datetime,
           prefixIcon: Icons.date_range_rounded,
-          validator: () {},
+          validator: (value) {
+            if (value.isEmpty) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Enter date of birth",
+              ));
+            } else if (!value.isValidDate) {
+              return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
+                message: "Enter a valid date of birth",
+              ));
+            }
+          },
           onTap: () {
             showDatePicker(
-              context: context!,
+              context: context,
               initialDate: DateTime.now(),
               firstDate: DateTime.parse('1900-01-01'),
               lastDate: DateTime.now(),
@@ -281,7 +385,7 @@ class FormWidget extends StatelessWidget {
                               image: FileImage(state.file!),
                               fit: BoxFit.cover,
                             )
-                          :  const DecorationImage(
+                          : const DecorationImage(
                               image: AssetImage(
                                 "assets/images/defaultImage.jpg",
                               ),
@@ -329,7 +433,7 @@ class FormWidget extends StatelessWidget {
             beforeTextPaste: (text) {
               return true;
             },
-            appContext: context!,
+            appContext: context,
           ),
         );
       case Inputs.promoCode:

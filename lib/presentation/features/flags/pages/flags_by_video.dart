@@ -6,7 +6,6 @@ import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:nice_shot/data/model/video_model.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../../icons/icons.dart';
-import '../../../widgets/app_bar_widget.dart';
 import '../widgets/flag_item_widget.dart';
 
 class FlagsByVideoPage extends StatelessWidget {

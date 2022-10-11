@@ -6,7 +6,6 @@ import 'package:nice_shot/data/model/api/User_model.dart';
 import 'package:nice_shot/presentation/features/profile/bloc/user_bloc.dart';
 import 'package:nice_shot/presentation/features/profile/widgets/user_info_widget.dart';
 import 'package:nice_shot/presentation/widgets/error_widget.dart';
-import 'package:nice_shot/presentation/widgets/form_widget.dart';
 import 'package:nice_shot/presentation/widgets/loading_widget.dart';
 import 'package:nice_shot/presentation/widgets/secondary_button_widget.dart';
 
@@ -34,22 +33,9 @@ class ProfilePage extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        // user?.logoUrl != null
-                        //     ? CircleAvatar(
-                        //         radius: 50.0,
-                        //         backgroundImage: NetworkImage(
-                        //           "${user!.logoUrl}",
-                        //         ),
-                        //       )
-                        //     : const CircleAvatar(
-                        //         radius: 50.0,
-                        //         backgroundImage: AssetImage(
-                        //           "assets/images/defaultImage.jpg",
-                        //         ),
-                        //       ),
                         BlocConsumer<AuthBloc, AuthState>(
                           listener: (context, state) {
-                            final file = state.file;
+                            final file = state.profileImage;
                             if (file != null) {
                               context
                                   .read<UserBloc>()
@@ -57,19 +43,26 @@ class ProfilePage extends StatelessWidget {
                             }
                           },
                           builder: (context, state) {
-                            return  Stack(
+                            return context
+                                        .read<UserBloc>()
+                                        .state
+                                        .updateImageState ==
+                                    RequestState.loading
+                                ? const LoadingWidget()
+                                : Stack(
                                     alignment: Alignment.bottomRight,
                                     children: [
                                       Container(
                                         height: MySizes.imageHeight,
                                         width: MySizes.imageWidth,
                                         decoration: BoxDecoration(
+                                            color: Colors.grey.shade200,
                                             borderRadius: BorderRadius.circular(
                                                 MySizes.imageRadius),
-                                            image: state.file != null
+                                            image: state.profileImage != null
                                                 ? DecorationImage(
                                                     image:
-                                                        FileImage(state.file!),
+                                                        FileImage(state.profileImage!),
                                                     fit: BoxFit.cover,
                                                   )
                                                 : DecorationImage(
@@ -93,14 +86,13 @@ class ProfilePage extends StatelessWidget {
                                         ),
                                         onTap: () =>
                                             context.read<AuthBloc>().add(
-                                                  PickUserImageEvent(),
+                                                  PickProfileImageEvent(),
                                                 ),
                                       ),
                                     ],
                                   );
                           },
                         ),
-
                         const SizedBox(height: MySizes.verticalSpace),
                         Text(
                           "${user?.name}",
@@ -117,23 +109,14 @@ class ProfilePage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: MySizes.verticalSpace * 3),
-                  Row(
-                    children: [
-                      UserInfoWidget(text: "Mobile", info: user?.mobile),
-                      const SizedBox(width: MySizes.horizontalSpace),
-                      UserInfoWidget(text: "Email", info: user?.email),
-                    ],
-                  ),
                   const SizedBox(height: MySizes.verticalSpace),
-                  Row(
-                    children: [
-                      UserInfoWidget(text: "Birth Date", info: user?.birthDate),
-                      const SizedBox(width: MySizes.horizontalSpace),
-                      UserInfoWidget(
-                          text: "Nationality", info: user?.nationality),
-                    ],
-                  ),
+                  UserInfoWidget(text: "Mobile", info: user?.mobile),
+                  const SizedBox(height: MySizes.verticalSpace),
+                  UserInfoWidget(text: "Email", info: user?.email),
+                  const SizedBox(height: MySizes.verticalSpace),
+                  UserInfoWidget(text: "Birth Date", info: user?.birthDate),
+                  const SizedBox(height: MySizes.verticalSpace),
+                  UserInfoWidget(text: "Nationality", info: user?.nationality),
                   const SizedBox(height: MySizes.verticalSpace * 3),
                   SecondaryButtonWidget(
                     function: () =>

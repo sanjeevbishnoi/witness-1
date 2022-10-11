@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
 
+import '../../../core/internet_connection.dart';
 import '../../../core/util/global_variables.dart';
 import '../end_points.dart';
 
@@ -8,7 +9,6 @@ class DioHelper {
   static String baseUrl = "http://91.232.125.244:8085";
   static String contentType = "application/json";
   static String authorization = token;
-
   static Map<String, String> headers = {
     'Accept': contentType,
     'Content-Type': contentType,
@@ -44,6 +44,7 @@ class DioHelper {
     Map<String, dynamic>? query,
   }) async {
     dio!.options.headers = headers;
+
     return dio!.post(
       url,
       queryParameters: query,

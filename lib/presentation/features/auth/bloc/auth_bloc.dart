@@ -26,23 +26,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthEvent>((event, emit) async {
       if (event is PickUserImageEvent) {
         await pickImage().then((value) {
-          emit(state.copyWith(
-            file: value!,
-            loginState: RequestState.none,
-            registerState: RequestState.none,
-          ));
+          emit(state.copyWith(file: value!));
+        });
+      } else if (event is PickProfileImageEvent) {
+        await pickImage().then((value) {
+          emit(state.copyWith(profileImage: value!));
         });
       } else if (event is ChangeIconSuffixEvent) {
         isPassword = !event.isPassword;
         emit(state.copyWith(
-          loginState: RequestState.none,
-          registerState: RequestState.none,
-          icon: event.isPassword
-              ? Icons.visibility_sharp
-              : Icons.visibility_off,
+          icon:
+              event.isPassword ? Icons.visibility_sharp : Icons.visibility_off,
           isPassword: event.isPassword,
         ));
-
       } else if (event is CreateAccountEvent) {
         emit(state.copyWith(registerState: RequestState.loading));
         var result = await userRepository.createUser(userModel: event.user);

@@ -22,6 +22,7 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController dobController = TextEditingController();
   final TextEditingController confirmPwdController = TextEditingController();
   final TextEditingController nationalityController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +30,20 @@ class RegisterPage extends StatelessWidget {
       title: "Register",
       body: Column(
         children: [
-          FormWidget(
-            route: Routes.registerPage,
-            passwordController: passwordController,
-            phoneController: phoneController,
-            usernameController: nameController,
-            emailController: emailController,
-            dobController: dobController,
-            confirmPasswordController: confirmPwdController,
-            nationalityController: nationalityController,
-            context: context,
+          Form(
+            key: _formKey,
+            child: FormWidget(
+              route: Routes.registerPage,
+              passwordController: passwordController,
+              phoneController: phoneController,
+              usernameController: nameController,
+              emailController: emailController,
+              dobController: dobController,
+              confirmPasswordController: confirmPwdController,
+              nationalityController: nationalityController,
+              context: context,
+              isRegister: true,
+            ),
           ),
           const SizedBox(height: MySizes.verticalSpace),
           BlocConsumer<AuthBloc, AuthState>(
@@ -47,9 +52,8 @@ class RegisterPage extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   snackBarWidget(message: state.message!),
                 );
-              } else if (state.registerState == RequestState.loaded &&
-                  state.user != null) {
-                Navigator.pushNamed(context, Routes.verifyCodePage);
+              } else if (state.registerState == RequestState.loaded) {
+                Navigator.pushNamed(context, Routes.loginPage);
               }
             },
             builder: (context, state) {
@@ -60,22 +64,30 @@ class RegisterPage extends StatelessWidget {
                 children: [
                   PrimaryButtonWidget(
                     function: () {
-                      UserModel user = UserModel(
-                        name: nameController.text,
-                        email: emailController.text,
-                        birthDate: dobController.text,
-                        mobile: phoneController.text.replaceAll("+", "").trim(),
-                        nationality: nationalityController.text,
-                        password: passwordController.text,
-                        logo: state.file!,
-                        userName: nameController.text
-                            .toLowerCase()
-                            .replaceAll(" ", "_")
-                            .toLowerCase(),
-                      );
-                      context.read<AuthBloc>().add(
-                            CreateAccountEvent(user: user),
-                          );
+                      if (state.file == null) {
+                        return ScaffoldMessenger.of(context)
+                            .showSnackBar(snackBarWidget(
+                          message: "Choose image from gallery",
+                        ));
+                      } else if (_formKey.currentState!.validate()) {
+                        UserModel user = UserModel(
+                          name: nameController.text,
+                          email: emailController.text,
+                          birthDate: dobController.text,
+                          mobile:
+                              phoneController.text.replaceAll("+", "").trim(),
+                          nationality: nationalityController.text,
+                          password: passwordController.text,
+                          logo: state.file!,
+                          userName: nameController.text
+                              .toLowerCase()
+                              .replaceAll(" ", "_")
+                              .toLowerCase(),
+                        );
+                        context.read<AuthBloc>().add(
+                              CreateAccountEvent(user: user),
+                            );
+                      }
                     },
                     text: "register",
                   ),

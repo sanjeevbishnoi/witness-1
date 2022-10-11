@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
+import 'package:external_path/external_path.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nice_shot/core/util/boxes.dart';
@@ -21,7 +23,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   Timer? countdownTimer;
   Duration videoDuration = const Duration(seconds: 0);
   AssetsAudioPlayer audioPlayer = AssetsAudioPlayer.newPlayer();
-  Duration selectedDuration = const Duration(minutes: 1);
+  Duration selectedDuration = const Duration(seconds: 60);
 
   get minutes => strDigits(videoDuration.inMinutes.remainder(60));
 
@@ -123,15 +125,26 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     StopRecordingEvent event,
     Emitter<CameraState> emit,
   ) async {
+    int first10s = 10;
+    int last10s = selectedDuration.inSeconds - 10;
+
     try {
       var file = await _stopRecording();
       emit(StopRecordingState(fromUser: event.fromUser));
       countdownTimer!.cancel();
       videoDuration = const Duration(seconds: 0);
-     // var value = await _getPath();
-     // String newPath = "${value.path}/${file!.name}";
-     // await file.saveTo(newPath);
-      event.video.path = file!.path;
+
+      var value = await getMyPath();
+      String newPath = "${value.path}/${file!.name}";
+      //await file.saveTo(newPath);
+
+      FFmpegKit.executeAsync(
+        "ffmpeg -i ${file.path} -ss 00:00:05 -to 00:00:08 -c:v copy -c:a copy $newPath",
+      ).then((value) async {
+        final result = await value.getOutput();
+        print("my result $result");
+      });
+      event.video.path = file.path;
       if (event.video.flags!.isEmpty && event.fromUser == false) {
         paths.add(file.path);
         if (paths.length > 1) {
@@ -153,6 +166,17 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     } on CameraException catch (e) {
       throw Exception(e);
     }
+  }
+
+  Future<Directory> getMyPath() async {
+    var path = await ExternalPath.getExternalStoragePublicDirectory(
+      ExternalPath.DIRECTORY_DCIM,
+    );
+    Directory directory = Directory("$path/witness/test");
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    return directory;
   }
 
   Future<void> _onResumeRecording(
@@ -242,7 +266,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
       Offset point = Offset(xp, yp);
 
       await controller!.setFocusPoint(point);
-     // await controller!.setExposurePoint(point);
+      // await controller!.setExposurePoint(point);
       Future.delayed(const Duration(seconds: 2)).whenComplete(() {
         showFocusCircle = false;
         emit(FocusState());

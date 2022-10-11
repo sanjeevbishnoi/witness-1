@@ -11,5 +11,5 @@ myAlertDialog({
     builder: (BuildContext context) {
       return FieldAlertDialogWidget(function: function, controller: controller);
     },
-  );
+  ).then((value) => Navigator.pop(context));
 }

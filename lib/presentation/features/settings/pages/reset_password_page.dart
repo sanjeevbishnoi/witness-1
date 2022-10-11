@@ -18,6 +18,7 @@ class ResetPasswordPage extends StatelessWidget {
     var oldPasswordController = TextEditingController();
     var newPasswordController = TextEditingController();
     var confirmPasswordController = TextEditingController();
+    final _formKey = GlobalKey<FormState>();
 
     return Scaffold(
         appBar: AppBar(
@@ -27,12 +28,16 @@ class ResetPasswordPage extends StatelessWidget {
           padding: const EdgeInsets.all(MySizes.widgetSideSpace),
           child: Column(
             children: [
-              FormWidget(
-                route: Routes.resetPassword,
-                passwordController: oldPasswordController,
-                newPasswordController: newPasswordController,
-                confirmPasswordController: confirmPasswordController,
-                context: context,
+              Form(
+                key: _formKey,
+                child: FormWidget(
+                  route: Routes.resetPassword,
+                  passwordController: oldPasswordController,
+                  newPasswordController: newPasswordController,
+                  confirmPasswordController: confirmPasswordController,
+                  context: context,
+                  resetPassword: true,
+                ),
               ),
               const SizedBox(height: MySizes.verticalSpace * 2),
               BlocConsumer<UserBloc, UserState>(listener: (context, state) {
@@ -55,12 +60,14 @@ class ResetPasswordPage extends StatelessWidget {
                       children: [
                         PrimaryButtonWidget(
                           function: () {
-                            context.read<UserBloc>().add(
-                                  ResetPasswordEvent(
-                                    oldPassword: oldPasswordController.text,
-                                    newPassword: newPasswordController.text,
-                                  ),
-                                );
+                            if (_formKey.currentState!.validate()) {
+                              context.read<UserBloc>().add(
+                                    ResetPasswordEvent(
+                                      oldPassword: oldPasswordController.text,
+                                      newPassword: newPasswordController.text,
+                                    ),
+                                  );
+                            }
                           },
                           text: "reset",
                         ),

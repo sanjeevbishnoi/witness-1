@@ -6,10 +6,11 @@ import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/data/model/api/login_model.dart';
 import 'package:nice_shot/presentation/features/permissions/permissions.dart';
-import 'package:nice_shot/data/debugs/bloc_delegate.dart';
+import 'package:nice_shot/logic/debugs/bloc_delegate.dart';
 import 'package:nice_shot/presentation/router/app_router.dart';
 import 'package:nice_shot/providers.dart';
 import 'core/functions/functions.dart';
+import 'core/internet_connection.dart';
 import 'core/util/global_variables.dart';
 import 'data/network/local/cache_helper.dart';
 import 'data/network/remote/dio_helper.dart';
@@ -22,6 +23,7 @@ void main() async {
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   DioHelper.init();
+ConnectionStatusSingleton.getInstance();
   await CacheHelper.init();
   await di.init();
   final directory = await path.getApplicationDocumentsDirectory();
@@ -38,11 +40,11 @@ void main() async {
     currentUserData = LoginModel.fromJson(json.decode(user));
     initRoute = Routes.homePage;
   }
-  if (permissionsGranted == false) {
-    initRoute = Routes.allowAccessPage;
-  }
-  if (user == null) {
+  if (user == null && permissionsGranted) {
     initRoute = Routes.registerPage;
+  }
+  if (!permissionsGranted) {
+    initRoute = Routes.allowAccessPage;
   }
   BlocOverrides.runZoned(() {
     runApp(MyApp(initRoute: initRoute!));
@@ -69,4 +71,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

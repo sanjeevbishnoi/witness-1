@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hive/hive.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:nice_shot/data/model/video_model.dart';
@@ -12,6 +11,7 @@ import '../../../../core/util/boxes.dart';
 import '../../../../core/util/my_alert_dialog.dart';
 import '../../../../core/util/my_box_decoration.dart';
 import '../../../icons/icons.dart';
+import '../../../widgets/alert_dialog_widget.dart';
 import '../../../widgets/slidable_action_widget.dart';
 import '../../editor/pages/trimmer_page.dart';
 import 'like_action.dart';
@@ -86,129 +86,160 @@ class FlagItemWidget extends StatelessWidget {
               ),
             )
           : myBoxDecoration,
-      padding: const EdgeInsets.all(8.0),
-      child: ListTile(
-        leading: Text("${flagIndex + 1}"),
-        title: Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: Text(
-                flagModel.title ?? "No title",
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (flagModel.isExtracted == true)
-              const Icon(
-                Icons.check,
-                color: Colors.green,
-              ),
-          ],
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "STR: $startMinute:$startSecond - END: $endMinute:$endSecond",
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: MySizes.verticalSpace),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+      child: InkWell(
+        onLongPress: () {},
+        child: Material(
+          color: Colors.transparent,
+          child: ListTile(
+            leading: Text("${flagIndex + 1}"),
+            title: Row(
               children: [
-                LikeActionWidget(
-                  icon: MyIcons.thumb_down,
-                  isLike: flagModel.isLike,
-                  value: false,
-                  function: () {
-                    items.putAt(
-                      videoIndex,
-                      videoModel
-                        ..flags![flagIndex].isLike =
-                            flagModel.isLike == null || flagModel.isLike == true
-                                ? false
-                                : null,
-                    );
-                  },
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    flagModel.title ?? "No title",
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                const SizedBox(
-                  width: MySizes.widgetSideSpace,
+                if (flagModel.isExtracted == true)
+                  const Icon(
+                    Icons.check,
+                    color: Colors.green,
+                  ),
+              ],
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "STR: $startMinute:$startSecond - END: $endMinute:$endSecond",
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
-                LikeActionWidget(
-                  icon: MyIcons.thumb_up,
-                  isLike: flagModel.isLike,
-                  value: true,
-                  function: () {
-                    items.putAt(
-                      videoIndex,
-                      videoModel
-                        ..flags![flagIndex].isLike = flagModel.isLike == null ||
-                                flagModel.isLike == false
-                            ? true
-                            : null,
-                    );
-                  },
+                const SizedBox(height: MySizes.verticalSpace),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    LikeActionWidget(
+                      icon: MyIcons.thumb_down,
+                      isLike: flagModel.isLike,
+                      value: false,
+                      function: () {
+                        items.putAt(
+                          videoIndex,
+                          videoModel
+                            ..flags![flagIndex].isLike =
+                                flagModel.isLike == null ||
+                                        flagModel.isLike == true
+                                    ? false
+                                    : null,
+                        );
+                      },
+                    ),
+                    const SizedBox(
+                      width: MySizes.widgetSideSpace,
+                    ),
+                    LikeActionWidget(
+                      icon: MyIcons.thumb_up,
+                      isLike: flagModel.isLike,
+                      value: true,
+                      function: () {
+                        items.putAt(
+                          videoIndex,
+                          videoModel
+                            ..flags![flagIndex].isLike =
+                                flagModel.isLike == null ||
+                                        flagModel.isLike == false
+                                    ? true
+                                    : null,
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return TrimmerPage(
-                  file: File(videoModel.path!),
-                  flag: flagModel,
-                  data: videoModel,
-                  items: items,
-                  videoDuration: videoDuration,
-                  videoIndex: videoIndex,
-                  flagIndex: flagIndex,
-                );
-              },
-            ),
-          );
-        },
-        onLongPress: () {
-          showModalBottomSheet(
-            backgroundColor: Colors.white,
-            elevation: 8,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(10.0),
-              ),
-            ),
-            builder: (context) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ActionWidget(
-                    title: "Delete",
-                    icon: Icons.delete_forever_rounded,
-                    function: () async {
-                      VideoModel video = videoModel..flags!.removeAt(flagIndex);
-                      await items.deleteAt(videoIndex);
-                      await Boxes.videoBox
-                          .add(video)
-                          .then((value) => Navigator.pop(context));
-                    },
-                  ),
-                  ActionWidget(
-                    title: "Edit title",
-                    icon: Icons.edit,
-                    function: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return TrimmerPage(
+                      file: File(videoModel.path!),
+                      flag: flagModel,
+                      data: videoModel,
+                      items: items,
+                      videoDuration: videoDuration,
+                      videoIndex: videoIndex,
+                      flagIndex: flagIndex,
+                    );
+                  },
+                ),
               );
             },
-            context: context,
-          );
-        },
+            onLongPress: () {
+              showModalBottomSheet(
+                backgroundColor: Colors.white,
+                elevation: 8,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(10.0),
+                  ),
+                ),
+                builder: (context) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ActionWidget(
+                        title: "Delete",
+                        icon: Icons.delete_forever_rounded,
+                        function: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialogWidget(
+                                message: "are you sure delete flag",
+                                title: "delete flag",
+                                function: () async {
+                                  VideoModel video = videoModel
+                                    ..flags!.removeAt(flagIndex);
+                                  await items.deleteAt(videoIndex);
+                                  await Boxes.videoBox
+                                      .add(video)
+                                      .then((value) => Navigator.pop(context));
+                                },
+                              );
+                            },
+                          ).then((value) => Navigator.pop(context));
+                        },
+                      ),
+                      ActionWidget(
+                        title: "Edit title",
+                        icon: Icons.edit,
+                        function: () {
+                          myAlertDialog(
+                            controller: controller,
+                            context: context,
+                            function: () async {
+                              if (controller.text.isNotEmpty) {
+                                await items.putAt(
+                                  videoIndex,
+                                  videoModel..flags![flagIndex].title = controller.text,
+                                ).then((value) => Navigator.pop(context),);
+
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                },
+                context: context,
+              );
+            },
+          ),
+        ),
       ),
     );
   }
