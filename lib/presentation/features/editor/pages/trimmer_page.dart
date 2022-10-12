@@ -272,21 +272,21 @@ class _TrimmerPageState extends State<TrimmerPage> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  Expanded(
-                      child: StatefulBuilder(
-                        builder: (context,setInnerState){
-                          return isLoading?const LoadingWidget(): InkWell(
-                            onTap: () async {
-                              showNumberPickerDialog = true;
-                              await trimmer.videoPlayerController!.pause();
-                            },
-                            child: const Icon(
-                              Icons.music_off_rounded,
-                              color: Colors.yellow,
-                            ),
-                          );
-                        },
-                      )
+                  StatefulBuilder(
+                    builder: (context,setInnerState){
+                      return isLoading?const LoadingWidget(): Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            showNumberPickerDialog = true;
+                            await trimmer.videoPlayerController!.pause();
+                          },
+                          child: const Icon(
+                            Icons.music_off_rounded,
+                            color: Colors.yellow,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   Expanded(
                     child: Align(
