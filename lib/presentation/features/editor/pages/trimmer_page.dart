@@ -238,7 +238,6 @@ class _TrimmerPageState extends State<TrimmerPage> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Expanded(
-                    flex: 6,
                     child: Container(
                       color: Colors.black,
                       child: VideoViewer(trimmer: trimmer),
@@ -272,10 +271,10 @@ class _TrimmerPageState extends State<TrimmerPage> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  StatefulBuilder(
-                    builder: (context,setInnerState){
-                      return isLoading?const LoadingWidget(): Expanded(
-                        child: InkWell(
+                  Expanded(
+                    child: StatefulBuilder(
+                      builder: (context,setInnerState){
+                        return isLoading?const LoadingWidget(): InkWell(
                           onTap: () async {
                             showNumberPickerDialog = true;
                             await trimmer.videoPlayerController!.pause();
@@ -284,9 +283,9 @@ class _TrimmerPageState extends State<TrimmerPage> {
                             Icons.music_off_rounded,
                             color: Colors.yellow,
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                   Expanded(
                     child: Align(
