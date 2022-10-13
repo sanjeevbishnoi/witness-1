@@ -8,4 +8,6 @@ class Endpoints {
   static const String userImage = '/api/user_logo';
   static const String me = '/api/auth/me';
   static const String logout = '/api/auth/logout';
+  static const String refresh = '/api/auth/refresh';
+  static const String tags = '/api/raw_video_tags';
 }

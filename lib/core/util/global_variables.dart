@@ -10,3 +10,5 @@ String? get userId => myId;
 LoginModel? currentUserData;
 
 LoginModel? get user => currentUserData;
+
+String rawVideoId = "";

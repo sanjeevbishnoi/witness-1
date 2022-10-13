@@ -1,5 +1,6 @@
 import 'package:nice_shot/data/model/api/video_model.dart';
 
+import 'Tag_model.dart';
 import 'User_model.dart';
 
 class Data<T> {
@@ -18,6 +19,8 @@ class Generic {
       return VideoModel.fromJson(json) as T;
     }  else if (T == UserModel) {
       return UserModel.fromJson(json) as T;
+    }  else if (T == TagModel) {
+      return TagModel.fromJson(json) as T;
     } else {
       throw Exception("Unknown class");
     }

@@ -35,31 +35,13 @@ class FlagItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextEditingController controller = TextEditingController();
-    List flagPoint = flagModel.flagPoint!.split(":");
-    Duration point = Duration(
-      seconds: int.parse(flagPoint.last.toString().split(".").first),
-      minutes: int.parse(flagPoint[1]),
-      hours: int.parse(flagPoint.first),
-    );
     List duration = videoModel.videoDuration!.split(":");
     final videoDuration = Duration(
       seconds: int.parse(duration.last.toString().split(".").first),
       minutes: int.parse(duration[1]),
       hours: int.parse(duration.first),
     );
-    Duration start = point -
-        Duration(
-          seconds: point.inSeconds >= 10 ? 10 : point.inSeconds,
-          minutes: 0,
-        );
-    Duration end = Duration(
-      seconds: (point.inSeconds + 10) <= videoDuration.inSeconds
-          ? point.inSeconds + 10
-          : videoDuration.inSeconds,
-      minutes: 0,
-    );
-    flagModel.startDuration = start;
-    flagModel.endDuration = end;
+
     String startMinute = strDigits(
       flagModel.startDuration!.inMinutes.remainder(60),
     );

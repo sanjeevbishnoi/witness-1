@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +12,7 @@ import 'package:nice_shot/data/network/local/cache_helper.dart';
 import 'package:nice_shot/data/network/remote/dio_helper.dart';
 import 'package:nice_shot/presentation/features/auth/bloc/auth_bloc.dart';
 import 'package:nice_shot/presentation/features/auth/widgets/wrapper.dart';
+import 'package:nice_shot/presentation/features/main_layout/bloc/main_layout_bloc.dart';
 import 'package:nice_shot/presentation/widgets/form_widget.dart';
 import 'package:nice_shot/presentation/widgets/loading_widget.dart';
 import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
@@ -60,8 +62,6 @@ class LoginPage extends StatelessWidget {
                     setUser(user: data);
                     setToken(token: currentUserData!.token.toString());
                     setUserId(id: currentUserData!.user!.id.toString());
-                    print("user id: $userId");
-                    print("user id: $token");
                     Navigator.pushNamedAndRemoveUntil(
                       context,
                       Routes.homePage,

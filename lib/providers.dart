@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/data/repositories/edited_video_repository.dart';
+import 'package:nice_shot/data/repositories/raw_video_repository.dart';
 import 'package:nice_shot/data/repositories/user_repository.dart';
 import 'package:nice_shot/logic/ui_bloc/ui_bloc.dart';
 import 'package:nice_shot/presentation/features/auth/bloc/auth_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:nice_shot/presentation/features/edited_videos/bloc/edited_video_
 import 'package:nice_shot/presentation/features/editor/bloc/trimmer_bloc.dart';
 import 'package:nice_shot/presentation/features/main_layout/bloc/main_layout_bloc.dart';
 import 'package:nice_shot/presentation/features/profile/bloc/user_bloc.dart';
+import 'package:nice_shot/presentation/features/raw_videos/bloc/raw_video_bloc.dart';
 
 List<BlocProvider> providers = [
   BlocProvider<AuthBloc>(
@@ -23,7 +25,12 @@ List<BlocProvider> providers = [
   BlocProvider<EditedVideoBloc>(
     create: (_) => EditedVideoBloc(
       videosRepository: VideosRepositoryImpl(),
-    )..add(GetEditedVideosEvent(id: userId != null? userId!:"")),
+    )..add(GetEditedVideosEvent(id: userId != null ? userId! : "")),
+  ),
+  BlocProvider<RawVideoBloc>(
+    create: (_) => RawVideoBloc(
+      videosRepository: RawVideosRepositoryImpl(),
+    )..add(GetRawVideosEvent(id: userId != null ? userId! : "")),
   ),
   BlocProvider<UserBloc>(
     create: (_) =>

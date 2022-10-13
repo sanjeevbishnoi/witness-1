@@ -27,12 +27,12 @@ class SettingsPage extends StatelessWidget {
             ),
             title: "Reset Password",
           ),
-          const SizedBox(height: MySizes.verticalSpace),
-          ActionWidget(
-            icon: Icons.delete_forever_rounded,
-            function: () {},
-            title: "Delete Account",
-          ),
+          // const SizedBox(height: MySizes.verticalSpace),
+          // ActionWidget(
+          //   icon: Icons.delete_forever_rounded,
+          //   function: () {},
+          //   title: "Delete Account",
+          // ),
           const SizedBox(height: MySizes.verticalSpace),
           const LogoutWidget(),
         ],

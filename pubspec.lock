@@ -368,6 +368,20 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fresh:
+    dependency: transitive
+    description:
+      name: fresh
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.1"
+  fresh_dio:
+    dependency: "direct main"
+    description:
+      name: fresh_dio
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.2"
   frontend_server_client:
     dependency: transitive
     description:

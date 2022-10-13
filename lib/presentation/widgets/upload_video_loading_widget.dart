@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:nice_shot/presentation/features/raw_videos/bloc/raw_video_bloc.dart';
 
 import '../../core/themes/app_theme.dart';
 import '../features/edited_videos/bloc/edited_video_bloc.dart';
 
 class UploadVideoLoadingWidget extends StatelessWidget {
-  final EditedVideoBloc videoBloc;
+  final EditedVideoBloc? videoBloc;
+  final RawVideoBloc? rawVideoBloc;
+  final bool isEditedVideo;
 
-  const UploadVideoLoadingWidget({Key? key, required this.videoBloc})
+  const UploadVideoLoadingWidget(
+      {Key? key,
+      this.videoBloc,
+      this.rawVideoBloc,
+      required this.isEditedVideo})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    int progress = videoBloc.state.progressValue!;
-    String taskId = videoBloc.state.taskId!;
+    int progress = isEditedVideo
+        ? videoBloc!.state.progressValue!
+        : rawVideoBloc!.state.progressValue!;
+    String taskId =
+        isEditedVideo ? videoBloc!.state.taskId! : rawVideoBloc!.state.taskId!;
     return Align(
       alignment: Alignment.bottomRight,
       child: Row(
@@ -40,7 +50,11 @@ class UploadVideoLoadingWidget extends StatelessWidget {
             flex: 1,
             child: InkWell(
               onTap: () {
-                videoBloc.add(CancelUploadVideoEvent(taskId: taskId));
+                if (isEditedVideo) {
+                  videoBloc!.add(CancelUploadVideoEvent(taskId: taskId));
+                } else {
+                  rawVideoBloc!.add(CancelUploadRawVideoEvent(taskId: taskId));
+                }
               },
               child: const Icon(Icons.cancel),
             ),

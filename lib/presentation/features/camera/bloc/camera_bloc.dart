@@ -134,24 +134,14 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
       countdownTimer!.cancel();
       videoDuration = const Duration(seconds: 0);
 
-      var value = await getMyPath();
-      String newPath = "${value.path}/${file!.name}";
-      //await file.saveTo(newPath);
-
-      FFmpegKit.executeAsync(
-        "ffmpeg -i ${file.path} -ss 00:00:05 -to 00:00:08 -c:v copy -c:a copy $newPath",
-      ).then((value) async {
-        final result = await value.getOutput();
-        print("my result $result");
-      });
-      event.video.path = file.path;
+      event.video.path = file!.path;
       if (event.video.flags!.isEmpty && event.fromUser == false) {
         paths.add(file.path);
         if (paths.length > 1) {
           File(paths.first).deleteSync();
           paths.removeAt(0);
         }
-      } else if (event.fromUser == true) {
+      } else{
         video_thumbnail.VideoThumbnail.thumbnailFile(
           video: event.video.path!,
           imageFormat: video_thumbnail.ImageFormat.JPEG,

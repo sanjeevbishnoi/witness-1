@@ -80,7 +80,7 @@ class UserRepositoryImpl extends UserRepository {
 
   @override
   Future<MyResponse> getUserData({required String id}) async {
-    var response = await DioHelper.getData(
+    final response = await DioHelper.getData(
       url: "${Endpoints.user}/$id",
     );
     try {
@@ -93,7 +93,7 @@ class UserRepositoryImpl extends UserRepository {
 
   @override
   Future<MyResponse> updateUserData({required UserModel userModel}) async {
-    var response = await DioHelper.putData(
+    final response = await DioHelper.putData(
       url: "${Endpoints.user}/$userId",
       data: {
         'name': userModel.name,
@@ -184,4 +184,6 @@ class UserRepositoryImpl extends UserRepository {
       return Left(ServerFailure());
     }
   }
+
+
 }

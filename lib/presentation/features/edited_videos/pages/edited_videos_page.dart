@@ -373,7 +373,6 @@ class EditedVideoPage extends StatelessWidget {
     return VideoItemWidget(
       box: Boxes.exportedVideoBox,
       isEditedVideo: true,
-
     );
   }
 }

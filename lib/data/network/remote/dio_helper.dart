@@ -1,14 +1,12 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_uploader/flutter_uploader.dart';
-
-import '../../../core/internet_connection.dart';
 import '../../../core/util/global_variables.dart';
-import '../end_points.dart';
+import 'package:fresh_dio/fresh_dio.dart';
 
 class DioHelper {
   static String baseUrl = "http://91.232.125.244:8085";
   static String contentType = "application/json";
   static String? authorization = token;
+
   static Map<String, String> headers = {
     'Accept': contentType,
     'Content-Type': contentType,
@@ -32,6 +30,7 @@ class DioHelper {
     Map<String, dynamic>? query,
   }) async {
     dio!.options.headers = headers;
+    dio!.options.headers["Authorization"] = token;
     return await dio!.get(
       url,
       queryParameters: query,
@@ -44,8 +43,8 @@ class DioHelper {
     Map<String, dynamic>? query,
   }) async {
     dio!.options.headers = headers;
-
-    return dio!.post(
+    dio!.options.headers["Authorization"] = token;
+    return await dio!.post(
       url,
       queryParameters: query,
       data: data,
@@ -58,7 +57,8 @@ class DioHelper {
     Map<String, dynamic>? query,
   }) async {
     dio!.options.headers = headers;
-    return dio!.put(url, queryParameters: query, data: data);
+    dio!.options.headers["Authorization"] = token;
+    return await dio!.put(url, queryParameters: query, data: data);
   }
 
   static Future<Response> deleteData({
@@ -66,6 +66,7 @@ class DioHelper {
     Map<String, dynamic>? query,
   }) async {
     dio!.options.headers = headers;
+    dio!.options.headers["Authorization"] = token;
     return await dio!.delete(url, queryParameters: query);
   }
 }

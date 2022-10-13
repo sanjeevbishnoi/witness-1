@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_video_info/flutter_video_info.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:intl/intl.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
@@ -9,6 +12,7 @@ import 'package:nice_shot/data/model/api/video_model.dart' as video;
 import 'package:nice_shot/presentation/features/edited_videos/bloc/edited_video_bloc.dart';
 import 'package:nice_shot/presentation/widgets/flag_count_widget.dart';
 import 'package:nice_shot/presentation/widgets/slidable_action_widget.dart';
+import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
 import 'package:nice_shot/presentation/widgets/upload_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/upload_video_loading_widget.dart';
 import 'package:nice_shot/presentation/widgets/video_image_widget.dart';
@@ -18,10 +22,15 @@ import '../../core/util/enums.dart';
 import '../../core/util/global_variables.dart';
 import '../../core/util/my_alert_dialog.dart';
 import '../../data/model/video_model.dart';
+import '../features/raw_videos/bloc/raw_video_bloc.dart';
 import 'alert_dialog_widget.dart';
 import '../features/flags/pages/flags_by_video.dart';
 import '../features/video_player/video_player_page.dart';
 import 'empty_video_list_widget.dart';
+import 'loading_widget.dart';
+
+final videoInfo = FlutterVideoInfo();
+VideoData? videoData;
 
 class VideoItemWidget extends StatelessWidget {
   final Box<VideoModel> box;
@@ -37,6 +46,7 @@ class VideoItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     TextEditingController controller = TextEditingController();
     EditedVideoBloc videoBloc = context.read<EditedVideoBloc>();
+    RawVideoBloc rawVideoBloc = context.read<RawVideoBloc>();
     return Padding(
       padding: const EdgeInsets.all(MySizes.widgetSideSpace),
       child: ValueListenableBuilder(
@@ -46,7 +56,11 @@ class VideoItemWidget extends StatelessWidget {
           if (items.isNotEmpty) {
             return ListView.separated(
               separatorBuilder: (context, index) {
-                return const SizedBox(height: MySizes.verticalSpace);
+                final key = keys[index];
+                final VideoModel data = items.get(key)!;
+                return File(data.path.toString()).existsSync() == true
+                    ? const SizedBox(height: MySizes.verticalSpace)
+                    : const SizedBox();
               },
               itemCount: keys.length,
               scrollDirection: Axis.vertical,
@@ -55,24 +69,51 @@ class VideoItemWidget extends StatelessWidget {
                 final key = keys[index];
 
                 final VideoModel data = items.get(key)!;
+
                 final String time =
                     DateFormat().add_jm().format(data.dateTime!);
                 final String date =
                     DateFormat().add_yMEd().format(data.dateTime!);
-                List duration = data.videoDuration!.split(":");
-                final videoDuration = Duration(
-                  seconds: int.parse(duration.last.toString().split(".").first),
-                  minutes: int.parse(duration[1]),
-                  hours: int.parse(duration.first),
-                );
-                String minutes = strDigits(
-                  videoDuration.inMinutes.remainder(60),
-                );
-                String seconds = strDigits(
-                  videoDuration.inSeconds.remainder(60),
-                );
-                final title = data.title ?? "No title";
-                if (File(data.path!).existsSync() == true) {
+                final title = data.title == null
+                    ? data.path!.split("/").last
+                    : data.path!.split("_").last;
+
+                return Builder(builder: (context) {
+                  if(!isEditedVideo && data != null) {
+                    for (var flagModel in data.flags!) {
+                      List duration = data.videoDuration!.split(":");
+                      final videoDuration = Duration(
+                        seconds: int.parse(
+                            duration.last.toString().split(".").first),
+                        minutes: int.parse(duration[1]),
+                        hours: int.parse(duration.first),
+                      );
+
+                      List flagPoint = flagModel.flagPoint!.split(":");
+                      Duration point = Duration(
+                        seconds: int.parse(
+                            flagPoint.last.toString().split(".").first),
+                        minutes: int.parse(flagPoint[1]),
+                        hours: int.parse(flagPoint.first),
+                      );
+
+                      Duration start = point -
+                          Duration(
+                            seconds:
+                                point.inSeconds >= 10 ? 10 : point.inSeconds,
+                            minutes: 0,
+                          );
+                      Duration end = Duration(
+                        seconds:
+                            (point.inSeconds + 10) <= videoDuration.inSeconds
+                                ? point.inSeconds + 10
+                                : videoDuration.inSeconds,
+                        minutes: 0,
+                      );
+                      flagModel.startDuration = start;
+                      flagModel.endDuration = end;
+                    }
+                  }
                   return Align(
                     child: Container(
                       height: 110.0,
@@ -111,7 +152,6 @@ class VideoItemWidget extends StatelessWidget {
                                                     .delete()
                                                     .then((value) {
                                                   items.deleteAt(index);
-
                                                   Navigator.pop(context);
                                                 });
                                               },
@@ -122,7 +162,7 @@ class VideoItemWidget extends StatelessWidget {
                                       },
                                     ),
                                     ActionWidget(
-                                      title: "Edit title",
+                                      title: "Edit Title",
                                       icon: Icons.edit,
                                       function: () {
                                         myAlertDialog(
@@ -130,11 +170,20 @@ class VideoItemWidget extends StatelessWidget {
                                           context: context,
                                           function: () async {
                                             if (controller.text.isNotEmpty) {
+                                              String fileName =
+                                                  "${DateTime.now().microsecondsSinceEpoch}_${controller.text}.mp4";
+                                              await changeFileNameOnly(
+                                                  newFileName: fileName,
+                                                  file: File(data.path!));
+
+                                              await items.putAt(
+                                                  index,
+                                                  data
+                                                    ..title = controller.text);
                                               await items
                                                   .putAt(
                                                     index,
-                                                    data
-                                                      ..title = controller.text,
+                                                    data..path = newPath,
                                                   )
                                                   .then(
                                                     (value) =>
@@ -142,7 +191,6 @@ class VideoItemWidget extends StatelessWidget {
                                                   );
                                             }
                                           },
-
                                         );
                                       },
                                     ),
@@ -162,7 +210,9 @@ class VideoItemWidget extends StatelessWidget {
                                       title: "Upload",
                                       icon: Icons.upload,
                                       function: () {
-                                        videoBloc.add(
+                                        if(isEditedVideo) {
+                                          videoBloc.add(
+
                                           UploadVideoEvent(
                                             index: index,
                                             video: video.VideoModel(
@@ -173,7 +223,132 @@ class VideoItemWidget extends StatelessWidget {
                                             ),
                                           ),
                                         );
+                                        }else{
+
+                                          rawVideoBloc.add(
+                                              UploadRawVideoEvent(
+                                                index: index,
+                                                video: video.VideoModel(
+                                                  categoryId: "1",
+                                                  name: title,
+                                                  userId: userId,
+                                                  file:
+                                                  File(data.path!),
+                                                ),
+                                                tags: data.flags!,
+                                              ));
+                                        }
                                         Navigator.pop(context);
+                                      },
+                                    ),
+                                    ActionWidget(
+                                      title: "More Details",
+                                      icon: Icons.more_horiz,
+                                      function: () {
+                                        Navigator.pop(context);
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              actionsAlignment:
+                                                  MainAxisAlignment.center,
+                                              actionsPadding:
+                                                  const EdgeInsets.all(4.0),
+                                              alignment:
+                                                  AlignmentDirectional.center,
+                                              title: const Text(
+                                                "MORE DETAILS",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              content: FutureBuilder(
+                                                  future: getVideoInfo(
+                                                      path: data.path!),
+                                                  builder:
+                                                      (BuildContext context,
+                                                          AsyncSnapshot<dynamic>
+                                                              state) {
+                                                    if (state.connectionState ==
+                                                        ConnectionState
+                                                            .waiting) {
+                                                      return const Center(
+                                                          child:
+                                                              LoadingWidget());
+                                                    } else {
+                                                      Duration duration =
+                                                          Duration(
+                                                        milliseconds: videoData!
+                                                            .duration!
+                                                            .toInt(),
+                                                      );
+                                                      int size =
+                                                          videoData!.filesize!;
+                                                      return Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Title: $title",
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .bodyText2,
+                                                          ),
+                                                          const SizedBox(
+                                                            height: MySizes
+                                                                    .verticalSpace /
+                                                                2,
+                                                          ),
+                                                          Text(
+                                                            "File Size: ${size.readableFileSize()}",
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .bodyText2,
+                                                          ),
+                                                          const SizedBox(
+                                                            height: MySizes
+                                                                    .verticalSpace /
+                                                                2,
+                                                          ),
+                                                          Text(
+                                                            "Duration: ${formatDuration(duration)}",
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .bodyText2,
+                                                          ),
+                                                          const SizedBox(
+                                                            height: MySizes
+                                                                    .verticalSpace /
+                                                                2,
+                                                          ),
+                                                          Text(
+                                                            "Location: ${data.path!}",
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .bodyText2,
+                                                          ),
+                                                        ],
+                                                      );
+                                                    }
+                                                  }),
+                                              actions: [
+                                                TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: const Text("CLOSE")),
+                                              ],
+                                            );
+                                          },
+                                        );
                                       },
                                     ),
                                   ],
@@ -183,12 +358,28 @@ class VideoItemWidget extends StatelessWidget {
                             );
                           },
                           onTap: () {
-                            Navigator.push(
+                            if (File(data.path.toString())
+                                .existsSync() ==
+                                false) {
+                              SchedulerBinding.instance
+                                  .addPostFrameCallback((_) async {
+                                items.deleteAt(index);
+
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(
+                                  snackBarWidget(
+                                      message:
+                                      "This video is deleted!"),
+                                );
+                              });
+                            }else {
+                              Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) {
                                   if (isEditedVideo) {
-                                    return VideoPlayerPage(path: data.path);
+
+                                   return VideoPlayerPage(path: data.path);
                                   }
                                   return FlagsByVideoPage(
                                     flags: data.flags ?? [],
@@ -199,6 +390,7 @@ class VideoItemWidget extends StatelessWidget {
                                 },
                               ),
                             );
+                            }
                           },
                           child: Row(
                             children: [
@@ -224,10 +416,11 @@ class VideoItemWidget extends StatelessWidget {
                                         const Spacer(),
                                         !isEditedVideo
                                             ? Padding(
-                                              padding: const EdgeInsets.only(right: 8.0),
-                                              child: FlagCountWidget(
-                                                  count: data.flags!.length),
-                                            )
+                                                padding: const EdgeInsets.only(
+                                                    right: 8.0),
+                                                child: FlagCountWidget(
+                                                    count: data.flags!.length),
+                                              )
                                             : Container(),
                                       ],
                                     ),
@@ -240,59 +433,120 @@ class VideoItemWidget extends StatelessWidget {
                                     ),
                                     const SizedBox(
                                         height: MySizes.verticalSpace),
-                                    BlocBuilder<EditedVideoBloc,
-                                        EditedVideoState>(
-                                      builder: (context, state) {
-                                        switch (state.uploadingState) {
-                                          case RequestState.loading:
-                                            if (state.index == index) {
-                                              return UploadVideoLoadingWidget(
-                                                videoBloc: videoBloc,
-                                              );
-                                            }
-                                            return UploadButtonWidget(
-                                              color: Colors.grey.shade100,
-                                              function: () {
-                                                _showHint(
-                                                  context: context,
-                                                  function: () {
-                                                    videoBloc.add(
-                                                        CancelUploadVideoEvent(
-                                                            taskId:
-                                                                state.taskId!));
-                                                    videoBloc
-                                                        .add(UploadVideoEvent(
-                                                      index: index,
-                                                      video: video.VideoModel(
-                                                        categoryId: "1",
-                                                        name: title,
-                                                        userId: userId,
-                                                        file: File(data.path!),
-                                                      ),
-                                                    ));
-                                                    Navigator.pop(context);
-                                                  },
+                                    if (isEditedVideo)
+                                      BlocBuilder<EditedVideoBloc,
+                                          EditedVideoState>(
+                                        builder: (context, state) {
+                                          switch (state.uploadingState) {
+                                            case RequestState.loading:
+                                              if (state.index == index) {
+                                                return UploadVideoLoadingWidget(
+                                                  videoBloc: videoBloc,
+                                                  isEditedVideo: isEditedVideo,
                                                 );
-                                              },
-                                            );
+                                              }
+                                              return UploadButtonWidget(
+                                                color: Colors.grey.shade100,
+                                                function: () {
+                                                  _showHint(
+                                                    context: context,
+                                                    function: () {
+                                                      videoBloc.add(
+                                                          CancelUploadVideoEvent(
+                                                              taskId: state
+                                                                  .taskId!));
+                                                      videoBloc
+                                                          .add(UploadVideoEvent(
+                                                        index: index,
+                                                        video: video.VideoModel(
+                                                          categoryId: "1",
+                                                          name: title,
+                                                          userId: userId,
+                                                          file:
+                                                              File(data.path!),
+                                                        ),
+                                                      ));
+                                                      Navigator.pop(context);
+                                                    },
+                                                  );
+                                                },
+                                              );
+                                            default:
+                                              return UploadButtonWidget(
+                                                function: () {
+                                                  videoBloc
+                                                      .add(UploadVideoEvent(
+                                                    index: index,
+                                                    video: video.VideoModel(
+                                                      categoryId: "1",
+                                                      name: title,
+                                                      userId: userId,
+                                                      file: File(data.path!),
+                                                    ),
+                                                  ));
+                                                },
+                                              );
+                                          }
+                                        },
+                                      ),
+                                    if (!isEditedVideo)
+                                      BlocBuilder<RawVideoBloc, RawVideoState>(
+                                        builder: (context, state) {
+                                          switch (state.uploadingState) {
+                                            case RequestState.loading:
+                                              if (state.index == index) {
+                                                return UploadVideoLoadingWidget(
+                                                  rawVideoBloc: rawVideoBloc,
+                                                  isEditedVideo: false,
+                                                );
+                                              }
+                                              return UploadButtonWidget(
+                                                color: Colors.grey.shade100,
+                                                function: () {
+                                                  _showHint(
+                                                    context: context,
+                                                    function: () {
+                                                      rawVideoBloc.add(
+                                                          CancelUploadRawVideoEvent(
+                                                              taskId: state
+                                                                  .taskId!));
+                                                      rawVideoBloc.add(
+                                                          UploadRawVideoEvent(
+                                                        index: index,
+                                                        video: video.VideoModel(
+                                                          categoryId: "1",
+                                                          name: title,
+                                                          userId: userId,
+                                                          file:
+                                                              File(data.path!),
+                                                        ),
+                                                        tags: data.flags!,
+                                                      ));
+                                                      Navigator.pop(context);
+                                                    },
+                                                  );
+                                                },
+                                              );
 
-                                          default:
-                                            return UploadButtonWidget(
-                                              function: () {
-                                                videoBloc.add(UploadVideoEvent(
-                                                  index: index,
-                                                  video: video.VideoModel(
-                                                    categoryId: "1",
-                                                    name: title,
-                                                    userId: userId,
-                                                    file: File(data.path!),
-                                                  ),
-                                                ));
-                                              },
-                                            );
-                                        }
-                                      },
-                                    ),
+                                            default:
+                                              return UploadButtonWidget(
+                                                function: () {
+                                                  rawVideoBloc
+                                                      .add(UploadRawVideoEvent(
+                                                    index: index,
+                                                    tags: data.flags!,
+                                                    video: video.VideoModel(
+                                                      categoryId: "1",
+                                                      name: title,
+                                                      userId: userId,
+                                                      file: File(data.path!),
+                                                    ),
+                                                  ));
+                                                },
+                                              );
+                                          }
+                                        },
+                                      ),
                                   ],
                                 ),
                               ),
@@ -302,8 +556,7 @@ class VideoItemWidget extends StatelessWidget {
                       ),
                     ),
                   );
-                }
-                return const SizedBox();
+                });
               },
             );
           }
@@ -311,6 +564,10 @@ class VideoItemWidget extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future getVideoInfo({required String path}) async {
+    videoData = await videoInfo.getVideoInfo(path);
   }
 
   void _showHint({

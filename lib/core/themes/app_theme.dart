@@ -8,13 +8,15 @@ class MySizes {
   static const double title = 16.0;
   static const double subtitle = 14.0;
   static const double details = 12.0;
-  static const double elevation = 0.0;
+  static const double elevation = 8.0;
+  static const double sheetRadius = 10.0;
   static const double radius = 4.0;
   static const double borderWidth = .3;
   static const double buttonHeight = 55.0;
   static const double imageHeight = 100.0;
   static const double imageWidth = 100.0;
   static const double imageRadius = 100.0;
+  static const double videoItemHeight = 110.0;
 }
 
 class MyColors {
