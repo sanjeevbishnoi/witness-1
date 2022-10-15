@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,7 +34,9 @@ void main() async {
   ]);
   DioHelper.init();
   ConnectionStatusSingleton.getInstance();
-
+  ByteData byteData = await rootBundle.load('assets/images/red_logo.png');
+  String mypath=await getLogoPath();
+  File(mypath).writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
   await CacheHelper.init();
   await di.init();
   final directory = await path.getApplicationDocumentsDirectory();
