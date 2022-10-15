@@ -193,7 +193,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                   if(EndCurrentValue==0){
                     endMute=endTemp.toInt()-startValue.toInt();
                   }else{
-                    //endMute=EndCurrentValue-(EndCurrentValue-startValue.toInt());
+
                     endMute=EndCurrentValue-startValue.toInt();
                   }
                   await trimmer.saveTrimmedVideo(
@@ -204,9 +204,6 @@ class _TrimmerPageState extends State<TrimmerPage> {
                     startValue: startValue * 1000,
                     endValue: endTemp * 1000,
                     onSave: (String? outputPath) async {
-                   print(startMute);
-                   print(endMute);
-                   print("sdfsdf");
                       Directory d = await getExternalStoragePath();
                       String title = widget.flag.title != null
                           ? "${DateTime
