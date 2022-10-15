@@ -151,7 +151,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                                       doMute = true;
                                       showNumberPickerDialog = false;
                                     },
-                                    child: const Text("ok")),
+                                    child: const Text("Mute")),
                               ],
                             )
                           ],
@@ -260,7 +260,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                       .showSnackBar(const SnackBar(
                     backgroundColor: Colors.white,
                     content: Text(
-                      "choose a valid trimming area please",
+                      "please choose a valid trimming area ",
                       style: TextStyle(color: Colors.black),
                     ),
                   ));
@@ -330,7 +330,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
                                         .showSnackBar(const SnackBar(
                                       backgroundColor: Colors.white,
                                       content: Text(
-                                          "choose a valid trimming area please",
+                                          "please choose a valid trimming area",
                                         style: TextStyle(color: Colors.black),
                                       ),
                                     ));
