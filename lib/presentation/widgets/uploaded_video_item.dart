@@ -18,7 +18,6 @@ import 'loading_widget.dart';
 VideoData? videoData;
 final videoInfo = FlutterVideoInfo();
 Duration? duration;
-Size? size;
 VideoPlayerController? _videoPlayerController;
 
 class UploadedVideoItem extends StatelessWidget {
@@ -138,15 +137,6 @@ class UploadedVideoItem extends StatelessWidget {
                                           height: MySizes.verticalSpace / 2,
                                         ),
                                         Text(
-                                          "File Size: $size",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyText2,
-                                        ),
-                                        const SizedBox(
-                                          height: MySizes.verticalSpace / 2,
-                                        ),
-                                        Text(
                                           "Duration: ${formatDuration(duration ?? const Duration())}",
                                           style: Theme.of(context)
                                               .textTheme
@@ -247,13 +237,12 @@ class UploadedVideoItem extends StatelessWidget {
   Future<VideoPlayerController> _initVideoPlayer({required String url}) async {
     _videoPlayerController = VideoPlayerController.network(url);
     await _videoPlayerController!.initialize();
-    return _videoPlayerController!;
+    return  _videoPlayerController!;
   }
 
   Future getVideoInfo({required String url}) async {
-    _initVideoPlayer(url: url).then((value) {
+    await _initVideoPlayer(url: url).then((value)async {
       duration = value.value.duration;
-      size = value.value.size;
     });
   }
 }

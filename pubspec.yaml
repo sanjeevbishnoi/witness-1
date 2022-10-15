@@ -43,6 +43,8 @@ dependencies:
   share_plus: ^4.5.3
   loading_animation_widget: ^1.2.0+3
   fresh_dio: ^0.3.2
+  flutter_native_splash: ^2.2.9
+  connectivity_plus: ^2.3.9
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -61,3 +63,13 @@ flutter:
     - family: MyFlutterApp
       fonts:
         - asset: assets/fonts/MyFlutterApp.ttf
+
+# flutter_native_splash-development.yaml
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/images/defaultVideoImage.png
+
+  android_12:
+    image: assets/images/defaultVideoImage.png
+    icon_background_color: "#ffffff"
+  web: false

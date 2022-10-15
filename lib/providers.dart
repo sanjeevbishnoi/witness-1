@@ -3,6 +3,7 @@ import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/data/repositories/edited_video_repository.dart';
 import 'package:nice_shot/data/repositories/raw_video_repository.dart';
 import 'package:nice_shot/data/repositories/user_repository.dart';
+import 'package:nice_shot/logic/connected_bloc/network_bloc.dart';
 import 'package:nice_shot/logic/ui_bloc/ui_bloc.dart';
 import 'package:nice_shot/presentation/features/auth/bloc/auth_bloc.dart';
 import 'package:nice_shot/presentation/features/camera/bloc/bloc.dart';
@@ -13,6 +14,7 @@ import 'package:nice_shot/presentation/features/profile/bloc/user_bloc.dart';
 import 'package:nice_shot/presentation/features/raw_videos/bloc/raw_video_bloc.dart';
 
 List<BlocProvider> providers = [
+  BlocProvider<NetworkBloc>(create: (_) => NetworkBloc()),
   BlocProvider<AuthBloc>(
     create: (_) => AuthBloc(userRepository: UserRepositoryImpl()),
   ),

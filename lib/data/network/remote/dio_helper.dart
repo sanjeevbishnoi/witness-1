@@ -1,6 +1,13 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:nice_shot/data/network/remote/retry_interceptor.dart';
 import '../../../core/util/global_variables.dart';
 import 'package:fresh_dio/fresh_dio.dart';
+
+import 'dio_connectivity_request_retrier.dart';
 
 class DioHelper {
   static String baseUrl = "http://91.232.125.244:8085";
@@ -19,8 +26,27 @@ class DioHelper {
       BaseOptions(
         baseUrl: baseUrl,
         receiveDataWhenStatusError: true,
-        validateStatus: (status) => status! < 500,
+        // validateStatus: (status) => status!,
+        //validateStatus: (status) => status! < 500,
         followRedirects: false,
+      ),
+    );
+    if (kDebugMode) {
+      dio!.interceptors.add(LogInterceptor(
+          responseBody: true,
+          error: true,
+          requestHeader: true,
+          responseHeader: true,
+          request: true,
+          requestBody: true));
+    }
+
+    dio!.interceptors.add(
+      RetryOnConnectionChangeInterceptor(
+        requestRetrier: DioConnectivityRequestRetrier(
+          dio: dio!,
+          connectivity: Connectivity(),
+        ),
       ),
     );
   }

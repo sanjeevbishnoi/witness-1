@@ -2,5 +2,9 @@ enum RequestState {
   loading,
   loaded,
   error,
-  none,
+  none
+}
+enum InternetConnectionState {
+  connected,
+  disconnected
 }
