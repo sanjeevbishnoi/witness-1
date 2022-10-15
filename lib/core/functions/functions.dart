@@ -9,10 +9,10 @@ import '../../data/model/duration.g.dart';
 import '../../data/model/flag_model.dart';
 import 'package:path_provider/path_provider.dart';
 import '../error/failure.dart';
-
 import '../../data/model/video_model.dart';
 import '../strings/failures.dart';
 import '../util/global_variables.dart';
+import 'package:path_provider/path_provider.dart' as path;
 
 extension FileFormatter on num {
   String readableFileSize() {
@@ -47,7 +47,7 @@ String formatDuration(Duration duration) {
   return "${twoDigitHours != "00" ? twoDigitHours : ""}${twoDigitHours != "00" ? ":" : ""}$twoDigitMinutes:$twoDigitSeconds";
 }
 
-Future<Directory> getPath() async {
+Future<Directory> getExternalStoragePath() async {
   var path = await ExternalPath.getExternalStoragePublicDirectory(
     ExternalPath.DIRECTORY_DCIM,
   );
@@ -66,6 +66,10 @@ Future<Directory> getThumbnailPath() async {
   if (!await directory.exists()) {
     await directory.create(recursive: true);
   }
+  return directory;
+}
+Future<Directory> getApplicationStoragePath() async {
+  Directory directory = await path.getApplicationDocumentsDirectory();
   return directory;
 }
 

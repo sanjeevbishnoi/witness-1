@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,14 +18,21 @@ import 'data/network/local/cache_helper.dart';
 import 'data/network/remote/dio_helper.dart';
 import 'injection_container.dart' as di;
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit_config.dart';
 import 'package:path_provider/path_provider.dart' as path;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+     [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   DioHelper.init();
+  ByteData byteData = await rootBundle.load('assets/images/red_logo.png');
+  String mypath=await getLogoPath();
+  File(mypath).writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
 ConnectionStatusSingleton.getInstance();
+  FFmpegKitConfig.enableFFmpegSessionCompleteCallback((session) async {
+    final sessionId = session.getSessionId();
+  });
   await CacheHelper.init();
   await di.init();
   final directory = await path.getApplicationDocumentsDirectory();
