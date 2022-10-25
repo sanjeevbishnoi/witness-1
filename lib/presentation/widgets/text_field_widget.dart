@@ -87,7 +87,7 @@ class TextFieldWidget extends StatelessWidget {
             : null,
       ),
       onTap: () => onTap!(),
-      validator: (value) => validator(value!),
+      validator: (value) => validator(value ?? ""),
       onFieldSubmitted: (value) => onSubmit ?? (value),
       onChanged: (value) => onChanged ?? (value),
     );

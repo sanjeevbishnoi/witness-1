@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/data/model/api/login_model.dart';
-import 'package:nice_shot/logic/connected_bloc/network_bloc.dart';
+import 'package:nice_shot/logic/network_bloc/network_bloc.dart';
 import 'package:nice_shot/presentation/features/auth/pages/register_page.dart';
 import 'package:nice_shot/presentation/features/main_layout/pages/home.dart';
 import 'package:nice_shot/presentation/features/permissions/allow_access_page.dart';
@@ -15,7 +15,6 @@ import 'package:nice_shot/presentation/router/app_router.dart';
 import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
 import 'package:nice_shot/providers.dart';
 import 'core/functions/functions.dart';
-import 'core/internet_connection.dart';
 import 'core/util/enums.dart';
 import 'core/util/global_variables.dart';
 import 'data/network/local/cache_helper.dart';
@@ -33,10 +32,10 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
   DioHelper.init();
-  ConnectionStatusSingleton.getInstance();
   ByteData byteData = await rootBundle.load('assets/images/red_logo.png');
-  String mypath=await getLogoPath();
-  File(mypath).writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+  String logoPath = await getLogoPath();
+  File(logoPath).writeAsBytes(byteData.buffer
+      .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
   await CacheHelper.init();
   await di.init();
   final directory = await path.getApplicationDocumentsDirectory();
@@ -48,52 +47,50 @@ void main() async {
     permissionsGranted = value;
   });
   Widget? page;
+  await CacheHelper.saveData(key: "sync", value: false);
   final user = CacheHelper.getData(key: "user");
   if (user != null) {
-    final data = LoginModel.fromJson(json.decode(user));
+    final data = LoginResponse.fromJson(json.decode(user));
     setUser(user: data);
-    setToken(token: currentUserData!.token.toString());
-    setUserId(id: currentUserData!.user!.id.toString());
+    setToken(token: data.token!);
+    setUserId(id: "${data.user!.id}");
     page = const MainLayout();
   }
-  if (user == null && permissionsGranted) {
-    page = RegisterPage();
-  }
-  if (!permissionsGranted) {
-    page = const AllowAccessPage();
-  }
+  if (user == null && permissionsGranted) page = RegisterPage();
+  if (!permissionsGranted) page = const AllowAccessPage();
+
   BlocOverrides.runZoned(() {
-    runApp(MyApp(page: page!));
+    runApp(Witness(page: page!));
   }, blocObserver: ApplicationBlocObserver());
   FlutterNativeSplash.remove();
 }
 
-class MyApp extends StatelessWidget {
+class Witness extends StatelessWidget {
   final Widget page;
 
-  const MyApp({Key? key, required this.page}) : super(key: key);
+  const Witness({Key? key, required this.page}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: providers,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Camera demo',
+        title: 'Witness',
         theme: Themes.theme,
         onGenerateRoute: Routers.generateRoute,
         home: BlocConsumer<NetworkBloc, NetworkState>(
           listener: (context, state) {
+
             switch (state.state!) {
               case InternetConnectionState.connected:
                 ScaffoldMessenger.of(context).showSnackBar(
-                  snackBarWidget(message: state.message ?? ""),
+                  snackBarWidget(message: state.message!),
                 );
                 break;
               case InternetConnectionState.disconnected:
                 ScaffoldMessenger.of(context).showSnackBar(
-                  snackBarWidget(message: state.message ?? ""),
+                  snackBarWidget(message: state.message!),
                 );
                 break;
             }

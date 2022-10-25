@@ -13,10 +13,9 @@ class LoginEvent extends AuthEvent {
   LoginEvent({required this.email, required this.password});
 }
 
-//class GetCurrentUserData extends AuthEvent {}
+class DeleteAccountEvent extends AuthEvent {}
 
 class CreateAccountEvent extends AuthEvent {
   final UserModel user;
-
   CreateAccountEvent({required this.user});
 }

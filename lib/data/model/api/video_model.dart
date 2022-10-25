@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'tag_model.dart';
+
 
 class VideoModel {
   String? name;
@@ -8,11 +10,14 @@ class VideoModel {
   dynamic userId;
   dynamic categoryId;
   File? file;
+  dynamic thumbnail;
   String? updatedAt;
   String? createdAt;
   num? id;
   String? th;
-
+  String? duration;
+  String? thumbnailUrl;
+  List<TagModel>? tags;
   VideoModel({
     this.name,
     this.url,
@@ -23,6 +28,10 @@ class VideoModel {
     this.updatedAt,
     this.createdAt,
     this.id,
+    this.duration,
+    this.thumbnail,
+    this.tags,
+    this.thumbnailUrl,
   });
 
   VideoModel.fromJson(dynamic json) {
@@ -34,7 +43,16 @@ class VideoModel {
     updatedAt = json['updated_at'];
     createdAt = json['created_at'];
     id = json['id'];
+    duration = json['duration'];
     file = json['file'];
+    thumbnail = json['thumbnail'];
+    thumbnailUrl = json['thumbnail_url'];
+    if (json['tags'] != null) {
+      tags = [];
+      json['tags'].forEach((v) {
+        tags?.add(TagModel.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -48,6 +66,10 @@ class VideoModel {
     map['created_at'] = createdAt;
     map['id'] = id;
     map['file'] = file;
+    map['duration'] = duration;
+    map['thumbnail'] = thumbnail;
+    map['thumbnail_url'] = thumbnailUrl;
+
     return map;
   }
 }

@@ -25,7 +25,38 @@ class WrongDataFailure extends Failure {
   // TODO: implement props
   List<Object?> get props => [];
 }
+
+class UserFailure extends Failure {
+  @override
+  // TODO: implement props
+  List<Object?> get props => [];
+}
+
 class CRUDVideoFailure extends Failure {
+  @override
+  // TODO: implement props
+  List<Object?> get props => [];
+}
+
+class LoginFailure extends Failure {
+  @override
+  // TODO: implement props
+  List<Object?> get props => [];
+}
+
+class RegisterFailure extends Failure {
+  @override
+  // TODO: implement props
+  List<Object?> get props => [];
+}
+
+class EmailFailure extends Failure {
+  @override
+  // TODO: implement props
+  List<Object?> get props => [];
+}
+
+class PhoneFailure extends Failure {
   @override
   // TODO: implement props
   List<Object?> get props => [];

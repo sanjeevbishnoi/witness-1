@@ -42,9 +42,8 @@ class FlagsByVideoPage extends StatelessWidget {
                 ),
                 const SizedBox(width: 5.0),
                 const Icon(
-                  MyIcons.flag,
-                  color: Colors.white,
-                  size: 18,
+                  Icons.flag,
+                  color: Colors.white
                 ),
               ],
             ),

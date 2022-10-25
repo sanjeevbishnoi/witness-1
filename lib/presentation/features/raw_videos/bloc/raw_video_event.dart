@@ -36,11 +36,33 @@ class UploadFlagEvent extends RawVideoEvent {
   final List<FlagModel> tags;
   final String rawVideoId;
 
-  UploadFlagEvent({required this.tags,required this.rawVideoId});
+  UploadFlagEvent({required this.tags, required this.rawVideoId});
+}
+
+class UpdateFlagEvent extends RawVideoEvent {
+  final TagModel tag;
+  final String rawVideoId;
+
+  UpdateFlagEvent({required this.tag,required this.rawVideoId});
 }
 
 class DeleteFlagEvent extends RawVideoEvent {
   final String id;
+  final String rawVideoId;
+  DeleteFlagEvent({required this.id,required this.rawVideoId});
+}
 
-  DeleteFlagEvent({required this.id});
+class UpdateRawVideoEvent extends RawVideoEvent {
+  final VideoModel video;
+
+  UpdateRawVideoEvent({required this.video});
+}
+class SetFlagsEvent extends RawVideoEvent {
+  final List<TagModel> tags;
+
+  SetFlagsEvent({required this.tags});
+}
+class GetRawVideoEvent extends RawVideoEvent{
+  final String id;
+  GetRawVideoEvent({required this.id});
 }

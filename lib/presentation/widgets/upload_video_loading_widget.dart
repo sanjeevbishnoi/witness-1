@@ -21,8 +21,7 @@ class UploadVideoLoadingWidget extends StatelessWidget {
     int progress = isEditedVideo
         ? videoBloc!.state.progressValue!
         : rawVideoBloc!.state.progressValue!;
-    String taskId =
-        isEditedVideo ? videoBloc!.state.taskId! : rawVideoBloc!.state.taskId!;
+    String taskId =  isEditedVideo ? videoBloc!.state.taskId! : rawVideoBloc!.state.taskId!;
     return Align(
       alignment: Alignment.bottomRight,
       child: Row(

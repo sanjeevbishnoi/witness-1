@@ -27,8 +27,6 @@ dependencies:
   intl: ^0.17.0
   intl_phone_field: ^3.1.0
   pin_code_fields: ^7.4.0
-  assets_audio_player: ^3.0.5
-  flutter_slidable: ^2.0.0
   external_path: ^1.0.1
   permission_handler: any
   video_trimmer:
@@ -40,12 +38,13 @@ dependencies:
   video_thumbnail: ^0.5.3
   flutter_video_info: ^1.2.0
   numberpicker: ^2.1.1
-  share_plus: ^4.5.3
   loading_animation_widget: ^1.2.0+3
-  fresh_dio: ^0.3.2
   flutter_native_splash: ^2.2.9
   connectivity_plus: ^2.3.9
+  share_plus: ^4.5.3
+
 dev_dependencies:
+  flutter_launcher_icons: "^0.9.2"
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
@@ -73,3 +72,7 @@ flutter_native_splash:
     image: assets/images/defaultVideoImage.png
     icon_background_color: "#ffffff"
   web: false
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/defaultVideoImage.png"

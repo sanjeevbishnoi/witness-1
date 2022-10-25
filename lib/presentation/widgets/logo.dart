@@ -7,11 +7,13 @@ class LogoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(MySizes.widgetSideSpace),
-      child: SizedBox(
-        width: double.infinity,
-        child: Image(image: AssetImage("assets/images/red_logo.png")),
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(MySizes.widgetSideSpace),
+        child: SizedBox(
+          width: MySizes.imageWidth,
+          child: Image(image: AssetImage("assets/images/defaultVideoImage.png")),
+        ),
       ),
     );
   }

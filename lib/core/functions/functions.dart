@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:external_path/external_path.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:nice_shot/core/strings/messages.dart';
 import '../../data/model/api/login_model.dart';
 import '../../data/model/duration.g.dart';
 import '../../data/model/flag_model.dart';
@@ -37,7 +38,27 @@ Future<FileSystemEntity> changeFileNameOnly({
   return await file.rename(newPath!);
 }
 
-String strDigits(int n) => n.toString().padLeft(2, '0');
+String formatDurationByName(Duration d) {
+  var seconds = d.inSeconds;
+  final days = seconds ~/ Duration.secondsPerDay;
+  seconds -= days * Duration.secondsPerDay;
+  final hours = seconds ~/ Duration.secondsPerHour;
+  seconds -= hours * Duration.secondsPerHour;
+  final minutes = seconds ~/ Duration.secondsPerMinute;
+  seconds -= minutes * Duration.secondsPerMinute;
+
+  String tokens = "";
+  if (days != 0) {
+    tokens = '$days DAY';
+  } else if (tokens.isNotEmpty || hours != 0) {
+    tokens = '$hours HOUR';
+  } else if (tokens.isNotEmpty || minutes != 0) {
+    tokens = '$minutes MIN';
+  } else {
+    tokens = '$seconds SECOND';
+  }
+  return tokens;
+}
 
 String formatDuration(Duration duration) {
   String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -45,6 +66,17 @@ String formatDuration(Duration duration) {
   String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
   String twoDigitHours = twoDigits(duration.inHours.remainder(60));
   return "${twoDigitHours != "00" ? twoDigitHours : ""}${twoDigitHours != "00" ? ":" : ""}$twoDigitMinutes:$twoDigitSeconds";
+}
+
+Duration castingDuration({required String duration}) {
+  List list = duration.split(":");
+  final result = Duration(
+    seconds: int.parse(list.last.toString().split(".").first),
+    minutes: int.parse(list[1]),
+    hours: int.parse(list.first),
+  );
+
+  return result;
 }
 
 Future<Directory> getExternalStoragePath() async {
@@ -68,6 +100,7 @@ Future<Directory> getThumbnailPath() async {
   }
   return directory;
 }
+
 Future<Directory> getApplicationStoragePath() async {
   Directory directory = await path.getApplicationDocumentsDirectory();
   return directory;
@@ -92,21 +125,13 @@ String mapFailureToMessage({required Failure failure}) {
       return EMPTY_CACHE_FAILURE_MESSAGE;
     case OfflineFailure:
       return OFFLINE_FAILURE_MESSAGE;
+    case LoginFailure:
+      return LOGIN_ERROR_MESSAGE;
+    case RegisterFailure:
+      return REGISTER_ERROR_MESSAGE;
     default:
       return DEFAULT_FAILURE_MESSAGE;
   }
-}
-
-void setToken({required String token}) {
-  myToken = "Bearer $token";
-}
-
-void setUserId({required String id}) {
-  myId = id;
-}
-
-void setUser({required LoginModel user}) {
-  currentUserData = user;
 }
 
 String logoPath = "";

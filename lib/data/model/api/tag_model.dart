@@ -1,6 +1,6 @@
 class TagModel {
   String? tag;
-  String? rawVideoId;
+  dynamic rawVideoId;
   String? startAt;
   String? endAt;
   String? updatedAt;
@@ -24,8 +24,6 @@ class TagModel {
     createdAt = json['created_at'];
     id = json['id'];
   }
-
-
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

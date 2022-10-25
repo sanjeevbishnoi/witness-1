@@ -1,18 +1,34 @@
-import 'package:flutter/material.dart';
+import 'package:dartz/dartz.dart';
 import 'package:nice_shot/data/model/api/login_model.dart';
 
+import '../error/failure.dart';
+
+typedef MyResponse = Either<Failure, Unit>;
+
+typedef CRUD = Future<Unit> Function();
+
 bool permissionsGranted = false;
-String? myToken;
-String? myId;
 
-String? get token => myToken;
+LoginResponse? get user => _loginResponse;
 
-String? get userId => myId;
-LoginModel? currentUserData;
+String? get token => _token;
 
-LoginModel? get user => currentUserData;
+String get userId => _id!;
 
-String rawVideoId = "";
+LoginResponse? _loginResponse;
 
-//int? statusCode;
-ValueNotifier<int> statusCode = ValueNotifier<int>(300);
+String? _token;
+
+String? _id;
+
+void setToken({required String token}) {
+  _token = "Bearer $token";
+}
+
+void setUserId({required String id}) {
+  _id = id;
+}
+
+void setUser({required LoginResponse user}) {
+  _loginResponse = user;
+}

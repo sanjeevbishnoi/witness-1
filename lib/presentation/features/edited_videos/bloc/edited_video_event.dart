@@ -11,7 +11,14 @@ class GetEditedVideosEvent extends EditedVideoEvent {
 class UploadVideoEvent extends EditedVideoEvent {
   final VideoModel video;
   final int index;
-  UploadVideoEvent({required this.video,required this.index});
+
+  UploadVideoEvent({required this.video, required this. index});
+}
+
+class UpdateVideoEvent extends EditedVideoEvent {
+  final VideoModel video;
+
+  UpdateVideoEvent({required this.video});
 }
 
 class DeleteEditedVideoEvent extends EditedVideoEvent {
@@ -19,11 +26,11 @@ class DeleteEditedVideoEvent extends EditedVideoEvent {
 
   DeleteEditedVideoEvent({required this.id});
 }
-class UploadMultiVideoEvent extends EditedVideoEvent {
-  final List<Map<String, dynamic>> list;
 
-  UploadMultiVideoEvent({required this.list});
-}
+//class CheckVideosEvent extends EditedVideoEvent {}
+
+class UploadEvent extends EditedVideoEvent {}
+
 class CancelUploadVideoEvent extends EditedVideoEvent {
   final String taskId;
 

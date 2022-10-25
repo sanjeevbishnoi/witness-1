@@ -5,12 +5,23 @@ import 'User_model.dart';
 
 class Data<T> {
   T? data;
+ // List<UserModel>? d;
 
   Data({this.data});
 
   Data.fromJson(dynamic json) {
-    data = json['data'] != null ? Generic.fromJson<T>(json['data']) : null;
+      data = json['data'] != null ? Generic.fromJson<T>(json['data']) : null;
+
+    // if(d != null) {
+    //   if (json['data'] != null) {
+    //     d = [];
+    //     json['data'].forEach((v) {
+    //       d?.add(UserModel.fromJson(v));
+    //     });
+    //   }
+    // }
   }
+
 }
 
 class Generic {

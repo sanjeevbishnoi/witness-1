@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
@@ -28,7 +29,7 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WrapperWidget(
-      title: "Register",
+      title: "Create new account",
       body: Column(
         children: [
           Form(
@@ -41,7 +42,6 @@ class RegisterPage extends StatelessWidget {
               emailController: emailController,
               dobController: dobController,
               confirmPasswordController: confirmPwdController,
-              nationalityController: nationalityController,
               context: context,
               isRegister: true,
             ),
@@ -53,13 +53,27 @@ class RegisterPage extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   snackBarWidget(message: state.message!),
                 );
-              } else if (state.registerState == RequestState.loaded) {
-                Navigator.pushNamed(context, Routes.loginPage);
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  Routes.loginPage,
+                  (route) => false,
+                );
               }
             },
             builder: (context, state) {
-              if (state.registerState == RequestState.loading) {
-                return const LoadingWidget();
+              switch (state.registerState) {
+                case RequestState.loading:
+                  return const LoadingWidget();
+                case RequestState.loaded:
+                  break;
+                case RequestState.error:
+                  SchedulerBinding.instance.addPostFrameCallback((_) async {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      snackBarWidget(message: state.message!),
+                    );
+                  });
+                  break;
+                default:
               }
               return Column(
                 children: [
@@ -68,7 +82,7 @@ class RegisterPage extends StatelessWidget {
                       if (context.read<UiBloc>().state.file == null) {
                         return ScaffoldMessenger.of(context)
                             .showSnackBar(snackBarWidget(
-                          message: "Choose image from gallery",
+                          message: "Please, choose your image from gallery",
                         ));
                       } else if (_formKey.currentState!.validate()) {
                         UserModel user = UserModel(
@@ -76,7 +90,7 @@ class RegisterPage extends StatelessWidget {
                           email: emailController.text,
                           birthDate: dobController.text,
                           mobile:
-                              phoneController.text.replaceAll("+", "").trim(),
+                          phoneController.text.replaceAll("+", "").trim(),
                           nationality: nationalityController.text,
                           password: passwordController.text,
                           logo: context.read<UiBloc>().state.file!,
@@ -86,8 +100,8 @@ class RegisterPage extends StatelessWidget {
                               .toLowerCase(),
                         );
                         context.read<AuthBloc>().add(
-                              CreateAccountEvent(user: user),
-                            );
+                          CreateAccountEvent(user: user),
+                        );
                       }
                     },
                     text: "register",

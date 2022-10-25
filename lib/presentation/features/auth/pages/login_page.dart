@@ -1,25 +1,16 @@
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nice_shot/core/functions/functions.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/core/util/enums.dart';
-import 'package:nice_shot/data/network/local/cache_helper.dart';
-import 'package:nice_shot/data/network/remote/dio_helper.dart';
 import 'package:nice_shot/presentation/features/auth/bloc/auth_bloc.dart';
 import 'package:nice_shot/presentation/features/auth/widgets/wrapper.dart';
-import 'package:nice_shot/presentation/features/main_layout/bloc/main_layout_bloc.dart';
 import 'package:nice_shot/presentation/widgets/form_widget.dart';
 import 'package:nice_shot/presentation/widgets/loading_widget.dart';
 import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/secondary_button_widget.dart';
 import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
-import '../../../../core/util/global_variables.dart';
-import '../../../../data/model/api/login_model.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -45,29 +36,17 @@ class LoginPage extends StatelessWidget {
             ),
             const SizedBox(height: MySizes.verticalSpace),
             BlocConsumer<AuthBloc, AuthState>(
-              listener: (context, state) async {
+              listener: (context, state) {
                 if (state.loginState == RequestState.loaded) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     snackBarWidget(message: state.message!),
                   );
-                }
-                if (state.loginState == RequestState.loaded &&
-                    state.message != "Unauthorized") {
-                  await CacheHelper.saveData(
-                    key: "user",
-                    value: json.encode(state.login!),
-                  ).then((value) {
-                    final user = CacheHelper.getData(key: "user");
-                    final data = LoginModel.fromJson(json.decode(user));
-                    setUser(user: data);
-                    setToken(token: currentUserData!.token.toString());
-                    setUserId(id: currentUserData!.user!.id.toString());
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      Routes.homePage,
-                      (route) => false,
-                    );
-                  });
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    Routes.homePage,
+                    (route) => false,
+                  );
+
                 }
               },
               builder: (context, state) {
@@ -86,6 +65,7 @@ class LoginPage extends StatelessWidget {
                   default:
                 }
                 return Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     PrimaryButtonWidget(
                       function: () async {

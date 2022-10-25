@@ -45,7 +45,7 @@ class Themes {
       color: MyColors.iconsColor,
     ),
     appBarTheme: const AppBarTheme(
-      elevation: MySizes.elevation,
+      elevation: 0.0,
       color: MyColors.primaryColor,
       backwardsCompatibility: false,
       centerTitle: false,

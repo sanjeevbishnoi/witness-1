@@ -1,24 +1,29 @@
+import 'dart:convert';
+
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:nice_shot/core/error/failure.dart';
 import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/data/model/api/User_model.dart';
+import 'package:nice_shot/data/model/api/data_model.dart';
+import 'package:nice_shot/data/model/api/login_model.dart';
 import 'package:nice_shot/data/network/end_points.dart';
+import 'package:nice_shot/data/network/local/cache_helper.dart';
 import 'package:nice_shot/data/network/remote/dio_helper.dart';
 import '../../core/error/exceptions.dart';
 import 'package:http_parser/http_parser.dart';
 
-typedef MyResponse = Either<Failure, Response>;
+import '../../core/network/network_info.dart';
+import '../../core/strings/messages.dart';
 
 abstract class UserRepository {
   Future<MyResponse> createUser({required UserModel userModel});
 
-  Future<Either<Failure, Response>> login({
-    required String email,
-    required String password,
-  });
+  Future<MyResponse> login({required String email, required String password});
 
-  Future<MyResponse> getUserData({required String id});
+  Future<Either<Failure, Data<UserModel>>> getUserData({required String id});
+
+  Future<MyResponse> deleteAccount();
 
   Future<MyResponse> updateUserData({required UserModel userModel});
 
@@ -35,14 +40,17 @@ abstract class UserRepository {
 }
 
 class UserRepositoryImpl extends UserRepository {
+  final NetworkInfo networkInfo;
+
+  UserRepositoryImpl({required this.networkInfo});
+
   @override
   Future<MyResponse> createUser({required UserModel userModel}) async {
-    var data = FormData.fromMap({
+    final data = FormData.fromMap({
       'name': userModel.name,
       'user_name': userModel.userName,
       'email': userModel.email,
       'mobile': userModel.mobile,
-      'nationality': userModel.nationality,
       'birth_date': userModel.birthDate,
       'password': userModel.password,
       'file': await MultipartFile.fromFile(
@@ -51,91 +59,113 @@ class UserRepositoryImpl extends UserRepository {
         contentType: MediaType("jpeg", "jpg"),
       ),
     });
-    var response = await DioHelper.postData(
-      url: Endpoints.user,
-      data: data,
-    );
-    return _responseState(response: response);
-  }
-
-  @override
-  Future<Either<Failure, Response>> login({
-    required String email,
-    required String password,
-  }) async {
-    var data = FormData.fromMap({
-      'email': email,
-      'password': password,
-    });
-    var response = await DioHelper.postData(
-      url: Endpoints.login,
-      data: data,
-    );
-    try {
-      return Right(response);
-    } on ServerException {
+    if (await networkInfo.isConnected) {
+      DioHelper.dio!.options.headers = DioHelper.headers;
+      final response = await DioHelper.dio!.post(Endpoints.user, data: data);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return const Right(unit);
+      } else if (response.statusCode == 422) {
+        REGISTER_ERROR_MESSAGE = response.data['message'];
+        return Left(RegisterFailure());
+      }
       return Left(ServerFailure());
+    } else {
+      return Left(OfflineFailure());
     }
   }
 
   @override
-  Future<MyResponse> getUserData({required String id}) async {
-    final response = await DioHelper.getData(
-      url: "${Endpoints.user}/$id",
-    );
-    try {
-      print("user token: ${response.data}");
-      return Right(response);
-    } catch (error) {
-      return Left(ServerFailure());
+  Future<MyResponse> login({
+    required String email,
+    required String password,
+  }) async {
+    final data = FormData.fromMap({
+      'email': email,
+      'password': password,
+    });
+    if (await networkInfo.isConnected) {
+      try {
+        DioHelper.dio!.options.headers = DioHelper.headers;
+        final response = await DioHelper.dio!.post(Endpoints.login, data: data);
+        if (response.statusCode == 200) {
+          final user = LoginResponse.fromJson(response.data);
+          setUser(user: user);
+          setToken(token: user.token!);
+          setUserId(id: "${user.user!.id}");
+          await CacheHelper.saveData(key: "user", value: json.encode(user));
+          return const Right(unit);
+        }
+        return Left(LoginFailure());
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(OfflineFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Data<UserModel>>> getUserData({
+    required String id,
+  }) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final response = await DioHelper.getData(url: "${Endpoints.user}/$id");
+        return Right(Data.fromJson(response.data));
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(OfflineFailure());
     }
   }
 
   @override
   Future<MyResponse> updateUserData({required UserModel userModel}) async {
-    final response = await DioHelper.putData(
-      url: "${Endpoints.user}/$userId",
-      data: {
-        'name': userModel.name,
-        'user_name': userModel.userName,
-        'email': userModel.email,
-        'mobile': userModel.mobile,
-        'nationality': userModel.nationality,
-        'birth_date': userModel.birthDate,
-      },
-    );
-    try {
-      return Right(response);
-    } catch (error) {
-      return Left(ServerFailure());
+    Map<String, dynamic> data = {
+      'name': userModel.name,
+      'user_name': userModel.userName,
+      'email': userModel.email,
+      'mobile': userModel.mobile,
+      'nationality': userModel.nationality,
+      'birth_date': userModel.birthDate,
+
+    };
+    if (await networkInfo.isConnected) {
+      try {
+        DioHelper.dio!.options.headers = DioHelper.headers;
+        DioHelper.dio!.options.headers["Authorization"] = token;
+        final response =
+            await DioHelper.dio!.put("${Endpoints.user}/$userId", data: data);
+        if (response.statusCode == 200) {
+          return const Right(unit);
+        } else if (response.statusCode == 422) {
+          REGISTER_ERROR_MESSAGE = response.data['message'];
+          return Left(RegisterFailure());
+        }
+        return Left(ServerFailure());
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(OfflineFailure());
     }
   }
 
   @override
-  Future<Either<Failure, Response>> resetPassword({
+  Future<MyResponse> resetPassword({
     required String oldPassword,
     required String newPassword,
   }) async {
-    try {
-      final response = await DioHelper.postData(
+    return await _getMessage(() {
+      return DioHelper.postData(
         url: Endpoints.passwordReset,
         data: {
           'old_password': oldPassword,
           'new_password': newPassword,
         },
       );
-      return Right(response);
-    } on ServerException {
-      return Left(ServerFailure());
-    }
-  }
-
-  Future<MyResponse> _responseState({required var response}) async {
-    try {
-      return Right(response);
-    } on ServerException {
-      return Left(ServerFailure());
-    }
+    });
   }
 
   @override
@@ -147,43 +177,45 @@ class UserRepositoryImpl extends UserRepository {
         contentType: MediaType("jpeg", "jpg"),
       ),
     });
-    var response = await DioHelper.postData(
-      url: Endpoints.userImage,
-      data: data,
-    );
-    try {
-      return Right(response);
-    } catch (error) {
-      return Left(ServerFailure());
-    }
+    return await _getMessage(() {
+      return DioHelper.postData(
+        url: Endpoints.userImage,
+        data: data,
+      );
+    });
   }
 
   @override
-  Future<Either<Failure, Response>> logout() async {
-    final response = await DioHelper.postData(
-      url: Endpoints.logout,
-      data: {},
-    );
-    try {
-      return Right(response);
-    } on ServerException {
-      return Left(ServerFailure());
-    }
+  Future<MyResponse> logout() async {
+    return await _getMessage(() {
+      return DioHelper.postData(url: Endpoints.logout, data: {});
+    });
   }
 
   @override
   Future<MyResponse> getCurrentUserData() async {
-    final response = await DioHelper.postData(
-      url: Endpoints.me,
-      data: {},
-    );
-    try {
-      print("username: ${UserModel.fromJson(response.data).userName}");
-      return Right(response);
-    } on ServerException {
-      return Left(ServerFailure());
-    }
+    return await _getMessage(() {
+      return DioHelper.postData(url: Endpoints.me, data: {});
+    });
   }
 
+  @override
+  Future<MyResponse> deleteAccount() async {
+    return await _getMessage(() {
+      return DioHelper.deleteData(url: "${Endpoints.user}/$userId");
+    });
+  }
 
+  Future<Either<Failure, Unit>> _getMessage(CRUD crud) async {
+    if (await networkInfo.isConnected) {
+      try {
+        await crud();
+        return const Right(unit);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(OfflineFailure());
+    }
+  }
 }

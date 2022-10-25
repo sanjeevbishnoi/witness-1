@@ -8,7 +8,6 @@ import 'package:nice_shot/presentation/features/profile/bloc/user_bloc.dart';
 import 'package:nice_shot/presentation/widgets/form_widget.dart';
 import 'package:nice_shot/presentation/widgets/loading_widget.dart';
 import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
-
 import '../../../widgets/snack_bar_widget.dart';
 
 class EditProfilePage extends StatelessWidget {
@@ -52,42 +51,52 @@ class EditProfilePage extends StatelessWidget {
               const SizedBox(height: MySizes.verticalSpace * 2),
               BlocConsumer<UserBloc, UserState>(
                 listener: (context, state) {
-                  if (state.updateDataState == RequestState.loaded) {
+                  if (state.updateDataState == RequestState.loaded ||
+                      state.updateDataState == RequestState.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      snackBarWidget(message: state.message ?? ""),
+                      snackBarWidget(message: state.message!),
                     );
                   }
                 },
                 builder: (context, state) {
-                  switch (state.updateDataState) {
-                    case RequestState.loading:
-                      return const LoadingWidget();
-                    default:
-                      return Column(
-                        children: [
-                          PrimaryButtonWidget(
-                            function: () {
+                  if (state.updateDataState == RequestState.loading) {
+                    return const LoadingWidget();
+                  } else {
+                    return Column(
+                      children: [
+                        PrimaryButtonWidget(
+                          function: () {
+                            UserModel? user = state.user!.data;
+
+                            if (usernameController.text != user?.name ||
+                                phoneController.text != user?.mobile ||
+                                emailController.text != user?.email ||
+                                dobController.text != user?.birthDate ||
+                                nationalityController.text !=
+                                    user?.nationality) {
                               context.read<UserBloc>().add(
-                                    UpdateUserDataEvent(
-                                      user: UserModel(
-                                        email: emailController.text,
-                                        userName: usernameController.text
-                                            .replaceAll(" ", "_")
-                                            .toLowerCase(),
-                                        nationality: nationalityController.text,
-                                        mobile: phoneController.text
-                                            .replaceAll("+", "")
-                                            .trim(),
-                                        birthDate: dobController.text,
-                                        name: usernameController.text,
-                                      ),
-                                    ),
-                                  );
-                            },
-                            text: "update",
-                          ),
-                        ],
-                      );
+                                UpdateUserDataEvent(
+                                  user: UserModel(
+                                    email: emailController.text,
+                                    userName: usernameController.text
+                                        .replaceAll(" ", "_")
+                                        .toLowerCase(),
+                                    nationality: nationalityController.text,
+                                    mobile: phoneController.text
+                                        .replaceAll("+", "")
+                                        .trim(),
+                                    birthDate: dobController.text,
+                                    name: usernameController.text,
+                                  ),
+                                ),
+                              );
+                            }
+
+                          },
+                          text: "update",
+                        ),
+                      ],
+                    );
                   }
                 },
               )

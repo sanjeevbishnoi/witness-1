@@ -21,28 +21,31 @@ class FlagModelAdapter extends TypeAdapter<FlagModel> {
       videoDuration: fields[3] as String?,
       path: fields[2] as String?,
       title: fields[1] as String?,
-      flagPoint: fields[9] as String?,
+      flagPoint: fields[6] as String?,
       isLike: fields[4] as bool?,
       isExtracted: fields[5] as bool?,
       startDuration: fields[7] as Duration?,
       endDuration: fields[8] as Duration?,
+      durationShot: fields[9] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, FlagModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(4)
       ..write(obj.isLike)
       ..writeByte(5)
       ..write(obj.isExtracted)
-      ..writeByte(9)
+      ..writeByte(6)
       ..write(obj.flagPoint)
       ..writeByte(7)
       ..write(obj.startDuration)
       ..writeByte(8)
       ..write(obj.endDuration)
+      ..writeByte(9)
+      ..write(obj.durationShot)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)

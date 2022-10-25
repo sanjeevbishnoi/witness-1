@@ -1,23 +1,20 @@
 import 'dart:async';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:nice_shot/data/network/remote/retry_interceptor.dart';
+import '../../../core/error/exceptions.dart';
 import '../../../core/util/global_variables.dart';
-import 'package:fresh_dio/fresh_dio.dart';
-
-import 'dio_connectivity_request_retrier.dart';
 
 class DioHelper {
   static String baseUrl = "http://91.232.125.244:8085";
   static String contentType = "application/json";
-  static String? authorization = token;
+  static String authorization = token ?? "";
 
   static Map<String, String> headers = {
     'Accept': contentType,
     'Content-Type': contentType,
-    'Authorization': authorization ?? "",
+    'Authorization': authorization,
   };
   static Dio? dio;
 
@@ -26,27 +23,10 @@ class DioHelper {
       BaseOptions(
         baseUrl: baseUrl,
         receiveDataWhenStatusError: true,
-        // validateStatus: (status) => status!,
-        //validateStatus: (status) => status! < 500,
-        followRedirects: false,
-      ),
-    );
-    if (kDebugMode) {
-      dio!.interceptors.add(LogInterceptor(
-          responseBody: true,
-          error: true,
-          requestHeader: true,
-          responseHeader: true,
-          request: true,
-          requestBody: true));
-    }
-
-    dio!.interceptors.add(
-      RetryOnConnectionChangeInterceptor(
-        requestRetrier: DioConnectivityRequestRetrier(
-          dio: dio!,
-          connectivity: Connectivity(),
-        ),
+        validateStatus: (status) => status! <= 500,
+        followRedirects: true,
+        receiveTimeout: 30000,
+        connectTimeout: 5000,
       ),
     );
   }
@@ -57,42 +37,62 @@ class DioHelper {
   }) async {
     dio!.options.headers = headers;
     dio!.options.headers["Authorization"] = token;
-    return await dio!.get(
+    final response = await dio!.get(
       url,
       queryParameters: query,
     );
+    if (response.statusCode == 200) {
+      return Future.value(response);
+    } else {
+      throw ServerException();
+    }
   }
 
-  static Future<Response> postData({
+  static Future<Unit> postData({
     required String url,
     required dynamic data,
     Map<String, dynamic>? query,
   }) async {
     dio!.options.headers = headers;
     dio!.options.headers["Authorization"] = token;
-    return await dio!.post(
+    final response = await dio!.post(
       url,
       queryParameters: query,
       data: data,
     );
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return Future.value(unit);
+    } else {
+      throw ServerException();
+    }
   }
 
-  static Future<Response> putData({
+  static Future<Unit> putData({
     required String url,
     required dynamic data,
     Map<String, dynamic>? query,
   }) async {
     dio!.options.headers = headers;
     dio!.options.headers["Authorization"] = token;
-    return await dio!.put(url, queryParameters: query, data: data);
+    final response = await dio!.put(url, queryParameters: query, data: data);
+    if (response.statusCode == 200) {
+      return Future.value(unit);
+    } else {
+      throw ServerException();
+    }
   }
 
-  static Future<Response> deleteData({
+  static Future<Unit> deleteData({
     required String url,
     Map<String, dynamic>? query,
   }) async {
     dio!.options.headers = headers;
     dio!.options.headers["Authorization"] = token;
-    return await dio!.delete(url, queryParameters: query);
+    final response = await dio!.delete(url, queryParameters: query);
+    if (response.statusCode == 200) {
+      return Future.value(unit);
+    } else {
+      throw ServerException();
+    }
   }
 }

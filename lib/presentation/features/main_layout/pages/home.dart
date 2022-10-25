@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/core/routes/routes.dart';
 import 'package:nice_shot/core/themes/app_theme.dart';
+import 'package:nice_shot/core/util/my_box_decoration.dart';
+import 'package:nice_shot/data/network/local/cache_helper.dart';
 import 'package:nice_shot/presentation/features/edited_videos/bloc/edited_video_bloc.dart';
 import 'package:nice_shot/presentation/features/main_layout/bloc/main_layout_bloc.dart';
 import 'package:nice_shot/presentation/features/profile/bloc/user_bloc.dart';
@@ -12,15 +14,8 @@ import 'package:nice_shot/presentation/features/raw_videos/bloc/raw_video_bloc.d
 import 'package:nice_shot/presentation/features/settings/pages/settings.dart';
 import 'package:nice_shot/presentation/widgets/logout_widget.dart';
 import 'package:nice_shot/presentation/widgets/snack_bar_widget.dart';
-import 'package:nice_shot/providers.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../../../../core/functions/functions.dart';
-import '../../../../core/util/enums.dart';
 import '../../../../data/model/api/User_model.dart';
-import '../../../../data/network/local/cache_helper.dart';
-import '../../../icons/icons.dart';
-import '../../../widgets/alert_dialog_widget.dart';
-import '../../auth/bloc/auth_bloc.dart';
 import '../../edited_videos/pages/edited_videos_page.dart';
 import '../../edited_videos/pages/uploaded_videos_page.dart';
 import '../../permissions/permissions.dart';
@@ -59,19 +54,41 @@ class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Builder(builder: (context) {
+      MainLayoutBloc bloc = context.read<MainLayoutBloc>();
       context.read<UserBloc>().add(GetUserDataEvent());
-      context.read<EditedVideoBloc>().add(
-            GetEditedVideosEvent(id: userId.toString()),
-          );
-      context.read<RawVideoBloc>().add(
-            GetRawVideosEvent(id: userId.toString()),
-          );
+      context.read<EditedVideoBloc>().add(GetEditedVideosEvent(id: userId));
+      context.read<RawVideoBloc>().add(GetRawVideosEvent(id: userId));
+      bloc.add(ChangeScaffoldBodyEvent(0));
       return BlocBuilder<MainLayoutBloc, MainLayoutState>(
         builder: (BuildContext context, state) {
-          MainLayoutBloc bloc = context.read<MainLayoutBloc>();
           return Scaffold(
             appBar: AppBar(
               title: Text(drawerTitles[bloc.currentIndex].toUpperCase()),
+              actions: [
+                if (bloc.currentIndex == 0 || bloc.currentIndex == 1)
+                  Container(
+                    padding: const EdgeInsets.only(
+                      right: MySizes.widgetSideSpace,
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        bloc.add(SyncEvent());
+                      },
+                      child: Row(
+                        children: [
+                          Icon(bloc.isSync ? Icons.check : Icons.sync),
+                          const Text(
+                            "SYNC",
+                            style: TextStyle(
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+              ],
             ),
             drawer: Drawer(
               child: ListView(
@@ -126,7 +143,8 @@ class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
                     },
                   ),
                   ListView.separated(
-                    separatorBuilder: (context, index) => index == (pages.length-1)
+                    separatorBuilder: (context, index) => index ==
+                            (pages.length - 2)
                         ? const Padding(
                             padding: EdgeInsets.all(MySizes.widgetSideSpace),
                             child: Text("Others"),
@@ -153,7 +171,7 @@ class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
               ),
             ),
             floatingActionButton: FloatingActionButton(
-              elevation: 5.0,
+              elevation: MySizes.elevation,
               onPressed: () async {
                 if (permissionsGranted) {
                   Navigator.pushNamedAndRemoveUntil(
@@ -162,12 +180,14 @@ class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
                     (route) => false,
                   );
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
-                    message:
-                        "Required permissions were not granted!, Open settings and give permissions.",
-                    label: "SETTINGS",
-                    onPressed: () => openAppSettings(),
-                  ));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    snackBarWidget(
+                      message:
+                          "Required permissions were not granted!, Open settings and give permissions.",
+                      label: "SETTINGS",
+                      onPressed: () => openAppSettings(),
+                    ),
+                  );
                 }
               },
               backgroundColor: MyColors.primaryColor,

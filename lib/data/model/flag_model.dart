@@ -8,12 +8,14 @@ class FlagModel extends DataModel {
   bool? isLike;
   @HiveField(5)
   bool? isExtracted;
-  @HiveField(9)
+  @HiveField(6)
   String? flagPoint;
   @HiveField(7)
   Duration? startDuration;
   @HiveField(8)
   Duration? endDuration;
+  @HiveField(9)
+  String? durationShot;
 
   FlagModel({
     super.id,
@@ -25,5 +27,6 @@ class FlagModel extends DataModel {
     this.isExtracted,
     this.startDuration,
     this.endDuration,
+    this.durationShot,
   });
 }

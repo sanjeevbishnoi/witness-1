@@ -2,14 +2,14 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+import 'package:nice_shot/core/functions/functions.dart';
 import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/core/strings/messages.dart';
 import 'package:nice_shot/core/util/enums.dart';
-
 import '../../../../data/model/api/User_model.dart';
 import '../../../../data/model/api/data_model.dart';
 import '../../../../data/repositories/user_repository.dart';
+import '../../../../logic/network_bloc/network_bloc.dart';
 
 part 'user_event.dart';
 
@@ -17,8 +17,12 @@ part 'user_state.dart';
 
 class UserBloc extends Bloc<UserEvent, UserState> {
   final UserRepository userRepository;
+  final NetworkBloc networkBloc;
 
-  UserBloc({required this.userRepository}) : super(const UserState()) {
+  UserBloc({
+    required this.userRepository,
+    required this.networkBloc,
+  }) : super(const UserState()) {
     on<UserEvent>((event, emit) async {});
     on<GetUserDataEvent>(_onGetUserData);
     on<UpdateUserDataEvent>(_onUpdateUserData);
@@ -31,16 +35,17 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     Emitter<UserState> emit,
   ) async {
     emit(state.copyWith(requestState: RequestState.loading));
-    var result = await userRepository.getUserData(id: userId!);
+
+    var result = await userRepository.getUserData(id: userId);
     result.fold(
-      (l) => emit(state.copyWith(
+      (failure) => emit(state.copyWith(
         requestState: RequestState.error,
-        message: "${l.runtimeType}",
+        message: mapFailureToMessage(failure: failure),
       )),
-      (r) {
+      (data) {
         emit(state.copyWith(
           requestState: RequestState.loaded,
-          user: Data<UserModel>.fromJson(r.data),
+          user: data,
         ));
       },
     );
@@ -53,16 +58,16 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     emit(state.copyWith(updateDataState: RequestState.loading));
     var result = await userRepository.updateUserData(userModel: event.user);
     result.fold(
-      (l) => emit(state.copyWith(
+      (failure) => emit(state.copyWith(
         updateDataState: RequestState.error,
-        message: "${l.runtimeType}",
+        message: mapFailureToMessage(failure: failure),
       )),
-      (r) {
+      (data) {
         emit(state.copyWith(
           updateDataState: RequestState.loaded,
-          user: Data<UserModel>.fromJson(r.data),
-          message: r.data['message'] ?? UPDATE_USER_SUCCESS_MESSAGE,
+          message: UPDATE_USER_SUCCESS_MESSAGE,
         ));
+        add(GetUserDataEvent());
       },
     );
   }
@@ -74,16 +79,16 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     emit(state.copyWith(updateImageState: RequestState.loading));
     var result = await userRepository.updateUserImage(path: event.path);
     result.fold(
-      (l) => emit(state.copyWith(
+      (failure) => emit(state.copyWith(
         updateImageState: RequestState.error,
-        message: "${l.runtimeType}",
+        message: mapFailureToMessage(failure: failure),
       )),
       (r) {
         emit(state.copyWith(
           updateImageState: RequestState.loaded,
-          user: Data<UserModel>.fromJson(r.data),
-          message: r.data['message'] ?? UPDATE_USER_SUCCESS_MESSAGE,
+          message: UPDATE_USER_SUCCESS_MESSAGE,
         ));
+        add(GetUserDataEvent());
       },
     );
   }
@@ -98,13 +103,15 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       oldPassword: event.oldPassword,
     );
     result.fold(
-      (l) => emit(state.copyWith(
-        resetPasswordState: RequestState.error,
-        message: "${l.runtimeType}",
-      )),
+      (failure) => emit(
+        state.copyWith(
+          resetPasswordState: RequestState.error,
+          message: mapFailureToMessage(failure: failure),
+        ),
+      ),
       (r) => emit(state.copyWith(
         resetPasswordState: RequestState.loaded,
-        message: r.data['message'],
+        message: RESET_PASSEORD_SUCCESS_MESSAGE,
       )),
     );
   }

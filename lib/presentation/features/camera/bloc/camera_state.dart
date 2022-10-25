@@ -1,3 +1,5 @@
+import 'package:nice_shot/data/model/video_model.dart';
+
 abstract class CameraState {
   const CameraState();
 }
@@ -42,5 +44,18 @@ class StartTimerState extends CameraState {}
 
 class FocusState extends CameraState {}
 
+class SaveRecordsLoading extends CameraState {}
+
+class SaveRecordsSuccess extends CameraState {}
+
+class SaveRecordsError extends CameraState {
+  final String message;
+
+  SaveRecordsError({required this.message});
+}
+
 class ChangeSelectedDurationState extends CameraState {}
+
+class ChangeSelectedTimeShotState extends CameraState {}
+
 class FlagsState extends CameraState {}

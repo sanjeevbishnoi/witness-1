@@ -28,25 +28,25 @@ class AllowAccessPage extends StatelessWidget {
               Text(
                   "camera app needs to access the following permission,without this permission,the application could not run properly.",
                   style: Theme.of(context).textTheme.bodyText2!),
-              const SizedBox(height: MySizes.verticalSpace * 2),
+              const SizedBox(height: MySizes.verticalSpace * 3),
               permissionWidget(
                 icon: Icons.camera_alt,
                 title: "CAMERA",
-                subTitle: "to record edited_videos.",
+                subTitle: "To record videos.",
                 context: context,
               ),
-              const SizedBox(height: MySizes.verticalSpace),
+              const SizedBox(height: MySizes.verticalSpace* 2),
               permissionWidget(
                 icon: Icons.mic,
                 title: "MICROPHONE",
-                subTitle: "to record edited_videos with audio.",
+                subTitle: "To record videos with audio.",
                 context: context,
               ),
-              const SizedBox(height: MySizes.verticalSpace),
+              const SizedBox(height: MySizes.verticalSpace* 2),
               permissionWidget(
                 icon: Icons.sd_storage,
                 title: "STORAGE",
-                subTitle: "to save data.",
+                subTitle: "To save data.",
                 context: context,
               ),
               const Spacer(),
@@ -84,7 +84,22 @@ class AllowAccessPage extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(icon,size: 30,color: Colors.black87),
+        Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(MySizes.radius),
+              color:  Colors.red.shade100,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(MySizes.verticalSpace),
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(
+                icon,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ),
         const SizedBox(width: MySizes.verticalSpace),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

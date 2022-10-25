@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nice_shot/presentation/widgets/primary_button_widget.dart';
-import 'package:nice_shot/presentation/widgets/secondary_button_widget.dart';
 
 class AlertDialogWidget extends StatelessWidget {
   final Function function;

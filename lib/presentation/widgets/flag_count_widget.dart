@@ -5,11 +5,13 @@ import '../../core/themes/app_theme.dart';
 class FlagCountWidget extends StatelessWidget {
   final int count;
   final Color? color;
+  final bool? isUploaded;
 
   const FlagCountWidget({
     Key? key,
     required this.count,
     this.color,
+    this.isUploaded,
   }) : super(key: key);
 
   @override
@@ -18,15 +20,19 @@ class FlagCountWidget extends StatelessWidget {
       padding: const EdgeInsets.only(
         left: 5,
         right: 5,
-        top: 2,
-        bottom: 2,
+        top: 3,
+        bottom: 3,
       ),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(50.0),
+        borderRadius: BorderRadius.circular(MySizes.radius),
         border: Border.fromBorderSide(
           BorderSide(
-            color: color != null ? color! : MyColors.primaryColor,
-            width: 1,
+            color: isUploaded == true
+                ? Colors.green
+                : color != null
+                    ? color!
+                    : MyColors.primaryColor,
+            width: MySizes.borderWidth,
           ),
         ),
       ),
@@ -36,14 +42,22 @@ class FlagCountWidget extends StatelessWidget {
           Text(
             "$count",
             style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  color: color != null ? color! : MyColors.primaryColor,
+                  color: isUploaded == true
+                      ? Colors.green
+                      : color != null
+                          ? color!
+                          : MyColors.primaryColor,
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(width: 5.0),
           Icon(
             Icons.flag,
-            color: color != null ? color! : MyColors.primaryColor,
+            color: isUploaded == true
+                ? Colors.green
+                : color != null
+                    ? color!
+                    : MyColors.primaryColor,
             size: 16,
           ),
         ],

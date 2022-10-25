@@ -8,7 +8,7 @@ class AuthState extends Equatable {
   final RequestState? logoutState;
   final RequestState? getMe;
   final String? message;
-  final LoginModel? login;
+  final LoginResponse? login;
 
   const AuthState({
     this.user,
@@ -41,7 +41,7 @@ class AuthState extends Equatable {
     RequestState? logoutState,
     RequestState? getMe,
     String? message,
-    LoginModel? login,
+    LoginResponse? login,
     UserModel? currentUser,
   }) {
     return AuthState(
@@ -56,22 +56,3 @@ class AuthState extends Equatable {
     );
   }
 }
-
-// abstract class AuthState {
-//   const AuthState();
-// }
-//
-// class AuthInitial extends AuthState {}
-//
-// class PickUserImageState extends AuthState {
-//   final File file;
-//
-//   PickUserImageState({required this.file});
-// }
-//
-// class ChangeVisibilityPasswordState extends AuthState {
-//   final IconData icon;
-//   final bool isShow;
-//
-//   ChangeVisibilityPasswordState({ required this.isShow, required this.icon});
-// }

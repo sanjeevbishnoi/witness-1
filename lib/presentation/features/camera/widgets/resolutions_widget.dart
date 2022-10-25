@@ -19,7 +19,7 @@ class ResolutionsWidget extends StatelessWidget {
       iconSize: 0,
       iconEnabledColor: Colors.white,
       elevation: MySizes.elevation.toInt(),
-      alignment: Alignment.center,
+      alignment: Alignment.bottomRight,
       dropdownColor: Colors.black54,
       underline: Container(),
       value: cameraBloc.currentResolutionPreset,

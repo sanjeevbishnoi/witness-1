@@ -24,10 +24,18 @@ class VideoImageWidget extends StatelessWidget {
                 ? Image.file(File(videoThumbnailPath!), fit: BoxFit.cover)
                 : const SizedBox(),
           ),
-          Icon(
-            Icons.play_arrow,
-            color: Colors.white.withOpacity(0.8),
-            size: 64.0,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(50.0),
+            ),
+            width: 50.0,
+            height: 50.0,
+            child: Icon(
+              Icons.play_arrow,
+              color: Colors.white.withOpacity(0.8),
+              size: 50.0,
+            ),
           ),
         ],
       ),

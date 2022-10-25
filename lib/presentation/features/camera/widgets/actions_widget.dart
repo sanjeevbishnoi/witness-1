@@ -1,8 +1,10 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
+import 'package:nice_shot/core/themes/app_theme.dart';
 import 'package:nice_shot/data/model/flag_model.dart';
 import 'package:nice_shot/data/model/video_model.dart';
+import 'package:nice_shot/presentation/widgets/loading_widget.dart';
 
 import '../../../widgets/recording_button.dart';
 import '../bloc/bloc.dart';
@@ -77,14 +79,20 @@ class ActionsWidget extends StatelessWidget {
 
   void _onPressFlag() {
     //cameraBloc.audioPlayer.open(Audio("assets/audios/flags.mp3"));
-    FlagModel flag = FlagModel(flagPoint: cameraBloc.videoDuration.toString());
+    Duration flagPoint = cameraBloc.videoDuration;
+    Duration timeShot =cameraBloc.afterTimeShot;
+    FlagModel flag = FlagModel(
+      flagPoint: flagPoint.toString(),
+      durationShot: (timeShot.inSeconds/2).toDouble().toInt().toString(),
+    );
     cameraBloc.add(NewFlagEvent(flagModel: flag));
   }
 
   Future<void> _onPressStop() async {
+    Duration currentDuration =  cameraBloc.videoDuration;
     VideoModel video = VideoModel(
       dateTime: DateTime.now(),
-      videoDuration: cameraBloc.videoDuration.toString(),
+      videoDuration: currentDuration.toString(),
       flags: cameraBloc.flags,
     );
     cameraBloc.add(StopRecordingEvent(video: video, fromUser: true));

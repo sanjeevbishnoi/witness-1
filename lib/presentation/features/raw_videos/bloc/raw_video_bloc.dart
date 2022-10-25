@@ -7,9 +7,11 @@ import 'package:nice_shot/core/strings/messages.dart';
 import 'package:nice_shot/core/util/enums.dart';
 import 'package:nice_shot/data/model/api/data_model.dart';
 import 'package:nice_shot/data/model/api/pagination.dart';
+import 'package:nice_shot/data/model/api/tag_model.dart';
 import 'package:nice_shot/data/repositories/raw_video_repository.dart';
 import '../../../../data/model/api/video_model.dart';
 import '../../../../data/model/flag_model.dart';
+import '../../../../data/repositories/flag_repository.dart';
 
 part 'raw_video_event.dart';
 
@@ -17,11 +19,13 @@ part 'raw_video_state.dart';
 
 class RawVideoBloc extends Bloc<RawVideoEvent, RawVideoState> {
   final RawVideosRepository videosRepository;
+  final FlagRepository flagRepository;
   StreamSubscription? _progressSubscription;
   StreamSubscription? _resultSubscription;
 
   RawVideoBloc({
     required this.videosRepository,
+    required this.flagRepository,
   }) : super(const RawVideoState()) {
     on<RawVideoEvent>((event, emit) {});
     on<UploadRawVideoEvent>(_uploadVideo);
@@ -30,6 +34,9 @@ class RawVideoBloc extends Bloc<RawVideoEvent, RawVideoState> {
     on<DeleteFlagEvent>(_deleteFlag);
     on<CancelUploadRawVideoEvent>(_cancelUploadVideo);
     on<UploadFlagEvent>(_uploadFlagVideos);
+    on<UpdateRawVideoEvent>(_updateRawVideo);
+    on<UpdateFlagEvent>(_updateFlag);
+    on<GetRawVideoEvent>(_getRawVideo);
   }
 
   Future<void> _uploadVideo(
@@ -46,8 +53,8 @@ class RawVideoBloc extends Bloc<RawVideoEvent, RawVideoState> {
         progressValue: progress.progress! >= 0 ? progress.progress : 0,
       ));
     });
-    final r = await videosRepository.uploadVideo(video: event.video);
-    r.fold((failure) {
+    final upload = await videosRepository.uploadVideo(video: event.video);
+    upload.fold((failure) {
       emit(state.copyWith(
         uploadingState: RequestState.error,
         index: event.index,
@@ -64,7 +71,7 @@ class RawVideoBloc extends Bloc<RawVideoEvent, RawVideoState> {
       if (event.tags.isNotEmpty) {
         if (response.statusCode != null) {
           String id = response.response!
-              .split(":")[7]
+              .split(":")[11]
               .split(",")
               .first
               .replaceAll('"', "");
@@ -97,21 +104,42 @@ class RawVideoBloc extends Bloc<RawVideoEvent, RawVideoState> {
     Emitter<RawVideoState> emit,
   ) async {
     emit(state.copyWith(flagRequest: RequestState.loading));
-    final data = await videosRepository.uploadFlag(
-      tag: event.tags,
-      rawVideoId: event.rawVideoId,
+    final data = await flagRepository.postFlag(
+      tags: event.tags,
+      videoId: event.rawVideoId,
     );
     data.fold(
-        (failure) => emit(state.copyWith(
-              flagRequest: RequestState.error,
-              message: mapFailureToMessage(failure: failure),
-            )),
-        (data) => {
-              emit(state.copyWith(
-                flagRequest: RequestState.loaded,
-              )),
-              add(GetRawVideosEvent(id: userId!)),
-            });
+      (failure) => emit(
+        state.copyWith(
+          flagRequest: RequestState.error,
+          message: mapFailureToMessage(failure: failure),
+        ),
+      ),
+      (data) {
+        emit(
+          state.copyWith(flagRequest: RequestState.loaded),
+        );
+        add(GetRawVideosEvent(id: userId));
+      },
+    );
+  }
+
+  Future<void> _updateFlag(
+    UpdateFlagEvent event,
+    Emitter<RawVideoState> emit,
+  ) async {
+    emit(state.copyWith(flagRequest: RequestState.loading));
+    final data = await flagRepository.updateFlag(tag: event.tag);
+    data.fold(
+      (failure) => emit(state.copyWith(
+        flagRequest: RequestState.error,
+        message: mapFailureToMessage(failure: failure),
+      )),
+      (data) {
+        emit(state.copyWith(flagRequest: RequestState.loaded));
+        add(GetRawVideoEvent(id: event.rawVideoId));
+      },
+    );
   }
 
   Future<void> _cancelUploadVideo(
@@ -123,11 +151,51 @@ class RawVideoBloc extends Bloc<RawVideoEvent, RawVideoState> {
       id: event.taskId,
     );
     data.fold(
-      (l) => emit(state.copyWith(
-        uploadingState: RequestState.error,
-        message: mapFailureToMessage(failure: l),
+      (failure) => emit(
+        state.copyWith(
+          uploadingState: RequestState.error,
+          message: mapFailureToMessage(failure: failure),
+        ),
+      ),
+      (r) => emit(state.copyWith(uploadingState: RequestState.error)),
+    );
+  }
+
+  Future<void> _updateRawVideo(
+    UpdateRawVideoEvent event,
+    Emitter<RawVideoState> emit,
+  ) async {
+    emit(state.copyWith(requestState: RequestState.loading));
+    final data = await videosRepository.updateVideo(video: event.video);
+    data.fold(
+      (failure) => emit(state.copyWith(
+        requestState: RequestState.error,
+        message: mapFailureToMessage(failure: failure),
       )),
-      (r) => emit(state.copyWith(uploadingState: RequestState.loaded)),
+      (data) {
+        emit(state.copyWith(requestState: RequestState.loaded));
+        add(GetRawVideosEvent(id: userId));
+      },
+    );
+  }
+
+  Future<void> _getRawVideo(
+    GetRawVideoEvent event,
+    Emitter<RawVideoState> emit,
+  ) async {
+    emit(state.copyWith(flagRequest: RequestState.loading));
+    final data = await videosRepository.getRawVideo(id: event.id);
+    data.fold(
+      (failure) => emit(state.copyWith(
+        flagRequest: RequestState.error,
+        message: mapFailureToMessage(failure: failure),
+      )),
+      (data) => emit(
+        state.copyWith(
+          flagRequest: RequestState.loaded,
+          video: data,
+        ),
+      ),
     );
   }
 
@@ -143,16 +211,9 @@ class RawVideoBloc extends Bloc<RawVideoEvent, RawVideoState> {
         requestState: RequestState.error,
         message: mapFailureToMessage(failure: failure),
       )),
-      (code) {
-        if (code == 200) {
-          emit(state.copyWith(requestState: RequestState.loaded));
-          add(GetRawVideosEvent(id: userId!));
-        } else {
-          emit(state.copyWith(
-            requestState: RequestState.error,
-            message: DELETE_ERROR_MESSAGE,
-          ));
-        }
+      (r) {
+        emit(state.copyWith(requestState: RequestState.loaded));
+        add(GetRawVideosEvent(id: userId));
       },
     );
   }
@@ -162,22 +223,15 @@ class RawVideoBloc extends Bloc<RawVideoEvent, RawVideoState> {
     Emitter<RawVideoState> emit,
   ) async {
     emit(state.copyWith(flagRequest: RequestState.loading));
-    final data = await videosRepository.deleteFlag(id: event.id);
+    final data = await flagRepository.deleteFlag(id: event.id);
     data.fold(
       (failure) => emit(state.copyWith(
         flagRequest: RequestState.error,
         message: mapFailureToMessage(failure: failure),
       )),
-      (code) {
-        if (code == 200) {
-          emit(state.copyWith(flagRequest: RequestState.loaded));
-          add(GetRawVideosEvent(id: userId!));
-        } else {
-          emit(state.copyWith(
-            flagRequest: RequestState.error,
-            message: DELETE_ERROR_MESSAGE,
-          ));
-        }
+      (r) {
+        emit(state.copyWith(flagRequest: RequestState.loaded));
+        add(GetRawVideoEvent(id: event.rawVideoId));
       },
     );
   }

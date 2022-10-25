@@ -1,9 +1,9 @@
 import 'package:nice_shot/data/model/api/User_model.dart';
 
-class LoginModel {
-  LoginModel({this.token, this.tokenType, this.user});
+class LoginResponse {
+  LoginResponse({this.token, this.tokenType, this.user});
 
-  LoginModel.fromJson(dynamic json) {
+  LoginResponse.fromJson(dynamic json) {
     token = json['token'];
     tokenType = json['token_type'];
     user = json['user'] != null ? UserModel.fromJson(json['user']) : null;
