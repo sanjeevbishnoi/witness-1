@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
+import 'package:external_path/external_path.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,27 +15,27 @@ import 'package:video_trimmer/video_trimmer.dart';
 import '../../../../core/functions/functions.dart';
 import '../../../../data/model/flag_model.dart';
 import 'bloc.dart';
-import 'package:ffmpeg_kit_flutter/session_state.dart';
 
 class CameraBloc extends Bloc<CameraEvent, CameraState> {
   CameraController? controller;
-  Duration videoDuration = const Duration(seconds: 0);
-  Duration selectedDuration = const Duration(seconds: 60);
-  Duration afterTimeShot = const Duration(seconds: 10);
-  Duration beforeTimeShot = const Duration(seconds: 10);
-  Duration mainDuration = const Duration(seconds: 60);
+
   ResolutionPreset currentResolutionPreset = ResolutionPreset.high;
   Timer? countdownTimer;
+  Duration videoDuration = const Duration(seconds: 0);
+  AssetsAudioPlayer audioPlayer = AssetsAudioPlayer.newPlayer();
+  Duration selectedDuration = const Duration(seconds: 60);
+
+  get minutes => strDigits(videoDuration.inMinutes.remainder(60));
+
+  get second => strDigits(videoDuration.inSeconds.remainder(60));
+
+  get selectedMinutes => strDigits(selectedDuration.inMinutes.remainder(60));
   double minAvailableZoom = 1.0;
   double maxAvailableZoom = 1.0;
   double currentZoomLevel = 1.0;
   bool showFocusCircle = false;
   double x = 0;
   double y = 0;
-  List<FlagModel> flags = [];
-  List<String> paths = [];
-  final Trimmer trimmer = Trimmer();
-  bool flashOpened = false;
 
   CameraBloc() : super(CameraInitial()) {
     on<InitCameraEvent>(_initCamera);
@@ -47,29 +49,16 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     on<FocusEvent>(_onFocusEvent);
     on<ChangeSelectedDurationEvent>(_changeSelectedDuration);
     on<NewFlagEvent>(_addNewFlag);
-    on<SaveRecordsEvent>(_onSaveRecords);
-    on<ChangeSelectedShotDurationEvent>(_changeSelectedTimeShot);
   }
+
+  List<FlagModel> flags = [];
 
   Future<void> _changeSelectedDuration(
     ChangeSelectedDurationEvent event,
     Emitter<CameraState> emit,
   ) async {
     selectedDuration = event.duration;
-    mainDuration = event.duration;
     emit(ChangeSelectedDurationState());
-  }
-
-  Future<void> _changeSelectedTimeShot(
-    ChangeSelectedShotDurationEvent event,
-    Emitter<CameraState> emit,
-  ) async {
-    if (event.after) {
-      afterTimeShot = Duration(seconds: event.duration.inSeconds);
-    } else {
-      beforeTimeShot = Duration(seconds: event.duration.inSeconds);
-    }
-    emit(ChangeSelectedTimeShotState());
   }
 
   Future<void> _addNewFlag(
@@ -77,7 +66,6 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     Emitter<CameraState> emit,
   ) async {
     flags.add(event.flagModel);
-
     emit(FlagsState());
   }
 
@@ -120,162 +108,65 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     }
   }
 
-  List<List<VideoModel>> videosToMerge = [];
-  List<VideoModel> videos = [];
-  List<VideoModel> videosToSave = [];
+  List<String> paths = [];
+  final Trimmer trimmer = Trimmer();
+
+  // v1 - v2 - v3
+  // case 1 [no flags in v1] -> add to paths
+  // case 2 [no flags in v2] -> add to paths and remove path v1
+  // case 3 [no flags in v3] -> add to paths and remove path v2
+  // case 3 [found flags in v1] -> store in local db
+  // case 3 [found flags in last [51s - 60s] in v1 and not stop home] ->
+  //..save v1 and get last 20s from v1 and first 10s from v2 and stop home when
+  //..current duration is equal selected duration ex: [1 min] and start new home
+  //result case 3 -> 20s+60s = 80s
 
   Future<void> _onStopRecording(
     StopRecordingEvent event,
     Emitter<CameraState> emit,
   ) async {
+    int first10s = 10;
+    int last10s = selectedDuration.inSeconds - 10;
+
     try {
       var file = await _stopRecording();
-      selectedDuration = mainDuration;
       emit(StopRecordingState(fromUser: event.fromUser));
       countdownTimer!.cancel();
       videoDuration = const Duration(seconds: 0);
-      Duration beforeShot =
-          Duration(seconds: (beforeTimeShot.inSeconds.toDouble()) ~/ 2);
+
       event.video.path = file!.path;
-      List<FlagModel> myFlags = event.video.flags!;
-      videos.add(event.video);
-      if (myFlags.isEmpty) {
+      if (event.video.flags!.isEmpty && event.fromUser == false) {
         paths.add(file.path);
-        if (videos.length > 1 && !videosToMerge.contains([event.video])) {
+        if (paths.length > 1) {
           File(paths.first).deleteSync();
           paths.removeAt(0);
         }
-      } else if (myFlags.isNotEmpty) {
-        List<FlagModel> x = myFlags.where((element) {
-          final flagTime = castingDuration(duration: element.flagPoint!);
-          return flagTime.inSeconds >= beforeShot.inSeconds;
-        }).toList();
-        List<FlagModel> y = myFlags.where((element) {
-          final flagTime = castingDuration(duration: element.flagPoint!);
-          return flagTime.inSeconds < beforeShot.inSeconds;
-        }).toList();
-        bool saved = false;
-        if (x.isNotEmpty && videos.length > 1) {
-          if (!videos.contains(event.video)) videos.add(event.video);
-          saved = true;
-          saveVideoToHive(videoModel: event.video);
-        } else if (y.isNotEmpty && videos.length > 1) {
-          List<VideoModel> list = [videos[videos.length - 2], event.video];
-          if (!videosToMerge.contains(list)) videosToMerge.add(list);
-        } else if (videos.length < 2 && x.isNotEmpty && !event.fromUser) {
-          if (!saved) saveVideoToHive(videoModel: event.video);
-        }
+      } else{
+        video_thumbnail.VideoThumbnail.thumbnailFile(
+          video: event.video.path!,
+          imageFormat: video_thumbnail.ImageFormat.JPEG,
+        ).then((value) async {
+          await Boxes.videoBox.add(event.video..videoThumbnail = value!);
+          if (paths.isNotEmpty) paths.removeAt(0);
+        });
       }
-      if (!event.fromUser) {
+      if (event.fromUser == false) {
         add(StartRecordingEvent(fromUser: event.fromUser));
-      } else if (event.fromUser && videosToMerge.isEmpty) {
-        saveVideoToHive(videoModel: event.video);
-        videos = [];
-        videosToMerge = [];
-      } else if (event.fromUser && videosToMerge.isNotEmpty) {
-        add(SaveRecordsEvent(videos: videosToMerge));
       }
     } on CameraException catch (e) {
       throw Exception(e);
     }
   }
 
-  Future saveVideoToHive({required VideoModel videoModel}) async {
-    video_thumbnail.VideoThumbnail.thumbnailFile(
-      video: videoModel.path!,
-      imageFormat: video_thumbnail.ImageFormat.JPEG,
-    ).then((value) async {
-      await Boxes.videoBox.add(videoModel..videoThumbnail = value!);
-    });
-  }
-
-  List<String> mergedVideos = [];
-
-  Future<void> _onSaveRecords(
-    SaveRecordsEvent event,
-    Emitter<CameraState> emit,
-  ) async {
-    for (var e in videosToMerge) {
-      for (var i = 0; i < e.length - 1; i++) {
-        getApplicationStoragePath().then((value) {
-          String path =
-              "${value.path}/${DateTime.now().microsecondsSinceEpoch}.mp4";
-          String commandToExecute =
-              '-i ${e[i].path} -i ${e[i + 1].path} -filter_complex "[0:0][0:1][1:0][1:1]concat=n=2:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -q:v 4 -q:a 4 $path';
-          FFmpegKit.executeAsync(commandToExecute, (session) async {
-            print("${[i]}. my command: ${session.getCommand()}\n");
-            videosToMerge.removeAt(0);
-            SessionState state = await session.getState();
-            if (state == SessionState.completed) {
-              final v1Duration = castingDuration(
-                duration: e[i].videoDuration!,
-              );
-              final v2Duration = castingDuration(
-                duration: e[i + 1].videoDuration!,
-              );
-              List<FlagModel> flags = [];
-              for (var element in e[i + 1].flags!) {
-                final flagPoint = castingDuration(
-                  duration: element.flagPoint!,
-                );
-                final lastVideo = castingDuration(
-                  duration: e[i].videoDuration!,
-                );
-                element.flagPoint = (flagPoint + lastVideo).toString();
-                flags.add(element);
-              }
-              saveVideoToHive(
-                videoModel: VideoModel(
-                  path: path,
-                  flags: flags,
-                  dateTime: e[i + 1].dateTime,
-                  videoDuration: (v1Duration + v2Duration).toString(),
-                ),
-              );
-            }
-          });
-        });
-      }
-    }
-  }
-
-  void startTimer() {
-    countdownTimer = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) async {
-        const reduceSecondsBy = 1;
-        final seconds = videoDuration.inSeconds + reduceSecondsBy;
-        if (seconds < 0) {
-          countdownTimer!.cancel();
-        } else {
-          videoDuration = Duration(seconds: seconds);
-          Duration afterShot =
-              Duration(seconds: afterTimeShot.inSeconds.toDouble() ~/ 2);
-          Duration currentDuration = videoDuration;
-          VideoModel video = VideoModel(
-            dateTime: DateTime.now(),
-            videoDuration: videoDuration.toString(),
-            flags: flags,
-          );
-
-          if (flags.isNotEmpty && currentDuration == selectedDuration) {
-            final flagDuration = castingDuration(
-              duration: flags.last.flagPoint!,
-            );
-
-            if (flagDuration > (currentDuration - afterShot)) {
-              selectedDuration += afterShot;
-            } else {
-              add(StopRecordingEvent(video: video, fromUser: false));
-              flags = [];
-            }
-          } else if (currentDuration == selectedDuration && flags.isEmpty) {
-            add(StopRecordingEvent(video: video..flags = [], fromUser: false));
-          }
-        }
-        emit(StartTimerState());
-      },
+  Future<Directory> getMyPath() async {
+    var path = await ExternalPath.getExternalStoragePublicDirectory(
+      ExternalPath.DIRECTORY_DCIM,
     );
+    Directory directory = Directory("$path/witness/test");
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    return directory;
   }
 
   Future<void> _onResumeRecording(
@@ -315,6 +206,8 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
       debugPrint("$e");
     }
   }
+
+  bool flashOpened = false;
 
   Future<void> _onOpenFlash(
     OpenFlashEvent event,
@@ -409,6 +302,40 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     }
     await cameraController.setFlashMode(
       flashOpened ? FlashMode.torch : FlashMode.off,
+    );
+  }
+
+  void startTimer() {
+    countdownTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) async {
+        const reduceSecondsBy = 1;
+        final seconds = videoDuration.inSeconds + reduceSecondsBy;
+        if (seconds < 0) {
+          countdownTimer!.cancel();
+        } else {
+          videoDuration = Duration(seconds: seconds);
+          Duration currentDuration = videoDuration;
+          VideoModel video = VideoModel(
+            dateTime: DateTime.now(),
+            videoDuration: videoDuration.toString(),
+            flags: flags,
+          );
+          if (currentDuration == selectedDuration && flags.isEmpty) {
+            add(StopRecordingEvent(
+              video: video..flags = [],
+              fromUser: false,
+            ));
+          } else if (currentDuration == selectedDuration && flags.isNotEmpty) {
+            add(StopRecordingEvent(
+              video: video,
+              fromUser: false,
+            ));
+            flags = [];
+          }
+        }
+        emit(StartTimerState());
+      },
     );
   }
 

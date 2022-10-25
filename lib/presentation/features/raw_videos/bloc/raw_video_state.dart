@@ -5,12 +5,12 @@ class RawVideoState extends Equatable {
   final Pagination? data;
   final RequestState? requestState;
   final RequestState? uploadingState;
-  final RequestState? flagRequest;
+  final RequestState? uploadFlag;
   final String? message;
   final String? taskId;
   final int? index;
   final int? progressValue;
-  final List<TagModel>? tags;
+
   const RawVideoState({
     this.video,
     this.data,
@@ -20,8 +20,7 @@ class RawVideoState extends Equatable {
     this.index,
     this.progressValue,
     this.taskId,
-    this.flagRequest,
-    this.tags,
+    this.uploadFlag,
   });
 
   @override
@@ -35,8 +34,7 @@ class RawVideoState extends Equatable {
         progressValue,
         uploadingState,
         taskId,
-        flagRequest,
-    tags,
+    uploadFlag,
       ];
 
   RawVideoState copyWith({
@@ -49,7 +47,6 @@ class RawVideoState extends Equatable {
     RequestState? uploadingState,
     RequestState? flagRequest,
     String? taskId,
-    List<TagModel>? tags,
   }) {
     return RawVideoState(
       requestState: requestState ?? this.requestState,
@@ -60,8 +57,7 @@ class RawVideoState extends Equatable {
       progressValue: progressValue ?? this.progressValue,
       uploadingState: uploadingState ?? this.uploadingState,
       taskId: taskId ?? this.taskId,
-      flagRequest: flagRequest ?? this.flagRequest,
-      tags: tags ?? this.tags,
+      uploadFlag: flagRequest ?? this.uploadFlag,
     );
   }
 }

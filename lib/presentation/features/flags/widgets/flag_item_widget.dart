@@ -12,7 +12,7 @@ import '../../../../core/util/my_alert_dialog.dart';
 import '../../../../core/util/my_box_decoration.dart';
 import '../../../icons/icons.dart';
 import '../../../widgets/alert_dialog_widget.dart';
-import '../../../widgets/action_widget.dart';
+import '../../../widgets/slidable_action_widget.dart';
 import '../../editor/pages/trimmer_page.dart';
 import 'like_action.dart';
 
@@ -42,8 +42,18 @@ class FlagItemWidget extends StatelessWidget {
       hours: int.parse(duration.first),
     );
 
-    String startTime = formatDuration(flagModel.startDuration!);
-    String endTime = formatDuration(flagModel.endDuration!);
+    String startMinute = strDigits(
+      flagModel.startDuration!.inMinutes.remainder(60),
+    );
+    String startSecond = strDigits(
+      flagModel.startDuration!.inSeconds.remainder(60),
+    );
+    String endMinute = strDigits(
+      flagModel.endDuration!.inMinutes.remainder(60),
+    );
+    String endSecond = strDigits(
+      flagModel.endDuration!.inSeconds.remainder(60),
+    );
 
     return Container(
       decoration: flagModel.isExtracted == true
@@ -84,7 +94,7 @@ class FlagItemWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "STR: $startTime - END: $endTime",
+                  "STR: $startMinute:$startSecond - END: $endMinute:$endSecond",
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: MySizes.verticalSpace),
@@ -143,6 +153,7 @@ class FlagItemWidget extends StatelessWidget {
                       videoDuration: videoDuration,
                       videoIndex: videoIndex,
                       flagIndex: flagIndex,
+
                     );
                   },
                 ),
@@ -194,16 +205,11 @@ class FlagItemWidget extends StatelessWidget {
                             context: context,
                             function: () async {
                               if (controller.text.isNotEmpty) {
-                                await items
-                                    .putAt(
-                                      videoIndex,
-                                      videoModel
-                                        ..flags![flagIndex].title =
-                                            controller.text,
-                                    )
-                                    .then(
-                                      (value) => Navigator.pop(context),
-                                    );
+                                await items.putAt(
+                                  videoIndex,
+                                  videoModel..flags![flagIndex].title = controller.text,
+                                ).then((value) => Navigator.pop(context),);
+
                               }
                             },
                           );

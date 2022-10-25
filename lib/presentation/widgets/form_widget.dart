@@ -94,22 +94,21 @@ class FormWidget extends StatelessWidget {
       ];
     } else if (route == Routes.registerPage) {
       return [
-         textFields(Inputs.image),
-         const SizedBox(height: MySizes.verticalSpace),
+        textFields(Inputs.image),
+        const SizedBox(height: MySizes.verticalSpace),
         textFields(Inputs.username),
         const SizedBox(height: MySizes.verticalSpace),
         textFields(Inputs.email),
         const SizedBox(height: MySizes.verticalSpace),
         textFields(Inputs.phone),
         const SizedBox(height: MySizes.verticalSpace),
-        textFields(Inputs.dob),
-        // Row(
-        //   children: [
-        //     Expanded(child: textFields(Inputs.dob)),
-        //     const SizedBox(width: MySizes.horizontalSpace),
-        //     Expanded(child: textFields(Inputs.nationality)),
-        //   ],
-        // ),
+        Row(
+          children: [
+            Expanded(child: textFields(Inputs.dob)),
+            const SizedBox(width: MySizes.horizontalSpace),
+            Expanded(child: textFields(Inputs.nationality)),
+          ],
+        ),
         const SizedBox(height: MySizes.verticalSpace),
         textFields(Inputs.password),
         const SizedBox(height: MySizes.verticalSpace),
@@ -160,7 +159,7 @@ class FormWidget extends StatelessWidget {
           validator: (value) {
             if (value.isEmpty) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
-                message: "All fields are required",
+                message: "Enter your name",
               ));
             } else if (!value.isValidName) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
@@ -179,7 +178,7 @@ class FormWidget extends StatelessWidget {
           validator: (value) {
             if (value.isEmpty) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
-                message: "All fields are required",
+                message: "Enter your email",
               ));
             } else if (!value.isValidEmail) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
@@ -198,7 +197,7 @@ class FormWidget extends StatelessWidget {
           validator: (value) {
             if (value.isEmpty) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
-                message: "All fields are required",
+                message: "Enter your nationality",
               ));
             } else if (!value.isValidName) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
@@ -217,7 +216,7 @@ class FormWidget extends StatelessWidget {
           validator: (value) {
             if (value.isEmpty) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
-                message: "All fields are required",
+                message: "Enter your mobile number",
               ));
             } else if (!value.isValidPhone) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
@@ -278,12 +277,11 @@ class FormWidget extends StatelessWidget {
                     if (value.isEmpty) {
                       return ScaffoldMessenger.of(context)
                           .showSnackBar(snackBarWidget(
-                        message: "All fields are required",
+                        message: "Enter the password",
                       ));
                     } else if (!value.isValidPassword) {
                       return ScaffoldMessenger.of(context)
-                          .showSnackBar(
-                          snackBarWidget(
+                          .showSnackBar(snackBarWidget(
                         message:
                             "The password must contain at least eight characters, at least one letter and one number",
                       ));
@@ -291,7 +289,7 @@ class FormWidget extends StatelessWidget {
                   } else if (value.isEmpty) {
                     return ScaffoldMessenger.of(context)
                         .showSnackBar(snackBarWidget(
-                      message: "All fields are required",
+                      message: "Enter the password",
                     ));
                   }
                 },
@@ -333,7 +331,7 @@ class FormWidget extends StatelessWidget {
           validator: (value) {
             if (value.isEmpty) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
-                message: "All fields are required",
+                message: "Enter new password",
               ));
             } else if (!value.isValidPassword) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
@@ -353,7 +351,7 @@ class FormWidget extends StatelessWidget {
           validator: (value) {
             if (value.isEmpty) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(
-                message: "All fields are required",
+                message: "Enter date of birth",
               ));
             } else if (!value.isValidDate) {
               return ScaffoldMessenger.of(context).showSnackBar(snackBarWidget(

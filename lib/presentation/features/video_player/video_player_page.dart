@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
+
 
 class VideoPlayerPage extends StatefulWidget {
   final String? url;
@@ -23,8 +23,8 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   ChewieController? _chewieController;
 
   Future _initVideoPlayer() async {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: [SystemUiOverlay.bottom]);
+    print("rama");
+    print(widget.path);
     _videoPlayerController = widget.path != null
         ? VideoPlayerController.file(File(
             widget.path!,
@@ -37,7 +37,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController!,
     );
-    _chewieController!.play();
+    _videoPlayerController!.play();
   }
 
   @override
@@ -64,8 +64,6 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
 
   @override
   void dispose() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: SystemUiOverlay.values); // to re-show bars
     _videoPlayerController!.dispose();
     super.dispose();
   }

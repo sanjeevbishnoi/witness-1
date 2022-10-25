@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:nice_shot/core/themes/app_theme.dart';
+import 'package:nice_shot/core/util/my_box_decoration.dart';
 
 class ActionWidget extends StatelessWidget {
   final IconData icon;
@@ -17,7 +20,7 @@ class ActionWidget extends StatelessWidget {
     return InkWell(
       onTap: () => function(),
       child: ListTile(
-        leading: Icon(icon, color: Colors.black54),
+        leading: Icon(icon,color: Colors.black54),
         title: Text(title),
       ),
     );

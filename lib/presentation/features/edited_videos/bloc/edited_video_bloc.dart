@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:nice_shot/core/functions/functions.dart';
-import 'package:nice_shot/core/util/boxes.dart';
 import 'package:nice_shot/core/util/global_variables.dart';
 import 'package:nice_shot/core/strings/messages.dart';
 import 'package:nice_shot/core/util/enums.dart';
@@ -12,7 +10,6 @@ import 'package:nice_shot/data/model/api/data_model.dart';
 import 'package:nice_shot/data/model/api/pagination.dart';
 import 'package:nice_shot/data/repositories/edited_video_repository.dart';
 import '../../../../data/model/api/video_model.dart';
-import '../../../../data/model/video_model.dart' as video;
 
 part 'edited_video_event.dart';
 
@@ -26,21 +23,20 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
   EditedVideoBloc({
     required this.videosRepository,
   }) : super(const EditedVideoState()) {
+    on<EditedVideoEvent>((event, emit) {});
     on<UploadVideoEvent>(_uploadVideo);
     on<GetEditedVideosEvent>(_getEditedVideos);
     on<DeleteEditedVideoEvent>(_deleteEditedVideo);
     on<CancelUploadVideoEvent>(_cancelUploadVideo);
-    on<UpdateVideoEvent>(_updateEditedVideo);
   }
 
   Future<void> _uploadVideo(
     UploadVideoEvent event,
     Emitter<EditedVideoState> emit,
   ) async {
-    _progressSubscription?.cancel();
     await videosRepository.editedVideoUploader.clearUploads();
     _progressSubscription =
-        videosRepository.editedVideoUploader.progress.listen((progress) async {
+        videosRepository.editedVideoUploader.progress.listen((progress) {
       emit(state.copyWith(
         uploadingState: RequestState.loading,
         index: event.index,
@@ -48,9 +44,10 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
         progressValue: progress.progress! >= 0 ? progress.progress : 0,
       ));
     });
-
-    final upload = await videosRepository.uploadVideo(video: event.video);
-    upload.fold(
+    final r = await videosRepository.uploadVideo(
+      video: event.video
+    );
+    r.fold(
       (failure) {
         emit(state.copyWith(
           uploadingState: RequestState.error,
@@ -58,7 +55,7 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
           message: mapFailureToMessage(failure: failure),
         ));
       },
-      (response) async {
+      (response) {
         emit(state.copyWith(
           uploadingState: RequestState.loaded,
           index: event.index,
@@ -66,10 +63,8 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
               ? UPLOAD_SUCCESS_MESSAGE
               : UPLOAD_ERROR_MESSAGE,
         ));
-        _progressSubscription!.cancel();
-        await videosRepository.editedVideoUploader.clearUploads();
         if (response.statusCode != null) {
-          add(GetEditedVideosEvent(id: userId));
+          add(GetEditedVideosEvent(id: userId!));
         }
       },
     );
@@ -93,24 +88,6 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
     );
   }
 
-  Future<void> _updateEditedVideo(
-    UpdateVideoEvent event,
-    Emitter<EditedVideoState> emit,
-  ) async {
-    emit(state.copyWith(requestState: RequestState.loading));
-    final data = await videosRepository.updateVideo(video: event.video);
-    data.fold(
-      (failure) => emit(state.copyWith(
-        requestState: RequestState.error,
-        message: mapFailureToMessage(failure: failure),
-      )),
-      (data) {
-        emit(state.copyWith(requestState: RequestState.loaded));
-        add(GetEditedVideosEvent(id: userId));
-      },
-    );
-  }
-
   Future<void> _cancelUploadVideo(
     CancelUploadVideoEvent event,
     Emitter<EditedVideoState> emit,
@@ -120,11 +97,11 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
       id: event.taskId,
     );
     data.fold(
-      (failure) => emit(state.copyWith(
+      (l) => emit(state.copyWith(
         uploadingState: RequestState.error,
-        message: mapFailureToMessage(failure: failure),
+        message: mapFailureToMessage(failure: l),
       )),
-      (r) => emit(state.copyWith(uploadingState: RequestState.error)),
+      (r) => emit(state.copyWith(uploadingState: RequestState.loaded)),
     );
   }
 
@@ -136,46 +113,23 @@ class EditedVideoBloc extends Bloc<EditedVideoEvent, EditedVideoState> {
     final data = await videosRepository.deleteEditedVideo(id: event.id);
 
     data.fold(
-      (failure) => emit(
-        state.copyWith(
-          requestState: RequestState.error,
-          message: mapFailureToMessage(failure: failure),
-        ),
-      ),
-      (r) {
-        emit(state.copyWith(requestState: RequestState.loaded));
-        add(GetEditedVideosEvent(id: userId));
+      (failure) => emit(state.copyWith(
+        requestState: RequestState.error,
+        message: mapFailureToMessage(failure: failure),
+      )),
+      (code) {
+        if (code == 200) {
+          emit(state.copyWith(requestState: RequestState.loaded));
+          add(GetEditedVideosEvent(id: userId!));
+        } else {
+          emit(state.copyWith(
+            requestState: RequestState.error,
+            message: DELETE_ERROR_MESSAGE,
+          ));
+        }
       },
     );
   }
-
-  // List<video.VideoModel> videosToUpload = [];
-
-  // Future<void> _checkNotUploadedVideos(
-  //   CheckVideosEvent event,
-  //   Emitter<EditedVideoState> emit,
-  // ) async {
-  //   videosToUpload = [];
-  // }
-
-  // Future<void> _uploadEvent(
-  //   UploadEvent event,
-  //   Emitter<EditedVideoState> emit,
-  // ) async {
-  //   Boxes.exportedVideoBox.values.toList().forEach((element) {
-  //     if (element.isUploaded != true) {
-  //       final video = VideoModel(
-  //         categoryId: "1",
-  //         name: element.title ?? "No title",
-  //         userId: userId,
-  //         duration: "${element.videoDuration}",
-  //         thumbnail: File(element.videoThumbnail!),
-  //         file: File(element.path!),
-  //       );
-  //       add(UploadVideoEvent(video: video));
-  //     }
-  //   });
-  // }
 
   @override
   Future<void> close() {

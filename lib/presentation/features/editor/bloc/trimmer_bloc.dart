@@ -69,6 +69,7 @@ class TrimmerBloc extends Bloc<TrimmerEvent, TrimmerState> {
   Future<void> close() {
     trimmer.dispose();
     trimmer.videoPlayerController?.dispose();
+    print("closed");
     return super.close();
   }
 }
