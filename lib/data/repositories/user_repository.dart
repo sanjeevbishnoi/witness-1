@@ -205,7 +205,6 @@ class UserRepositoryImpl extends UserRepository {
       return DioHelper.deleteData(url: "${Endpoints.user}/$userId");
     });
   }
-
   Future<Either<Failure, Unit>> _getMessage(CRUD crud) async {
     if (await networkInfo.isConnected) {
       try {

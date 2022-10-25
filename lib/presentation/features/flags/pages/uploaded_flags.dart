@@ -71,11 +71,11 @@ class UploadedFlagsPage extends StatelessWidget {
                         TagModel flag = tags[index];
                         List startDuration = flag.startAt!.split(":");
                         final startTime = Duration(
-                          seconds: int.parse(
-                              startDuration.last.toString().split(".").first),
+                          seconds: int.parse(startDuration.last.toString().split(".").first),
                           minutes: int.parse(startDuration[1]),
                           hours: int.parse(startDuration.first),
                         );
+                        
                         List endDuration = flag.endAt!.split(":");
                         final endTime = Duration(
                           seconds: int.parse(
